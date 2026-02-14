@@ -73,9 +73,9 @@ export async function startWorker() {
     let error: string | undefined
 
     const testcases = await loadTestcases(job.problemId)
+    const [program] = compile(job.sourceCode, false)
 
     for (const tc of testcases) {
-      const [program] = compile(job.sourceCode, false)
       const xml = new DOMParser().parseFromString(tc.input, "text/xml")
 
       const world = new World(1, 1)

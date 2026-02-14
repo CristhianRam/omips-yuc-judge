@@ -10,6 +10,8 @@ services:
     depends_on:
       - db
       - redis
+    env_file:  # <--- AGREGA ESTO
+      - .env
 
   worker:
     build: ./rekarel-worker
@@ -17,6 +19,8 @@ services:
       - problem_data:/data/problems
     depends_on:
       - redis
+    env_file:  # <--- AGREGA ESTO
+      - .env
 
   db:
     image: postgres:15
@@ -31,3 +35,6 @@ services:
     image: redis:7
     ports:
       - "6379:6379"
+
+volumes:
+  problem_data:
