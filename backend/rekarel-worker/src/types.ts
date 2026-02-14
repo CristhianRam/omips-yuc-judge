@@ -1,11 +1,11 @@
 export interface SubmissionJob {
-  submissionId: number
+  submissionId: string
   problemId: number
   sourceCode: string
 }
 
 export interface JudgeResult {
-  submissionId: number
+  submissionId: string
   verdict: "AC" | "WA" | "RE" | "TLE"
   testcase?: string
   error?: string
