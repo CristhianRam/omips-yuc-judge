@@ -4,7 +4,7 @@ from app.core.security import ALGORITHM, SECRET_KEY
 from app.db import SessionDep
 
 # Importaciones de tu proyecto
-from app.models.User import User
+from app.models.User import User, UserRole
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -60,3 +60,13 @@ def get_current_user(
         )
 
     return user
+
+
+def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Se requieren privilegios de Administrador",
+        )
+    return current_user

@@ -2,7 +2,13 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Enum, Field, SQLModel
+
+
+class UserRole(str, Enum):
+    STUDENT = "student"
+    COACH = "coach"
+    ADMIN = "admin"
 
 
 class User(SQLModel, table=True):
@@ -14,3 +20,4 @@ class User(SQLModel, table=True):
     hashed_password: str
     is_active: bool = Field(default=True)
     created_at: datetime = Field(default=datetime.now(timezone.utc))
+    role: UserRole = Field(default=UserRole.STUDENT)
