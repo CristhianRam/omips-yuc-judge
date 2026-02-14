@@ -1,9 +1,27 @@
+from contextlib import asynccontextmanager
+
+from app.api.AuthEndpoints import router as auth_router
+from app.api.SubmissionsEndpoints import router as submissions_router
+from app.db import engine
+from app.models import *  # Importa todos los modelos para que SQLModel pueda crear las tablas  # noqa: F403
 from fastapi import FastAPI
-from app.api.submissions import router as submissions_router
+from sqlmodel import SQLModel
 
-app = FastAPI(title="OMIPS Yucatan Judge API", version="1.0.0")
 
-app.include_router(submissions_router)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Crear tablas
+    SQLModel.metadata.create_all(engine)
+    yield
+    # Shutdown
+
+
+app = FastAPI(title="OMIPS Yucatan Judge API", version="1.0.0", lifespan=lifespan)
+
+
+app.include_router(submissions_router, prefix="/submissions")
+app.include_router(auth_router)
+
 
 @app.get("/")
 def root():

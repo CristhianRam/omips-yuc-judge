@@ -10,7 +10,6 @@ build/
 
 # ===== Env =====
 .env
-.env.*
 
 # ===== Logs =====
 *.log

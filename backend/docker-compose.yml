@@ -28,8 +28,13 @@ services:
       POSTGRES_DB: judge
       POSTGRES_USER: judge
       POSTGRES_PASSWORD: judge
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U judge -d judge"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
   redis:
     image: redis:7
