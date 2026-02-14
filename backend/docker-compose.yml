@@ -5,12 +5,16 @@ services:
     build: ./judge
     ports:
       - "8000:8000"
+    volumes:
+      - problem_data:/data/problems
     depends_on:
       - db
       - redis
 
   worker:
     build: ./rekarel-worker
+    volumes:
+      - problem_data:/data/problems
     depends_on:
       - redis
 

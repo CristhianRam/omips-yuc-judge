@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:20-alpine
 
 WORKDIR /worker
 
@@ -7,4 +7,6 @@ RUN npm install
 
 COPY . .
 
-CMD ["npx", "ts-node", "src/index.ts"]
+RUN npm run build
+
+CMD ["node", "dist/index.js"]
