@@ -143,7 +143,10 @@ docker compose down
 - Sandbox de ejecución
 
 ### Frontend
-- TBD
+- Node.js
+- Typescript
+- Taildwind CSS
+- NextJS
 
 ### Infraestructura
 - Docker
@@ -189,4 +192,3 @@ Miembro del Competitive Programming Club UADY
 **Saul Canché**  
 Estudiante & Desarrollador Fullstack  
 Miembro del Competitive Programming Club UADY  
-
