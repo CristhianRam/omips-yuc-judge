@@ -1,9 +1,9 @@
 import uuid
 
-from app.api.deps import get_current_admin
+from app.api.deps import CurrentAdminDep
 from app.db import SessionDep
 from app.models.User import User, UserRole
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -13,7 +13,7 @@ def change_user_role(
     user_id: uuid.UUID,
     new_role: UserRole,
     session: SessionDep,
-    current_admin: User = Depends(get_current_admin),
+    current_admin: CurrentAdminDep,
 ):
     """
     Cambia el rol de un usuario. Solo un admin puede hacer esto.

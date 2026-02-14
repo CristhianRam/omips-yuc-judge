@@ -1,10 +1,9 @@
 import json
 import uuid
 
-from app.api.deps import get_current_user
+from app.api.deps import CurrentUserDep
 from app.core.redis import redis_conn
-from app.models.User import User
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
 from judge.app.schemas.SubmissionSchemas import SubmissionRequest
 
@@ -14,7 +13,7 @@ router = APIRouter(prefix="/submissions", tags=["Submissions"])
 @router.post("/submit")
 def submit(
     request: SubmissionRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: CurrentUserDep,
 ):
 
     job_id = str(uuid.uuid4())

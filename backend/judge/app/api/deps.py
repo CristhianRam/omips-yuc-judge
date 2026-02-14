@@ -1,3 +1,4 @@
+import uuid
 from typing import Annotated
 
 from app.core.security import ALGORITHM, SECRET_KEY
@@ -48,7 +49,7 @@ def get_current_user(
         raise credentials_exception
 
     # C. BUSCAMOS AL USUARIO EN LA BASE DE DATOS
-    user = session.get(User, int(user_id))
+    user = session.get(User, uuid.UUID(user_id))
 
     if user is None:
         # El token es válido, pero el usuario fue borrado de la BD
@@ -70,3 +71,18 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
             detail="Se requieren privilegios de Administrador",
         )
     return current_user
+
+
+def get_current_coach(current_user: User = Depends(get_current_user)) -> User:
+
+    if current_user.role != UserRole.COACH:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Se requieren privilegios de Entrenador",
+        )
+    return current_user
+
+
+CurrentUserDep = Annotated[User, Depends(get_current_user)]
+CurrentAdminDep = Annotated[User, Depends(get_current_admin)]
+CurrentCoachDep = Annotated[User, Depends(get_current_coach)]
