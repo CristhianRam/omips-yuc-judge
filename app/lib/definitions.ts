@@ -86,3 +86,38 @@ export type InvoiceForm = {
   amount: number;
   status: 'pending' | 'paid';
 };
+
+export type Role = 'trainer' | 'student';
+
+export interface Problem {
+  id: string;
+  title: string;
+  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Olympic';
+  category: string;
+  description: string;
+  constraint?: string;
+}
+
+export interface Contest {
+  id: string;
+  title: string;
+  status: 'Live' | 'Upcoming' | 'Past';
+  duration: string;
+  participants: number;
+}
+
+export interface Student {
+  id: string;
+  name: string;
+  email: string;
+  progress: number;
+  lastActive: string;
+}
+
+export interface Submission {
+  id: string;
+  problemId: string;
+  studentId: string;
+  status: 'Accepted' | 'Wrong Answer' | 'Runtime Error';
+  timestamp: string;
+}
