@@ -2,8 +2,9 @@ import { redis } from "./redis"
 import {RuntimeErrorCodes, compile, World } from "@rekarel/core"
 import { loadTestcases } from "./loader/testcases"
 import { compareOutput } from "./evaluator/compare"
-import { SubmissionJob, JudgeResult } from "./types"
+import { SubmissionJob, SubmissionUpdate } from "./types"
 import { DOMParser } from "@xmldom/xmldom" 
+import { updateSubmissionStatus } from "./db"
 
 const ERRORCODES = {
     "WALL": 'Karel ha chocado con un muro!',
@@ -56,63 +57,75 @@ function decodeRuntimeError(error: string):string {
 }
 
 export async function startWorker() {
-  console.log("Worker iniciado")
+  console.log("Worker iniciado - Esperando envíos de Karel...");
 
   while (true) {
-    const jobData = await redis.blPop("submission_queue", 0)
+    try {
+      const jobData = await redis.brPop("submission_queue", 0);
+      if (!jobData) continue;
 
-    if (!jobData) continue
+      const job: SubmissionJob = JSON.parse(jobData.element);
+      console.log(`⚙️ Evaluando: ${job.submissionId}`);
 
-    const job: SubmissionJob = JSON.parse(jobData.element)
+      // 1. Cambiar estado a JUDGING en Postgres
+      await updateSubmissionStatus(job.submissionId, { status: 'judging' });
 
-    console.log(`⚙ Evaluando submission ${job.submissionId}`)
+      const start = Date.now();
+      let verdict: 'AC' | 'WA' | 'TLE' | 'RE' | 'CE' = "AC";
+      let failCase: string | undefined;
+      let error: string | undefined;
 
-    const start = Date.now()
+      // 2. Compilar código
+      const [program] = compile(job.sourceCode, false);
 
-    let verdict: JudgeResult["verdict"] = "AC"
-    let failCase: string | undefined
-    let error: string | undefined
+      if (!program) {
+        verdict = "CE"; // Compilation Error
+        error = "Error de sintaxis: Revisa tu código Pascal/Ruby de Karel.";
+      } else {
+        // 3. Evaluar casos de prueba
+        const testcases = await loadTestcases(job.problemId);
 
-    const testcases = await loadTestcases(job.problemId)
-    const [program] = compile(job.sourceCode, false)
+        for (const tc of testcases) {
+          const xml = new DOMParser().parseFromString(tc.input, "text/xml");
+          const world = new World(1, 1);
+          world.load(xml);
+          
+          const runtime = world.runtime;
+          runtime.load(program);
 
-    for (const tc of testcases) {
-      const xml = new DOMParser().parseFromString(tc.input, "text/xml")
+          while (runtime.step()) { /* Simulación */ }
 
-      const world = new World(1, 1)
-      world.load(xml)
+          if (runtime.state.error) {
+            // TLE si el código de error indica límite de instrucciones
+            verdict = RuntimeErrorCodes[runtime.state.error] >= 48 ? "TLE" : "RE";
+            error = decodeRuntimeError(runtime.state.error);
+            failCase = tc.name;
+            break;
+          }
 
-      const runtime = world.runtime
-      runtime.load(program)
-
-      while (runtime.step()) {}
-
-      if (runtime.state.error) {
-        verdict = RuntimeErrorCodes[runtime.state.error] >=48 ? "TLE" : "RE"
-        error = decodeRuntimeError(runtime.state.error)
-        failCase = tc.name
-        break
+          if (!compareOutput(world.output(), tc.expected)) {
+            verdict = "WA";
+            failCase = tc.name;
+            break;
+          }
+        }
       }
 
-      if (!compareOutput(world.output(), tc.expected)) {
-        verdict = "WA"
-        failCase = tc.name
-        break
-      }
+      const runtimeMs = Date.now() - start;
+
+      // 4. Actualización FINAL en la Base de Datos
+      await updateSubmissionStatus(job.submissionId, {
+        status: 'completed',
+        verdict: verdict,
+        runtime_ms: runtimeMs,
+        error_message: error || null,
+        failed_testcase: failCase || null
+      });
+
+      console.log(`✅ Finalizado: ${verdict} en ${runtimeMs}ms`);
+
+    } catch (err) {
+      console.error("❌ Error crítico en el loop del worker:", err);
     }
-
-    const runtimeMs = Date.now() - start
-
-    const result: JudgeResult = {
-      submissionId: job.submissionId,
-      verdict,
-      testcase: failCase,
-      error: error,
-      runtimeMs
-    }
-
-    await redis.rPush("submission_results", JSON.stringify(result))
-
-    console.log(`Resultado: ${verdict} (${runtimeMs}ms)`)
   }
 }

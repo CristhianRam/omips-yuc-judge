@@ -1,13 +1,16 @@
+export type SubmissionStatus = 'queued' | 'judging' | 'completed';
+export type SubmissionVerdict = 'AC' | 'WA' | 'TLE' | 'RE' | 'CE';
+
 export interface SubmissionJob {
-  submissionId: string
-  problemId: number
-  sourceCode: string
+  submissionId: string;
+  problemId: number;
+  sourceCode: string;
 }
 
-export interface JudgeResult {
-  submissionId: string
-  verdict: "AC" | "WA" | "RE" | "TLE"
-  testcase?: string
-  error?: string
-  runtimeMs: number
+export interface SubmissionUpdate {
+  status?: SubmissionStatus;
+  verdict?: SubmissionVerdict | null;
+  runtime_ms?: number | null;
+  error_message?: string | null;
+  failed_testcase?: string | null;
 }
