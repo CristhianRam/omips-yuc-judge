@@ -3,6 +3,7 @@ import {RuntimeErrorCodes, compile, World } from "@rekarel/core"
 import { loadTestcases } from "./loader/testcases"
 import { compareOutput } from "./evaluator/compare"
 import { SubmissionJob, JudgeResult } from "./types"
+import { DOMParser } from "@xmldom/xmldom" 
 
 const ERRORCODES = {
     "WALL": 'Karel ha chocado con un muro!',
