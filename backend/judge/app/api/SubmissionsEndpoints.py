@@ -5,6 +5,7 @@ from typing import Annotated
 from app.api.deps import CurrentUserDep
 from app.core.redis import redis_conn
 from app.db import SessionDep
+from app.models import Contest
 from app.models.Problem import Problem
 from app.models.Submission import Submission
 from app.models.User import User, UserRole
@@ -16,8 +17,6 @@ from app.schemas.SubmissionSchemas import (
 )
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import desc, select
-
-from judge.app.models import Contest
 
 router = APIRouter(prefix="/submissions", tags=["Submissions"])
 
