@@ -1,5 +1,6 @@
 import uuid
 
+from app.models.User import UserRole
 from pydantic import BaseModel, EmailStr
 
 
@@ -13,6 +14,7 @@ class UserPublic(BaseModel):
     id: uuid.UUID
     username: str
     email: str
+    role: UserRole
 
 
 class Token(BaseModel):
