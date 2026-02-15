@@ -5,6 +5,7 @@ import { compareOutput } from "./evaluator/compare"
 import { SubmissionJob, SubmissionUpdate } from "./types"
 import { DOMParser } from "@xmldom/xmldom" 
 import { updateSubmissionStatus } from "./db"
+import { start } from "node:repl"
 
 const ERRORCODES = {
     "WALL": 'Karel ha chocado con un muro!',
@@ -70,22 +71,26 @@ export async function startWorker() {
       // 1. Cambiar estado a JUDGING en Postgres
       await updateSubmissionStatus(job.submissionId, { status: 'judging' });
 
-      const start = Date.now();
       let verdict: 'AC' | 'WA' | 'TLE' | 'RE' | 'CE' = "AC";
       let failCase: string | undefined;
       let error: string | undefined;
 
       // 2. Compilar código
       const [program] = compile(job.sourceCode, false);
+      let maxRuntimeMs = 0;
+      let maxMemoryMb = 0.0;
+      let runtimeMs = 0;
+      const startEval = Date.now();
 
       if (!program) {
         verdict = "CE"; // Compilation Error
-        error = "Error de sintaxis: Revisa tu código Pascal/Ruby de Karel.";
+        error = "Error de sintaxis: Revisa tu código Rekarel Java.";
       } else {
         // 3. Evaluar casos de prueba
         const testcases = await loadTestcases(job.problemId);
 
         for (const tc of testcases) {
+          const start = Date.now();
           const xml = new DOMParser().parseFromString(tc.input, "text/xml");
           const world = new World(1, 1);
           world.load(xml);
@@ -93,12 +98,31 @@ export async function startWorker() {
           const runtime = world.runtime;
           runtime.load(program);
 
-          while (runtime.step()) { /* Simulación */ }
+          while (runtime.step()) {
+            maxMemoryMb = Math.max(maxMemoryMb, runtime.state.stack.byteLength / (1024 * 1024));
+            if (maxMemoryMb > job.memoryLimitMb) break;
+          }
+
+          maxRuntimeMs = Math.max(maxRuntimeMs, Date.now() - start);
 
           if (runtime.state.error) {
             // TLE si el código de error indica límite de instrucciones
             verdict = RuntimeErrorCodes[runtime.state.error] >= 48 ? "TLE" : "RE";
             error = decodeRuntimeError(runtime.state.error);
+            failCase = tc.name;
+            break;
+          }
+
+          if (maxRuntimeMs > job.timeLimitMs) {
+            verdict = "TLE";
+            error = "Karel excedió el tiempo límite de ejecución.";
+            failCase = tc.name;
+            break;
+          }
+
+          if (maxMemoryMb > job.memoryLimitMb) {
+            verdict = "RE";
+            error = "Karel excedió el límite de memoria.";
             failCase = tc.name;
             break;
           }
@@ -111,13 +135,12 @@ export async function startWorker() {
         }
       }
 
-      const runtimeMs = Date.now() - start;
-
+      runtimeMs = Date.now() - startEval;
       // 4. Actualización FINAL en la Base de Datos
       await updateSubmissionStatus(job.submissionId, {
         status: 'completed',
         verdict: verdict,
-        runtime_ms: runtimeMs,
+        runtime_ms: maxRuntimeMs,
         error_message: error || null,
         failed_testcase: failCase || null
       });

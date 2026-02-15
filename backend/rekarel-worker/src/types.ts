@@ -5,6 +5,8 @@ export interface SubmissionJob {
   submissionId: string;
   problemId: number;
   sourceCode: string;
+  timeLimitMs: number;
+  memoryLimitMb: number;
 }
 
 export interface SubmissionUpdate {

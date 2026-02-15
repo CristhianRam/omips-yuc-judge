@@ -5,6 +5,7 @@ from typing import Annotated
 from app.api.deps import CurrentUserDep
 from app.core.redis import redis_conn
 from app.db import SessionDep
+from app.models.Problem import Problem
 from app.models.Submission import Submission
 from app.models.User import User, UserRole
 from app.schemas.SubmissionSchemas import (
@@ -15,6 +16,8 @@ from app.schemas.SubmissionSchemas import (
 )
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import desc, select
+
+from judge.app.models import Contest
 
 router = APIRouter(prefix="/submissions", tags=["Submissions"])
 
@@ -29,10 +32,22 @@ def submit(
     if current_user.id is None:
         raise HTTPException(status_code=400, detail="Usuario no válido")
 
+    problem = session.get(Problem, request.problem_id)
+
+    if problem is None:
+        raise HTTPException(status_code=404, detail="Problema no encontrado")
+
+    if (
+        request.contest_id is not None
+        and session.get(Contest, request.contest_id) is None
+    ):
+        raise HTTPException(status_code=404, detail="Concurso no encontrado")
+
     submission = Submission(
         user_id=current_user.id,
         problem_id=request.problem_id,
         code=request.source_code,
+        contest_id=request.contest_id,
     )
 
     session.add(submission)
@@ -46,7 +61,9 @@ def submit(
     payload = {
         "submissionId": submission.id,
         "problemId": submission.problem_id,
-        "code": submission.code,
+        "sourceCode": submission.code,
+        "timeLimitMs": problem.time_limit_ms,
+        "memoryLimitMb": problem.memory_limit_mb,
     }
 
     redis_conn.lpush("submission_queue", json.dumps(payload))
