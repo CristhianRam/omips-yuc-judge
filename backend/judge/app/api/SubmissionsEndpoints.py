@@ -32,7 +32,9 @@ def submit(
     if current_user.id is None:
         raise HTTPException(status_code=400, detail="Usuario no válido")
 
-    problem = session.get(Problem, request.problem_id)
+    problem = session.get(
+        Problem, request.problem_id
+    )  # TODO: Obtener solo los constraints
 
     if problem is None:
         raise HTTPException(status_code=404, detail="Problema no encontrado")
