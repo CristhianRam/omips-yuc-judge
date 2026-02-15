@@ -3,18 +3,17 @@ import uuid
 
 from app.api.deps import CurrentUserDep
 from app.core.redis import redis_conn
-from fastapi import APIRouter, HTTPException
-from sqlmodel import desc, select
-
-from judge.app.db import SessionDep
-from judge.app.models.Submission import Submission
-from judge.app.models.User import User, UserRole
-from judge.app.schemas.SubmissionSchemas import (
+from app.db import SessionDep
+from app.models.Submission import Submission
+from app.models.User import User, UserRole
+from app.schemas.SubmissionSchemas import (
     SubmissionListRequest,
     SubmissionPreview,
     SubmissionRequest,
     SubmissionResponse,
 )
+from fastapi import APIRouter, HTTPException
+from sqlmodel import desc, select
 
 router = APIRouter(prefix="/submissions", tags=["Submissions"])
 

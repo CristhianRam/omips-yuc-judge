@@ -8,8 +8,10 @@ services:
     volumes:
       - problem_data:/data/problems
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     env_file:  # <--- AGREGA ESTO
       - .env
 

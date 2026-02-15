@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime, timezone
+from enum import Enum
 from typing import Optional
 
-from sqlmodel import Enum, Field, SQLModel
+from sqlmodel import Field, SQLModel
 
 
 class UserRole(str, Enum):
