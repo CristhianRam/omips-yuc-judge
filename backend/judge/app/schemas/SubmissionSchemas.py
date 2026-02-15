@@ -1,3 +1,6 @@
+import uuid
+
+from fastapi import Query
 from pydantic import BaseModel, Field
 
 
@@ -22,13 +25,16 @@ class SubmissionResponse(BaseModel):
 
 
 class SubmissionListRequest(BaseModel):
-    problem_id: int | None = Field(default=None, alias="problemId")
-    contest_id: int | None = Field(default=None, alias="contestId")
-    user_id: str | None = Field(default=None, alias="userId")
-    status: str | None = Field(default=None, alias="status")
-    verdict: str | None = Field(default=None, alias="verdict")
-    skip: int = 0
-    limit: int = 20
+    # Usamos Query(...) para que FastAPI sepa que vienen de la URL
+    problem_id: int | None = Query(default=None, alias="problemId")
+    contest_id: int | None = Query(default=None, alias="contestId")
+    user_id: uuid.UUID | None = Query(
+        default=None, alias="userId"
+    )  # Ya puede ser UUID directamente
+    status: str | None = Query(default=None)
+    verdict: str | None = Query(default=None)
+    skip: int = Query(default=0, ge=0)
+    limit: int = Query(default=20, le=100)
 
 
 class SubmissionPreview(BaseModel):

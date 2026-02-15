@@ -1,5 +1,6 @@
 import json
 import uuid
+from typing import Annotated
 
 from app.api.deps import CurrentUserDep
 from app.core.redis import redis_conn
@@ -12,7 +13,7 @@ from app.schemas.SubmissionSchemas import (
     SubmissionRequest,
     SubmissionResponse,
 )
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import desc, select
 
 router = APIRouter(prefix="/submissions", tags=["Submissions"])
@@ -110,16 +111,17 @@ def list_my_submissions(
 
 @router.get("/", response_model=list[SubmissionPreview])
 def list_submissions(
-    request: SubmissionListRequest, current_user: CurrentUserDep, session: SessionDep
+    request: Annotated[SubmissionListRequest, Depends()],
+    current_user: CurrentUserDep,
+    session: SessionDep,
 ):
     query = select(Submission)
-
+    if request.user_id is not None:
+        query = query.where(Submission.user_id == request.user_id)
     if request.problem_id is not None:
         query = query.where(Submission.problem_id == request.problem_id)
     if request.contest_id is not None:
         query = query.where(Submission.contest_id == request.contest_id)
-    if request.user_id is not None:
-        query = query.where(Submission.user_id == uuid.UUID(request.user_id))
     if request.status is not None:
         query = query.where(Submission.status == request.status)
     if request.verdict is not None:
