@@ -2,8 +2,8 @@ import uuid
 
 from app.api.deps import CurrentUserDep
 from app.db import SessionDep
-from app.models.User import User
-from app.schemas.UserSchemas import UserPublic
+from app.models import User
+from app.schemas.user_schemas import UserPublic
 from fastapi import APIRouter, HTTPException
 
 router = APIRouter(prefix="/users", tags=["Users"])

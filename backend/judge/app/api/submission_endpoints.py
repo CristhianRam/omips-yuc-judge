@@ -6,12 +6,8 @@ from typing import Annotated
 from app.api.deps import CurrentUserDep
 from app.core.redis import redis_conn
 from app.db import SessionDep
-from app.models import Contest
-from app.models.Problem import Problem
-from app.models.Submission import Submission
-from app.models.TestCase import TestCase
-from app.models.User import User, UserRole
-from app.schemas.SubmissionSchemas import (
+from app.models import Contest, Problem, Submission, TestCase, User, UserRole
+from app.schemas.submission_schemas import (
     SubmissionListRequest,
     SubmissionPreview,
     SubmissionRequest,

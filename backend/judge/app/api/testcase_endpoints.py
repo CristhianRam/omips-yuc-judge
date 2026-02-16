@@ -7,7 +7,7 @@ from app.core.testcase_storage import (
     save_testcase_files,
 )
 from app.models import TestCase
-from app.schemas.TestCaseSchemas import (
+from app.schemas.testcase_schemas import (
     TestCasePublic,
     TestCaseWithContent,
 )

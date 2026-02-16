@@ -1,12 +1,12 @@
 from contextlib import asynccontextmanager
 
-from app.api.AdminEndpoints import router as admin_router
-from app.api.AuthEndpoints import router as auth_router
-from app.api.DevEndpoints import router as dev_router
-from app.api.ProblemEndpoints import router as problem_router
-from app.api.SubmissionsEndpoints import router as submissions_router
-from app.api.TestCaseEndpoints import router as testcase_router
-from app.api.UserEndpoints import router as user_router
+from app.api.admin_endpoints import router as admin_router
+from app.api.auth_endpoints import router as auth_router
+from app.api.dev_endpoints import router as dev_router
+from app.api.problem_endpoints import router as problem_router
+from app.api.submission_endpoints import router as submissions_router
+from app.api.testcase_endpoints import router as testcase_router
+from app.api.user_endpoints import router as user_router
 from app.db import engine
 from app.models import *  # Importa todos los modelos para que SQLModel pueda crear las tablas  # noqa: F403
 from fastapi import FastAPI

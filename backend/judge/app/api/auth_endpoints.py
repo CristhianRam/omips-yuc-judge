@@ -8,8 +8,8 @@ from app.core.security import (
     verify_password,
 )
 from app.db import SessionDep
-from app.models.User import User
-from app.schemas.UserSchemas import Token, UserCreate, UserPublic
+from app.models import User
+from app.schemas.user_schemas import Token, UserCreate, UserPublic
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import select
