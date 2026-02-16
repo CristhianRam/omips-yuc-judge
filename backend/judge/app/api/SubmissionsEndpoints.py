@@ -1,5 +1,6 @@
 import json
 import uuid
+from datetime import datetime
 from typing import Annotated
 
 from app.api.deps import CurrentUserDep
@@ -8,6 +9,7 @@ from app.db import SessionDep
 from app.models import Contest
 from app.models.Problem import Problem
 from app.models.Submission import Submission
+from app.models.TestCase import TestCase
 from app.models.User import User, UserRole
 from app.schemas.SubmissionSchemas import (
     SubmissionListRequest,
@@ -31,12 +33,25 @@ def submit(
     if current_user.id is None:
         raise HTTPException(status_code=400, detail="Usuario no válido")
 
-    problem = session.get(
-        Problem, request.problem_id
-    )  # TODO: Obtener solo los constraints
+    # Creamos la sentencia seleccionando solo las columnas necesarias
+    statement = select(Problem.time_limit_ms, Problem.memory_limit_mb).where(
+        Problem.id == request.problem_id
+    )
 
-    if problem is None:
+    results = session.exec(statement).first()
+
+    if results:
+        problem_time_limit, problem_memory_limit = results
+    else:
         raise HTTPException(status_code=404, detail="Problema no encontrado")
+
+    statement = select(TestCase).where(TestCase.problem_id == request.problem_id)
+    has_testcases = session.exec(statement).first() is not None
+
+    if not has_testcases:
+        raise HTTPException(
+            status_code=404, detail="No se encontraron testcases para este problema"
+        )
 
     if (
         request.contest_id is not None
@@ -63,13 +78,18 @@ def submit(
         "submissionId": submission.id,
         "problemId": submission.problem_id,
         "sourceCode": submission.code,
-        "timeLimitMs": problem.time_limit_ms,
-        "memoryLimitMb": problem.memory_limit_mb,
+        "timeLimitMs": problem_time_limit,
+        "memoryLimitMb": problem_memory_limit,
     }
 
-    redis_conn.lpush("submission_queue", json.dumps(payload))
+    payload_serializable = {
+        k: str(v) if isinstance(v, (uuid.UUID, datetime)) else v
+        for k, v in payload.items()
+    }
 
-    return {"status": "queued", "submissionId": submission.id}
+    redis_conn.lpush("submission_queue", json.dumps(payload_serializable))
+
+    return {"status": "QUEUED", "submissionId": submission.id}
 
 
 @router.get("/{submission_id}", response_model=SubmissionResponse)

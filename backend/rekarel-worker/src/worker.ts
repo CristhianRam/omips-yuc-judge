@@ -69,7 +69,7 @@ export async function startWorker() {
       console.log(`⚙️ Evaluando: ${job.submissionId}`);
 
       // 1. Cambiar estado a JUDGING en Postgres
-      await updateSubmissionStatus(job.submissionId, { status: 'judging' });
+      await updateSubmissionStatus(job.submissionId, { status: 'JUDGING' });
 
       let verdict: 'AC' | 'WA' | 'TLE' | 'RE' | 'CE' = "AC";
       let failCase: string | undefined;
@@ -138,7 +138,7 @@ export async function startWorker() {
       runtimeMs = Date.now() - startEval;
       // 4. Actualización FINAL en la Base de Datos
       await updateSubmissionStatus(job.submissionId, {
-        status: 'completed',
+        status: 'COMPLETED',
         verdict: verdict,
         runtime_ms: maxRuntimeMs,
         error_message: error || null,

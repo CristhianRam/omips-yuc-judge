@@ -9,9 +9,9 @@ from sqlmodel import Field, SQLModel
 class SubmissionStatus(str, Enum):
     """Estados posibles de un submission."""
 
-    QUEUED = "queued"
-    JUDGING = "judging"
-    COMPLETED = "completed"
+    QUEUED = "QUEUED"
+    JUDGING = "JUDGING"
+    COMPLETED = "COMPLETED"
 
 
 class SubmissionVerdict(str, Enum):

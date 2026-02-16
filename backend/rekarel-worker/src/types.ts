@@ -1,4 +1,4 @@
-export type SubmissionStatus = 'queued' | 'judging' | 'completed';
+export type SubmissionStatus = 'QUEUED' | 'JUDGING' | 'COMPLETED';
 export type SubmissionVerdict = 'AC' | 'WA' | 'TLE' | 'RE' | 'CE';
 
 export interface SubmissionJob {

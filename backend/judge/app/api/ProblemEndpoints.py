@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from app.api.deps import CurrentUserDep
 from app.db import SessionDep
 from app.models.Problem import Problem
 from app.schemas.ProblemSchemas import (
@@ -9,8 +10,6 @@ from app.schemas.ProblemSchemas import (
 )
 from fastapi import APIRouter, HTTPException, Query, status
 from sqlmodel import select
-
-from judge.app.api.deps import CurrentUserDep
 
 router = APIRouter(prefix="/problems", tags=["Problems"])
 
