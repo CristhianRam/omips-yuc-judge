@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   title: 'Problems | KarelJudge',
 };
 
+import { auth } from '@/auth';
+
 export default async function Page({
   searchParams,
 }: {
@@ -20,8 +22,8 @@ export default async function Page({
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
 
-  // In a real app, this would be a trainer check from auth
-  const role = 'trainer'; 
+  const session = await auth();
+  const role = session?.user?.role;
 
   return (
     <div className="w-full">
@@ -30,10 +32,10 @@ export default async function Page({
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
         <Search placeholder="Search problems (e.g. 'Loops')..." />
-        {role === 'trainer' && <CreateProblem />}
+        {(role === 'admin' || role === 'coach') && <CreateProblem />}
       </div>
-       <Suspense key={query + currentPage} fallback={<div>Loading problems...</div>}>
-        <ProblemsTable/>
+      <Suspense key={query + currentPage} fallback={<div>Loading problems...</div>}>
+        <ProblemsTable />
       </Suspense>
     </div>
   );

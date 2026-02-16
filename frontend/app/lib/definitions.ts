@@ -87,7 +87,7 @@ export type InvoiceForm = {
   status: 'pending' | 'paid';
 };
 
-export type Role = 'trainer' | 'student';
+export type Role = 'admin' | 'coach' | 'student';
 
 export interface Problem {
   id: string;
