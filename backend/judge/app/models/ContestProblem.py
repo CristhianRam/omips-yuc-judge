@@ -1,8 +1,13 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field, SQLModel
+
 
 class ContestProblem(SQLModel, table=True):
-    contest_id: int | None = Field(default=None, foreign_key="contest.id", primary_key=True)
-    problem_id: int | None = Field(default=None, foreign_key="problem.id", primary_key=True)
-    
-    order: str | None = None 
+    contest_id: int | None = Field(
+        default=None, foreign_key="contest.id", primary_key=True, ondelete="CASCADE"
+    )
+    problem_id: int | None = Field(
+        default=None, foreign_key="problem.id", primary_key=True, ondelete="CASCADE"
+    )
+
+    order: str | None = None
     points: int = 100

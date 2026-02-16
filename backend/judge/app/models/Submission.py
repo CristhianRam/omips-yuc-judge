@@ -27,8 +27,10 @@ class SubmissionVerdict(str, Enum):
 class Submission(SQLModel, table=True):
     id: Optional[UUID] = Field(default_factory=uuid4, primary_key=True)
     user_id: UUID = Field(foreign_key="user.id")
-    problem_id: int = Field(foreign_key="problem.id")
-    contest_id: Optional[int] = Field(default=None, foreign_key="contest.id")
+    problem_id: int = Field(foreign_key="problem.id", ondelete="CASCADE")
+    contest_id: Optional[int] = Field(
+        default=None, foreign_key="contest.id", ondelete="SET NULL"
+    )
     code: str
     status: SubmissionStatus = Field(default=SubmissionStatus.QUEUED)
     verdict: Optional[SubmissionVerdict] = Field(default=None)

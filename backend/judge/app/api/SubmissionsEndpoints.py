@@ -82,12 +82,12 @@ def submit(
         "memoryLimitMb": problem_memory_limit,
     }
 
-    payload_serializable = {
+    serializable_payload = {
         k: str(v) if isinstance(v, (uuid.UUID, datetime)) else v
         for k, v in payload.items()
     }
 
-    redis_conn.lpush("submission_queue", json.dumps(payload_serializable))
+    redis_conn.lpush("submission_queue", json.dumps(serializable_payload))
 
     return {"status": "QUEUED", "submissionId": submission.id}
 
@@ -150,7 +150,6 @@ def list_my_submissions(
 @router.get("/", response_model=list[SubmissionPreview])
 def list_submissions(
     request: Annotated[SubmissionListRequest, Depends()],
-    current_user: CurrentUserDep,
     session: SessionDep,
 ):
     query = select(Submission)

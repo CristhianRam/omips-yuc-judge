@@ -18,7 +18,7 @@ router = APIRouter(prefix="/testcases", tags=["TestCases"])
 
 
 @router.post("/{problem_id}", response_model=TestCasePublic)
-async def create_testcase(
+def create_testcase(
     problem_id: int,
     current_coach: CurrentCoachDep,
     session: SessionDep,
@@ -31,7 +31,7 @@ async def create_testcase(
     id = uuid.uuid4()
 
     try:
-        input_path, output_path = await save_testcase_files(
+        input_path, output_path = save_testcase_files(
             str(id), problem_id, input_file, output_file
         )
     except ValueError as ve:
@@ -63,7 +63,7 @@ async def create_testcase(
 
 
 @router.delete("/{problem_id}/{testcase_id}")
-async def delete_testcase(
+def delete_testcase(
     problem_id: int,
     testcase_id: uuid.UUID,
     current_coach: CurrentCoachDep,

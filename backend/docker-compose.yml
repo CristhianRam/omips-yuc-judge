@@ -4,7 +4,7 @@ services:
   api:
     build: ./judge
     ports:
-      - "8000:8000"
+      - "8080:8000"
     volumes:
       - problem_data:/data/problems
     depends_on:
