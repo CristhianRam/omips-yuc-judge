@@ -18,7 +18,7 @@ def get_problem_testcases_dir(problem_id: int) -> Path:
     return problem_dir
 
 
-async def save_testcase_files(
+def save_testcase_files(
     id: str,
     problem_id: int,
     input_file: UploadFile,
@@ -43,7 +43,7 @@ async def save_testcase_files(
     output_path = testcases_dir / f"{id}.out"
 
     # Guardar archivo de entrada
-    input_content = await input_file.read()
+    input_content = input_file.file.read()
     if len(input_content) > MAX_FILE_SIZE:
         raise ValueError(
             f"Archivo .in muy grande. Máximo: {MAX_FILE_SIZE / 1024 / 1024}MB"
@@ -56,7 +56,7 @@ async def save_testcase_files(
         raise IOError(f"Error guardando archivo .in: {e}")
 
     # Guardar archivo de salida
-    output_content = await output_file.read()
+    output_content = output_file.file.read()
     if len(output_content) > MAX_FILE_SIZE:
         raise ValueError(
             f"Archivo .out muy grande. Máximo: {MAX_FILE_SIZE / 1024 / 1024}MB"

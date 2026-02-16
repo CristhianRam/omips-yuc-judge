@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from app.api.deps import CurrentUserDep
+from app.core import testcase_storage
 from app.db import SessionDep
 from app.models.Problem import Problem
 from app.schemas.ProblemSchemas import (
@@ -135,7 +136,7 @@ def delete_problem(
 ):
     """Eliminar un problema (solo admins y entrenadores)."""
 
-    if current_user.role == "student":
+    if current_user.role not in ["admin", "coach"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Solo los administradores y entrenadores pueden eliminar problemas",
@@ -149,6 +150,7 @@ def delete_problem(
         )
 
     try:
+        testcase_storage.delete_problem_testcases(problem_id)
         session.delete(problem)
         session.commit()
     except Exception:
