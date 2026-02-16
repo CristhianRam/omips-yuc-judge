@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING, List
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from .ContestProblem import ContestProblem
+from .contest_problem import ContestProblem
 
 if TYPE_CHECKING:
-    from .Problem import Problem
+    from .problem import Problem
 
 
 class Contest(SQLModel, table=True):

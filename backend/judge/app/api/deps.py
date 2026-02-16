@@ -5,7 +5,7 @@ from app.core.security import ALGORITHM, SECRET_KEY
 from app.db import SessionDep
 
 # Importaciones de tu proyecto
-from app.models.User import User, UserRole
+from app.models import User, UserRole
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt

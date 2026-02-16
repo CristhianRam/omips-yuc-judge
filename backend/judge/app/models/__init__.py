@@ -1,6 +1,6 @@
-from .Contest import Contest
-from .ContestProblem import ContestProblem
-from .Problem import Problem
-from .Submission import Submission
-from .TestCase import TestCase
-from .User import User, UserRole
+from .contest import Contest
+from .contest_problem import ContestProblem
+from .problem import Problem
+from .submission import Submission
+from .testcase import TestCase
+from .user import User, UserRole

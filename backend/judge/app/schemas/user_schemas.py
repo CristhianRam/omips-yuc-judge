@@ -1,6 +1,6 @@
 import uuid
 
-from app.models.User import UserRole
+from app.models import UserRole
 from pydantic import BaseModel, EmailStr
 
 

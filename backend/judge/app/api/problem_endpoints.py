@@ -3,8 +3,8 @@ from typing import List, Optional
 from app.api.deps import CurrentUserDep
 from app.core import testcase_storage
 from app.db import SessionDep
-from app.models.Problem import Problem
-from app.schemas.ProblemSchemas import (
+from app.models import Problem
+from app.schemas.problem_schemas import (
     ProblemCreate,
     ProblemPublic,
     ProblemUpdate,
