@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import postgres from 'postgres';
-import { invoices, customers, revenue, users } from '../lib/placeholder-data';
+import { invoices, customers, revenue, users, MockProblems } from '../lib/placeholder-data';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -27,6 +27,50 @@ async function seedUsers() {
   );
 
   return insertedUsers;
+}
+
+
+async function seedProblems() {
+  // Matches backend/judge/app/models/problem.py
+  await sql`
+    CREATE TABLE IF NOT EXISTS problem (
+      id SERIAL PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      description TEXT NOT NULL,
+      time_limit_ms INT DEFAULT 1000 NOT NULL,
+      memory_limit_mb INT DEFAULT 256 NOT NULL,
+      difficulty VARCHAR(20) DEFAULT 'medium'
+    );
+  `;
+
+  // Note: MockProblems uses string IDs and has 'category' which the DB doesn't have.
+  // We'll map 'difficulty' to lowercase to match typical backend patterns if needed,
+  // though the regex allows (easy|medium|hard).
+  const insertedProblems = await Promise.all(
+    MockProblems.map(async (problem) => {
+      // Map 'Olympic' to 'hard' or keep as is? regex is ^(easy|medium|hard)$
+      // The backend model says: difficulty: Optional[str] = Field(default="medium", max_length=20)
+      // The router validation says: pattern="^(easy|medium|hard)$"
+      // So 'Olympic' might fail validation if fetched via API, but here we insert directly into DB.
+      // Let's coerce 'Olympic' to 'hard' for safety, and lowercase others.
+      let diff = problem.difficulty.toLowerCase();
+      if (diff === 'olympic') diff = 'hard';
+
+      return sql`
+        INSERT INTO problem (title, description, time_limit_ms, memory_limit_mb, difficulty)
+        VALUES (
+            ${problem.title}, 
+            ${`Description for ${problem.title}. Category: ${problem.category}`}, 
+            1000, 
+            256, 
+            ${diff}
+        )
+        ON CONFLICT (id) DO NOTHING;
+      `;
+    }),
+  );
+
+  return insertedProblems;
 }
 
 async function seedInvoices() {
@@ -108,6 +152,7 @@ export async function GET() {
       seedCustomers(),
       seedInvoices(),
       seedRevenue(),
+      seedProblems(),
     ]);
 
     return Response.json({ message: 'Database seeded successfully' });

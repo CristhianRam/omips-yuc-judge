@@ -57,7 +57,7 @@ export const { auth, signIn, signOut } = NextAuth({
           });
 
           const userData = await res.json();
-          //console.log(`id: ${userData.id}`);
+          console.log(`id: ${userData.id}`);
           return {
             token, // This maps to user.token in the jwt callback
             ...userData // hash id, username, role, email

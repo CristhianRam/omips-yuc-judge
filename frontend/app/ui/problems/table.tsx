@@ -1,9 +1,19 @@
-import { MockProblems } from "@/app/lib/placeholder-data";
+import { fetchProblems } from "@/app/lib/data";
 import Link from "next/link";
 import { ChevronRight, Code2 } from "lucide-react";
 import clsx from 'clsx'
-export default function ProblemsTable(){
-  const problems = MockProblems;
+import { UpdateProblem, DeleteProblem } from "./buttons";
+
+export default async function ProblemsTable({
+  query,
+  currentPage,
+  role,
+}: {
+  query: string;
+  currentPage: number;
+  role: string;
+}) {
+  const problems = await fetchProblems(query, currentPage);
 
   return (
     <div className="mt-6 flow-root">
@@ -15,9 +25,25 @@ export default function ProblemsTable(){
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
                     <p className="text-sm font-medium">{problem.title}</p>
-                    <p className="text-xs text-gray-500">{problem.category}</p>
+                    <p className="text-xs text-gray-500">Limits: {problem.time_limit_ms}ms / {problem.memory_limit_mb}MB</p>
                   </div>
                   <DifficultyBadge difficulty={problem.difficulty} />
+                </div>
+                <div className="flex w-full items-center justify-between pt-4">
+                  <div>
+                    <Link
+                      href={`/dashboard/problems/${problem.id}`}
+                      className="flex items-center gap-1 text-blue-600 font-medium hover:underline text-sm"
+                    >
+                      Solve <ChevronRight size={16} />
+                    </Link>
+                  </div>
+                  {(role === 'admin' || role === 'coach') && (
+                    <div className="flex justify-end gap-2">
+                      <UpdateProblem id={problem.id} />
+                      <DeleteProblem id={problem.id} />
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -26,8 +52,8 @@ export default function ProblemsTable(){
             <thead className="rounded-lg text-left text-sm font-normal">
               <tr>
                 <th scope="col" className="px-4 py-5 font-medium sm:pl-6">Problem</th>
-                <th scope="col" className="px-3 py-5 font-medium">Category</th>
                 <th scope="col" className="px-3 py-5 font-medium">Difficulty</th>
+                <th scope="col" className="px-3 py-5 font-medium">Time/Memory</th>
                 <th scope="col" className="relative py-3 pl-3 pr-4 sm:pr-6">
                   <span className="sr-only">Actions</span>
                 </th>
@@ -42,17 +68,27 @@ export default function ProblemsTable(){
                       <p className="font-bold">{problem.title}</p>
                     </div>
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3">{problem.category}</td>
                   <td className="whitespace-nowrap px-3 py-3">
                     <DifficultyBadge difficulty={problem.difficulty} />
                   </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {problem.time_limit_ms}ms / {problem.memory_limit_mb}MB
+                  </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    <Link 
-                      href={`/dashboard/problems/${problem.id}`}
-                      className="flex items-center gap-1 text-blue-600 font-medium hover:underline"
-                    >
-                      Solve <ChevronRight size={16} />
-                    </Link>
+                    <div className="flex justify-end gap-3">
+                      <Link
+                        href={`/dashboard/problems/${problem.id}`}
+                        className="flex items-center gap-1 text-blue-600 font-medium hover:underline mr-4"
+                      >
+                        Solve <ChevronRight size={16} />
+                      </Link>
+                      {(role === 'admin' || role === 'coach') && (
+                        <>
+                          <UpdateProblem id={problem.id} />
+                          <DeleteProblem id={problem.id} />
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -67,12 +103,11 @@ export default function ProblemsTable(){
 function DifficultyBadge({ difficulty }: { difficulty: string }) {
   return (
     <span className={clsx(
-      "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+      "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium uppercase",
       {
-        'bg-green-100 text-green-800': difficulty === 'Easy',
-        'bg-yellow-100 text-yellow-800': difficulty === 'Medium',
-        'bg-red-100 text-red-800': difficulty === 'Hard',
-        'bg-purple-100 text-purple-800': difficulty === 'Olympic',
+        'bg-green-100 text-green-800': difficulty === 'easy',
+        'bg-yellow-100 text-yellow-800': difficulty === 'medium',
+        'bg-red-100 text-red-800': difficulty === 'hard',
       }
     )}>
       {difficulty}
