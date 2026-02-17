@@ -74,12 +74,7 @@ cd NOMBRE-DEL-REPO
 
 ### Configurar variables de entorno
 
-Crear archivo `.env`:
-
-```env
-REDIS_HOST=redis
-REDIS_PORT=6379
-```
+Crear archivo `.env` basado en `.env.template`:
 
 ---
 
