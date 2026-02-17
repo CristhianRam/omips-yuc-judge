@@ -28,5 +28,3 @@ def change_user_role(
     except Exception:
         session.rollback()
         raise HTTPException(status_code=500, detail="Error al actualizar el rol")
-
-    return None

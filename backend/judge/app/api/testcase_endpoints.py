@@ -1,18 +1,17 @@
 import uuid
 
 from app.api.deps import CurrentCoachDep, SessionDep
-from app.core.testcase_storage import (
-    delete_testcase_files,
-    read_testcase_file,
-    save_testcase_files,
-)
-from app.models import TestCase
 from app.schemas.testcase_schemas import (
     TestCasePublic,
     TestCaseWithContent,
 )
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
-from sqlmodel import select
+from app.services.testcase_services import (
+    handle_testcase_create,
+    handle_testcase_delete,
+    handle_testcase_get,
+    handle_testcase_list,
+)
+from fastapi import APIRouter, File, Form, UploadFile
 
 router = APIRouter(prefix="/testcases", tags=["TestCases"])
 
@@ -28,38 +27,7 @@ def create_testcase(
 ):
     """Crear un nuevo testcase para un problema."""
 
-    id = uuid.uuid4()
-
-    try:
-        input_path, output_path = save_testcase_files(
-            str(id), problem_id, input_file, output_file
-        )
-    except ValueError as ve:
-        raise HTTPException(status_code=400, detail=str(ve))
-    except IOError as ioe:
-        raise HTTPException(status_code=500, detail=str(ioe))
-
-    testcase = TestCase(
-        id=id,
-        name=name,
-        problem_id=problem_id,
-        input_file=input_path,
-        output_file=output_path,
-    )
-
-    try:
-        session.add(testcase)
-        session.commit()
-        session.refresh(testcase)
-        return testcase
-    except Exception:
-        session.rollback()
-        delete_testcase_files(
-            input_path, output_path
-        )  # Limpiar archivos si falla la DB
-        raise HTTPException(
-            status_code=500, detail="Error al guardar el testcase en la base de datos"
-        )
+    return handle_testcase_create(session, problem_id, name, input_file, output_file)
 
 
 @router.delete("/{problem_id}/{testcase_id}")
@@ -71,24 +39,7 @@ def delete_testcase(
 ):
     """Eliminar un testcase de un problema."""
 
-    testcase = session.get(TestCase, testcase_id)
-    if not testcase:
-        raise HTTPException(status_code=404, detail="Testcase no encontrado")
-
-    if testcase.problem_id != problem_id:
-        raise HTTPException(status_code=400, detail="Testcase no pertenece al problema")
-
-    try:
-        input_path = testcase.input_file
-        output_path = testcase.output_file
-
-        session.delete(testcase)
-        session.commit()
-
-        delete_testcase_files(input_path, output_path)
-    except Exception:
-        session.rollback()
-        raise HTTPException(status_code=500, detail="Error al eliminar el testcase")
+    handle_testcase_delete(problem_id, testcase_id, session)
 
 
 @router.get("/{problem_id}", response_model=list[TestCasePublic])
@@ -97,15 +48,7 @@ def list_testcases(
 ):
     """Listar todos los testcases de un problema."""
 
-    statement = select(TestCase).where(TestCase.problem_id == problem_id)
-    testcases = session.exec(statement).all()
-
-    if not testcases:
-        raise HTTPException(
-            status_code=404, detail="No se encontraron testcases para este problema"
-        )
-
-    return testcases
+    return handle_testcase_list(problem_id, session)
 
 
 @router.get("/{problem_id}/{testcase_id}", response_model=TestCaseWithContent)
@@ -117,23 +60,4 @@ def get_testcase(
 ):
     """Obtener un testcase específico con su contenido."""
 
-    testcase = session.get(TestCase, testcase_id)
-    if not testcase:
-        raise HTTPException(status_code=404, detail="Testcase no encontrado")
-
-    if testcase.problem_id != problem_id:
-        raise HTTPException(status_code=400, detail="Testcase no pertenece al problema")
-
-    try:
-        input_content = read_testcase_file(testcase.input_file)
-        output_content = read_testcase_file(testcase.output_file)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error leyendo archivos: {e}")
-
-    return TestCaseWithContent(
-        id=testcase.id,
-        name=testcase.name,
-        problem_id=testcase.problem_id,
-        input_content=input_content,
-        output_content=output_content,
-    )
+    return handle_testcase_get(problem_id, testcase_id, session)

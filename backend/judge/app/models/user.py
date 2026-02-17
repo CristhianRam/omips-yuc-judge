@@ -1,7 +1,6 @@
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
 
 from sqlmodel import Field, SQLModel
 
@@ -13,7 +12,7 @@ class UserRole(str, Enum):
 
 
 class User(SQLModel, table=True):
-    id: Optional[uuid.UUID] = Field(
+    id: uuid.UUID = Field(
         default_factory=uuid.uuid4, primary_key=True, index=True, nullable=False
     )
     email: str = Field(unique=True, index=True)

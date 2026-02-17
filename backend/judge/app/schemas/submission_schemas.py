@@ -10,6 +10,11 @@ class SubmissionRequest(BaseModel):
     source_code: str = Field(..., alias="sourceCode")
 
 
+class SubmissionCreateResponse(BaseModel):
+    submission_id: str = Field(..., alias="submissionId")
+    status: str
+
+
 class SubmissionResponse(BaseModel):
     id: str
     username: str = Field(..., alias="userName")

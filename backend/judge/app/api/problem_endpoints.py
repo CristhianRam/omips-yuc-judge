@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 from app.api.deps import CurrentUserDep
-from app.core import testcase_storage
 from app.db import SessionDep
 from app.models import Problem
 from app.schemas.problem_schemas import (
@@ -9,8 +8,13 @@ from app.schemas.problem_schemas import (
     ProblemPublic,
     ProblemUpdate,
 )
+from app.services.problem_services import (
+    handle_problem_create,
+    handle_problem_delete,
+    handle_problem_list,
+    handle_problem_update,
+)
 from fastapi import APIRouter, HTTPException, Query, status
-from sqlmodel import select
 
 router = APIRouter(prefix="/problems", tags=["Problems"])
 
@@ -23,31 +27,7 @@ def create_problem(
 ):
     """Crear un nuevo problema."""
 
-    if current_user.role == "student":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Solo los administradores y entrenadores pueden crear problemas",
-        )
-
-    problem = Problem(
-        title=problem_in.title,
-        description=problem_in.description,
-        time_limit_ms=problem_in.time_limit_ms,
-        memory_limit_mb=problem_in.memory_limit_mb,
-        difficulty=problem_in.difficulty,
-    )
-
-    try:
-        session.add(problem)
-        session.commit()
-        session.refresh(problem)
-        return problem
-    except Exception:
-        session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error al crear problema",
-        )
+    return handle_problem_create(session, problem_in, current_user)
 
 
 @router.get("/", response_model=List[ProblemPublic])
@@ -59,15 +39,7 @@ def list_problems(
 ):
     """Listar problemas."""
 
-    query = select(Problem)
-
-    if difficulty:
-        query = query.where(Problem.difficulty == difficulty)
-
-    query = query.order_by(Problem.id).offset(skip).limit(limit)  # type: ignore
-
-    problems = session.exec(query).all()
-    return problems
+    return handle_problem_list(session, skip, limit, difficulty)
 
 
 @router.get("/{problem_id}", response_model=ProblemPublic)
@@ -96,36 +68,7 @@ def update_problem(
 ):
     """Actualizar un problema (solo admins y entrenadores)."""
 
-    if current_user.role == "student":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Solo los administradores y entrenadores pueden actualizar problemas",
-        )
-
-    problem = session.get(Problem, problem_id)
-
-    if not problem:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Problema no encontrado"
-        )
-
-    # Actualizar solo campos proporcionados
-    update_data = problem_in.model_dump(exclude_unset=True)
-
-    for key, value in update_data.items():
-        setattr(problem, key, value)
-
-    try:
-        session.add(problem)
-        session.commit()
-        session.refresh(problem)
-        return problem
-    except Exception:
-        session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error al actualizar problema",
-        )
+    return handle_problem_update(session, problem_id, problem_in, current_user)
 
 
 @router.delete("/{problem_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -136,26 +79,4 @@ def delete_problem(
 ):
     """Eliminar un problema (solo admins y entrenadores)."""
 
-    if current_user.role not in ["admin", "coach"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Solo los administradores y entrenadores pueden eliminar problemas",
-        )
-
-    problem = session.get(Problem, problem_id)
-
-    if not problem:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Problema no encontrado"
-        )
-
-    try:
-        testcase_storage.delete_problem_testcases(problem_id)
-        session.delete(problem)
-        session.commit()
-    except Exception:
-        session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error al eliminar problema",
-        )
+    handle_problem_delete(session, problem_id, current_user)
