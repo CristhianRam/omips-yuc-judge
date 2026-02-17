@@ -1,23 +1,22 @@
 import uuid
 
-from app.api.deps import CurrentAdminDep
-from app.db import SessionDep
 from app.models import User, UserRole
-from fastapi import APIRouter, HTTPException
-
-router = APIRouter(prefix="/admin", tags=["Admin"])
+from fastapi import HTTPException
 
 
-@router.patch("/{user_id}/role")
-def change_user_role(
-    user_id: uuid.UUID,
-    new_role: UserRole,
-    session: SessionDep,
-    current_admin: CurrentAdminDep,
+def handle_user_change_rol(
+    session, user_id: uuid.UUID, new_role: UserRole, current_admin
 ):
     """
     Cambia el rol de un usuario. Solo un admin puede hacer esto.
+
+    Args:
+        session: Sesión de base de datos.
+        user_id: ID del usuario a modificar.
+        new_role: Nuevo rol a asignar al usuario.
+        current_admin: Usuario actual para validar permisos.
     """
+
     user_to_edit = session.get(User, user_id)
     if not user_to_edit:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -27,10 +26,6 @@ def change_user_role(
             status_code=400, detail="No puedes quitarte el admin a ti mismo"
         )
 
-    print(
-        f"ADMIN {current_admin.username} cambió a {user_to_edit.username} al rol {new_role}"
-    )
-
     user_to_edit.role = new_role
     session.add(user_to_edit)
     try:
@@ -39,5 +34,3 @@ def change_user_role(
     except Exception:
         session.rollback()
         raise HTTPException(status_code=500, detail="Error al actualizar el rol")
-
-    return None
