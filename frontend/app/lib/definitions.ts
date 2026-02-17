@@ -87,16 +87,7 @@ export type InvoiceForm = {
   status: 'pending' | 'paid';
 };
 
-export type Role = 'trainer' | 'student';
-
-export interface Problem {
-  id: string;
-  title: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard' | 'Olympic';
-  category: string;
-  description: string;
-  constraint?: string;
-}
+export type Role = 'admin' | 'coach' | 'student';
 
 export interface Contest {
   id: string;
@@ -114,10 +105,44 @@ export interface Student {
   lastActive: string;
 }
 
+export type ProblemDifficulty = 'easy' | 'medium' | 'hard';
+
+export interface Problem {
+  id: number;
+  title: string;
+  description: string;
+  time_limit_ms: number;
+  memory_limit_mb: number;
+  difficulty: ProblemDifficulty;
+}
+
+export interface ProblemForm {
+  id?: number;
+  title: string;
+  description: string;
+  time_limit_ms: number;
+  memory_limit_mb: number;
+  difficulty: ProblemDifficulty;
+}
+
+export interface TestCase {
+  id: string;
+  name: string;
+  problem_id: number;
+  input_file: string;
+  output_file: string;
+}
+
 export interface Submission {
   id: string;
-  problemId: string;
-  studentId: string;
-  status: 'Accepted' | 'Wrong Answer' | 'Runtime Error';
-  timestamp: string;
+  userName: string;
+  problemId: number;
+  contestId?: number;
+  code: string;
+  status: string;
+  verdict: string;
+  createdAt: string;
+  runtimeMs?: number;
+  failedTestcase?: number;
+  errorMessage?: string;
 }

@@ -16,12 +16,12 @@ const links = [
   { name: 'Students', href: '/dashboard/students', icon: Users, trainerOnly: true },
 ];
 
-export default function NavLinks({ role }: { role: 'trainer' | 'student' }) {
+export default function NavLinks({ role }: { role: string }) {
   const pathname = usePathname();
   return (
     <>
       {links
-        .filter(link => !link.trainerOnly || role === 'trainer')
+        .filter(link => !link.trainerOnly || (role === 'admin' || role === 'coach'))
         .map((link) => {
           const LinkIcon = link.icon;
           return (

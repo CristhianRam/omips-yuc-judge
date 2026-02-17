@@ -6,7 +6,11 @@ import {
   InvoicesTable,
   LatestInvoiceRaw,
   Revenue,
+  Problem,
+  Submission,
+  TestCase,
 } from './definitions';
+import { auth } from '@/auth';
 import { formatCurrency } from './utils';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
@@ -15,7 +19,7 @@ export async function fetchRevenue() {
   try {
     const data = await sql<Revenue[]>`SELECT * FROM revenue`;
 
-     console.log('Data fetch completed after 3 seconds.');
+    console.log('Data fetch completed after 3 seconds.');
 
     return data;
   } catch (error) {
@@ -208,5 +212,158 @@ export async function fetchFilteredCustomers(query: string) {
   } catch (err) {
     console.error('Database Error:', err);
     throw new Error('Failed to fetch customer table.');
+  }
+}
+
+export async function fetchProblems(
+  query: string,
+  currentPage: number,
+) {
+  const session = await auth();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    // Note: The backend API currently supports pagination via skip/limit.
+    // Filtering by query (search) might not be fully supported by the backend yet, 
+    // or might need a specific endpoint. 
+    // For now, we will just list problems with pagination.
+    // If backend supports search, we should add `&q=${query}`.
+
+    // Assuming backend endpoint: GET /problems/?skip=...&limit=...
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/problems/?skip=${offset}&limit=${ITEMS_PER_PAGE}`, {
+      headers: {
+        'Authorization': `Bearer ${session?.user?.accessToken}`,
+      },
+      // Force no-store to ensure fresh data, or use next: { revalidate: 0 }
+      cache: 'no-store'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch problems from API');
+    }
+
+    const problems: Problem[] = await response.json();
+    return problems;
+  } catch (error) {
+    console.error('API Error:', error);
+    throw new Error('Failed to fetch problems.');
+  }
+}
+
+export async function fetchProblemsPages(query: string) {
+  // We need an endpoint to count problems or get total pages.
+  // If the backend doesn't provide a count endpoint, we might have to fetch all or guess.
+  // For now, I'll assume we can just fetch a large number or 
+  // temporarily return a fixed number if the API doesn't support count.
+
+  // Ideally: GET /problems/count?q=...
+  // Or check if GET /problems returns a count in headers or envelope.
+  // The current backend listing returns a list.
+
+  // WORKAROUND: Just return 1 page for now until backend supports count, 
+  // or fetch all to count (inefficient but works for small datasets).
+
+  try {
+    const session = await auth();
+    // Fetching all (or a large limit) to count. 
+    // Backend limit cap is 100.
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/problems/?limit=100`, {
+      headers: {
+        'Authorization': `Bearer ${session?.user?.accessToken}`,
+      },
+    });
+
+    if (!response.ok) return 1;
+
+    const problems = await response.json();
+    const totalPages = Math.ceil(problems.length / ITEMS_PER_PAGE);
+    return totalPages || 1;
+  } catch (error) {
+    console.error('API Error:', error);
+    return 1;
+  }
+}
+
+export async function fetchProblemById(id: number) {
+  const session = await auth();
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/problems/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${session?.user?.accessToken}`,
+      },
+      cache: 'no-store'
+    });
+
+    if (!response.ok) {
+      // if 404, maybe return null?
+      console.log('Fetching problem with id:', id, typeof id);
+      console.log('Full URL:', `${process.env.NEXT_PUBLIC_API}/problems/${id}`);
+      if (response.status === 404) return null;
+      throw new Error(`Failed to fetch problem. Status: ${response.status}`);
+    }
+
+    const problem: Problem = await response.json();
+    return problem;
+  } catch (error) {
+    console.error('API Error:', error);
+    throw new Error('Failed to fetch problem.');
+  }
+}
+
+
+export async function fetchMySubmissions(problemId: number) {
+  const session = await auth();
+  if (!session?.user?.accessToken || !session?.user?.id) {
+    return [];
+  }
+
+  try {
+    // The backend /my/{problemId} endpoint expects a UUID for problemId, but we have an int.
+    // Workaround: Use the general listing endpoint with filtering by problemId and userId.
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/submissions/?problemId=${problemId}&userId=${session.user.id}`, {
+      headers: {
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+      cache: 'no-store'
+    });
+
+    if (response.status === 404) return [];
+
+    if (!response.ok) {
+      console.error('Failed to fetch submissions:', await response.text());
+      return [];
+    }
+
+    const submissions: Submission[] = await response.json();
+    return submissions;
+  } catch (error) {
+    console.error('API Error:', error);
+    return [];
+  }
+}
+
+export async function fetchTestCases(problemId: number) {
+  const session = await auth();
+  if (!session?.user?.accessToken) return [];
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/testcases/${problemId}`, {
+      headers: {
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+      cache: 'no-store'
+    });
+
+    if (response.status === 404) return [];
+    if (!response.ok) {
+      console.error('Failed to fetch testcases:', await response.text());
+      return [];
+    }
+
+    const testCases: TestCase[] = await response.json();
+    return testCases;
+  } catch (error) {
+    console.error('API Error:', error);
+    return [];
   }
 }
