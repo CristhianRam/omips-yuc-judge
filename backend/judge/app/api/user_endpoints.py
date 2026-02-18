@@ -1,11 +1,12 @@
 import uuid
+from typing import Optional
 
 from app.api.deps import CurrentAdminDep, CurrentUserDep
 from app.db import SessionDep
 from app.models import User, UserRole
-from app.schemas.user_schemas import UserPublic
-from app.services.user_services import handle_user_change_rol
-from fastapi import APIRouter, HTTPException
+from app.schemas.user_schemas import UserListResponse, UserPublic
+from app.services.user_services import handle_user_change_rol, handle_user_list
+from fastapi import APIRouter, HTTPException, Query
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -51,3 +52,17 @@ def change_user_role(
     Cambia el rol de un usuario. Solo un admin puede hacer esto.
     """
     handle_user_change_rol(session, user_id, new_role, current_admin)
+
+
+@router.get("/", response_model=UserListResponse)
+def get_users(
+    current_admin: CurrentAdminDep,
+    session: SessionDep,
+    page_size: int = Query(default=50, ge=1, le=100),
+    page_number: int = Query(default=1, ge=1),
+    role: Optional[UserRole] = Query(default=None),
+):
+    """
+    Obtiene la lista de usuarios con paginación y filtrado por rol.
+    """
+    return handle_user_list(session, page_size, page_number, role)

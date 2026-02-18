@@ -1,5 +1,6 @@
 from typing import Optional
 
+from app.models.problem import ProblemDifficulty
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -10,7 +11,7 @@ class ProblemCreate(BaseModel):
     description: str = Field(min_length=1)
     time_limit_ms: int = Field(default=1000, gt=0)
     memory_limit_mb: int = Field(default=256, gt=0)
-    difficulty: Optional[str] = Field(default="medium", pattern="^(easy|medium|hard)$")
+    difficulty: ProblemDifficulty = Field(default=ProblemDifficulty.EASY)
 
     @field_validator("description")
     @classmethod
@@ -30,7 +31,7 @@ class ProblemPublic(BaseModel):
     description: str  # Markdown con URLs externas
     time_limit_ms: int
     memory_limit_mb: int
-    difficulty: Optional[str]
+    difficulty: ProblemDifficulty
 
     class Config:
         from_attributes = True
@@ -43,4 +44,12 @@ class ProblemUpdate(BaseModel):
     description: Optional[str] = Field(None, min_length=1)
     time_limit_ms: Optional[int] = Field(None, gt=0)
     memory_limit_mb: Optional[int] = Field(None, gt=0)
-    difficulty: Optional[str] = Field(None, pattern="^(easy|medium|hard)$")
+    difficulty: Optional[ProblemDifficulty] = Field(None)
+
+
+class ProblemListResponse(BaseModel):
+    """Schema para la respuesta de listar problemas."""
+
+    problems: list[ProblemPublic]
+    current_page: int
+    total_pages: int

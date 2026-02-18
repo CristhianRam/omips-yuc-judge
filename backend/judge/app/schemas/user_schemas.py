@@ -20,3 +20,9 @@ class UserPublic(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class UserListResponse(BaseModel):
+    users: list[UserPublic]
+    current_page: int
+    total_pages: int

@@ -1,10 +1,11 @@
-from typing import List, Optional
+from typing import Optional
 
 from app.api.deps import CurrentUserDep
 from app.db import SessionDep
-from app.models import Problem
+from app.models import Problem, ProblemDifficulty
 from app.schemas.problem_schemas import (
     ProblemCreate,
+    ProblemListResponse,
     ProblemPublic,
     ProblemUpdate,
 )
@@ -30,16 +31,16 @@ def create_problem(
     return handle_problem_create(session, problem_in, current_user)
 
 
-@router.get("/", response_model=List[ProblemPublic])
+@router.get("/", response_model=ProblemListResponse)
 def list_problems(
     session: SessionDep,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=100),
-    difficulty: Optional[str] = Query(None, pattern="^(easy|medium|hard)$"),
+    page_size: int = Query(default=50, ge=1, le=100),
+    page_number: int = Query(default=1, ge=1),
+    difficulty: Optional[ProblemDifficulty] = Query(default=None),
 ):
     """Listar problemas."""
 
-    return handle_problem_list(session, skip, limit, difficulty)
+    return handle_problem_list(session, page_size, page_number, difficulty)
 
 
 @router.get("/{problem_id}", response_model=ProblemPublic)

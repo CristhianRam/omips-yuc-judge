@@ -33,13 +33,11 @@ class SubmissionListRequest(BaseModel):
     # Usamos Query(...) para que FastAPI sepa que vienen de la URL
     problem_id: int | None = Query(default=None, alias="problemId")
     contest_id: int | None = Query(default=None, alias="contestId")
-    user_id: uuid.UUID | None = Query(
-        default=None, alias="userId"
-    )  # Ya puede ser UUID directamente
+    user_id: uuid.UUID | None = Query(default=None, alias="userId")
     status: str | None = Query(default=None)
     verdict: str | None = Query(default=None)
-    skip: int = Query(default=0, ge=0)
-    limit: int = Query(default=20, le=100)
+    page_size: int = Query(default=50, ge=1, le=100)
+    page_number: int = Query(default=1, ge=1)
 
 
 class SubmissionPreview(BaseModel):
@@ -50,3 +48,9 @@ class SubmissionPreview(BaseModel):
     status: str
     verdict: str | None
     created_at: str = Field(..., alias="createdAt")
+
+
+class SubmissionListResponse(BaseModel):
+    submissions: list[SubmissionPreview]
+    current_page: int
+    total_pages: int

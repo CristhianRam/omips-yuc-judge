@@ -7,12 +7,14 @@ from app.models import Contest, Problem, Submission, TestCase, User, UserRole
 from app.schemas.submission_schemas import (
     SubmissionCreateResponse,
     SubmissionListRequest,
+    SubmissionListResponse,
     SubmissionPreview,
     SubmissionRequest,
     SubmissionResponse,
 )
 from fastapi import HTTPException
-from sqlmodel import desc, select
+from sqlalchemy import func
+from sqlmodel import Session, desc, select
 
 
 def handle_submission_create(
@@ -162,8 +164,8 @@ def handle_my_submissions(
 
 
 def handle_submissions_list(
-    request: SubmissionListRequest, session
-) -> list[SubmissionPreview]:
+    request: SubmissionListRequest, session: Session
+) -> SubmissionListResponse:
     """
     Lista envíos con filtros opcionales.
 
@@ -175,21 +177,35 @@ def handle_submissions_list(
         list[SubmissionPreview]: Lista de envíos que cumplen los criterios de filtrado.
     """
     query = select(Submission, User.username).join(User, isouter=True)
+    count_statement = select(func.count()).select_from(Submission)
+
     if request.user_id is not None:
         query = query.where(Submission.user_id == request.user_id)
+        count_statement = count_statement.where(Submission.user_id == request.user_id)
     if request.problem_id is not None:
         query = query.where(Submission.problem_id == request.problem_id)
+        count_statement = count_statement.where(
+            Submission.problem_id == request.problem_id
+        )
     if request.contest_id is not None:
         query = query.where(Submission.contest_id == request.contest_id)
+        count_statement = count_statement.where(
+            Submission.contest_id == request.contest_id
+        )
     if request.status is not None:
         query = query.where(Submission.status == request.status)
+        count_statement = count_statement.where(Submission.status == request.status)
     if request.verdict is not None:
         query = query.where(Submission.verdict == request.verdict)
+        count_statement = count_statement.where(Submission.verdict == request.verdict)
+
+    total = session.exec(count_statement).one()
+    offset = (request.page_number - 1) * request.page_size
 
     query = (
         query.order_by(desc(Submission.created_at))
-        .offset(request.skip)
-        .limit(request.limit)
+        .offset(offset)
+        .limit(request.page_size)
     )
     submissions = session.exec(query).all()
 
@@ -207,4 +223,8 @@ def handle_submissions_list(
             )
         )
 
-    return result
+    return SubmissionListResponse(
+        submissions=result,
+        current_page=request.page_number,
+        total_pages=(total + request.page_size - 1) // request.page_size,
+    )
