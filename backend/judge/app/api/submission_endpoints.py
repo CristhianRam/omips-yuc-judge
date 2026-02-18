@@ -5,6 +5,7 @@ from app.api.deps import CurrentUserDep
 from app.db import SessionDep
 from app.schemas.submission_schemas import (
     SubmissionListRequest,
+    SubmissionListResponse,
     SubmissionPreview,
     SubmissionRequest,
     SubmissionResponse,
@@ -46,7 +47,7 @@ def list_my_submissions(
     return handle_my_submissions(problem_id, current_user, session)
 
 
-@router.get("/", response_model=list[SubmissionPreview])
+@router.get("/", response_model=SubmissionListResponse)
 def list_submissions(
     request: Annotated[SubmissionListRequest, Depends()],
     session: SessionDep,

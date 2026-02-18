@@ -1,10 +1,15 @@
-from typing import List, Optional
-
 from app.core.testcase_storage import delete_problem_testcases
 from app.models import Problem
-from app.schemas.problem_schemas import ProblemCreate, ProblemUpdate
+from app.models.problem import ProblemDifficulty
+from app.models.user import User
+from app.schemas.problem_schemas import (
+    ProblemCreate,
+    ProblemListResponse,
+    ProblemPublic,
+    ProblemUpdate,
+)
 from fastapi import HTTPException, status
-from sqlmodel import select
+from sqlmodel import Session, func, select
 
 
 def check_coach_permission(current_user):
@@ -26,7 +31,9 @@ def get_problem_or_404(problem_id: int, session):
     return problem
 
 
-def handle_problem_create(session, problem_in: ProblemCreate, current_user):
+def handle_problem_create(
+    session: Session, problem_in: ProblemCreate, current_user: User
+):
     """
     Crear un nuevo problema.
 
@@ -63,27 +70,45 @@ def handle_problem_create(session, problem_in: ProblemCreate, current_user):
 
 
 def handle_problem_list(
-    session, skip: int = 0, limit: int = 50, difficulty: Optional[str] = None
-) -> List[Problem]:
+    session: Session,
+    page_size: int = 10,
+    page_number: int = 1,
+    difficulty: ProblemDifficulty | None = None,
+) -> ProblemListResponse:
     """
     Listar problemas con filtros.
     Args:
         session: Sesión de base de datos.
-        skip: Cantidad de registros a omitir (paginación).
-        limit: Cantidad máxima de registros a retornar.
+        page_size: Tamaño de página para paginación.
+        page_number: Número de página actual.
         difficulty: Filtrar por dificultad (easy, medium, hard).
 
     Returns:
-    List[Problem]: Lista de problemas que cumplen los criterios.
+    List[ProblemPublic]: Lista de problemas que cumplen los criterios.
     """
     query = select(Problem)
+    count_statement = select(func.count()).select_from(Problem)
 
     if difficulty:
         query = query.where(Problem.difficulty == difficulty)
+        count_statement = count_statement.where(Problem.difficulty == difficulty)
 
-    query = query.order_by(Problem.id).offset(skip).limit(limit)  # type: ignore
+    total = session.exec(count_statement).one()
 
-    return session.exec(query).all()
+    offset = (page_number - 1) * page_size
+    query = query.order_by(Problem.id).offset(offset).limit(page_size)  # type: ignore
+
+    problems = session.exec(query).all()
+    problems = [
+        ProblemPublic.model_validate(problem, from_attributes=True)
+        for problem in problems
+    ]
+
+    return ProblemListResponse(
+        problems=problems,
+        current_page=page_number,
+        total_pages=(total + page_size - 1) // page_size,
+    )
 
 
 def handle_problem_update(

@@ -21,6 +21,7 @@ services:
       - problem_data:/data/problems
     depends_on:
       - redis
+      - db
     env_file:  # <--- AGREGA ESTO
       - .env
 
