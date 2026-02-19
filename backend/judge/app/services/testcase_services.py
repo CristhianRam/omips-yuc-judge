@@ -10,7 +10,7 @@ from app.schemas.testcase_schemas import (
     TestCasePublic,
     TestCaseWithContent,
 )
-from fastapi import HTTPException, UploadFile
+from fastapi import HTTPException, UploadFile, status
 from sqlmodel import select
 
 
@@ -37,7 +37,7 @@ def handle_testcase_create(
             str(id), problem_id, input_file, output_file
         )
     except ValueError as ve:
-        raise HTTPException(status_code=400, detail=str(ve))
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve))
     except IOError as ioe:
         raise HTTPException(status_code=500, detail=str(ioe))
 
@@ -78,10 +78,15 @@ def handle_testcase_delete(problem_id: int, testcase_id: uuid.UUID, session):
     """
     testcase = session.get(TestCase, testcase_id)
     if not testcase:
-        raise HTTPException(status_code=404, detail="Testcase no encontrado")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Testcase no encontrado"
+        )
 
     if testcase.problem_id != problem_id:
-        raise HTTPException(status_code=400, detail="Testcase no pertenece al problema")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Testcase no pertenece al problema",
+        )
 
     try:
         input_path = testcase.input_file
@@ -112,7 +117,9 @@ def handle_testcase_list(problem_id: int, session) -> list[TestCasePublic]:
     ).first()
 
     if not problem_exists:
-        raise HTTPException(status_code=404, detail="El problema no existe")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="El problema no existe"
+        )
 
     statement = select(TestCase).where(TestCase.problem_id == problem_id)
     testcases = session.exec(statement).all()
@@ -137,10 +144,15 @@ def handle_testcase_get(
     """
     testcase = session.get(TestCase, testcase_id)
     if not testcase:
-        raise HTTPException(status_code=404, detail="Testcase no encontrado")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Testcase no encontrado"
+        )
 
     if testcase.problem_id != problem_id:
-        raise HTTPException(status_code=400, detail="Testcase no pertenece al problema")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Testcase no pertenece al problema",
+        )
 
     try:
         input_content = read_testcase_file(testcase.input_file)
