@@ -21,8 +21,8 @@ services:
     depends_on:
       - api
     environment:
-      - POSTGRES_URL=postgresql://judge:judge@db:5432/judge
       - AUTH_SECRET=change-me-in-production
+      - AUTH_TRUST_HOST=true
 
   api:
     build: ./backend/judge
