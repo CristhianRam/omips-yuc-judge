@@ -19,9 +19,7 @@ ENV NEXT_PUBLIC_API=${NEXT_PUBLIC_API}
 
 # Server-side env vars needed at build time for type checking.
 # The real values are injected at runtime via env_file or environment.
-ARG POSTGRES_URL=""
 ARG AUTH_SECRET="build-placeholder"
-ENV POSTGRES_URL=${POSTGRES_URL}
 ENV AUTH_SECRET=${AUTH_SECRET}
 
 RUN pnpm build
