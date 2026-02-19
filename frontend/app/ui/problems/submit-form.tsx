@@ -3,6 +3,12 @@
 import { useActionState } from 'react';
 import { Button } from '@/app/ui/button';
 import { submitSolution } from '@/app/lib/actions';
+import dynamic from 'next/dynamic';
+
+const CodeEditor = dynamic(
+    () => import('@/app/ui/codemirror/code-editor'),
+    { ssr: false, loading: () => <div className="h-[350px] rounded-md bg-gray-900 animate-pulse" /> }
+);
 
 export default function SubmitForm({ problemId }: { problemId: number }) {
     const initialState = { message: null, errors: {} };
@@ -16,16 +22,7 @@ export default function SubmitForm({ problemId }: { problemId: number }) {
                 <label htmlFor="code" className="mb-2 block text-sm font-medium">
                     Solution Code
                 </label>
-                <div className="relative">
-                    <textarea
-                        id="code"
-                        name="code"
-                        placeholder="Paste your source code here..."
-                        className="peer block w-full rounded-md border border-gray-200 py-2 pl-2 text-sm outline-2 placeholder:text-gray-500 min-h-[200px] font-mono"
-                        aria-describedby="code-error"
-                        required
-                    />
-                </div>
+                <CodeEditor name="code" />
                 <div id="code-error" aria-live="polite" aria-atomic="true">
                     {state.errors?.code &&
                         state.errors.code.map((error: string) => (
