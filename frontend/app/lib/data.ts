@@ -220,21 +220,12 @@ export async function fetchProblems(
   currentPage: number,
 ) {
   const session = await auth();
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    // Note: The backend API currently supports pagination via skip/limit.
-    // Filtering by query (search) might not be fully supported by the backend yet, 
-    // or might need a specific endpoint. 
-    // For now, we will just list problems with pagination.
-    // If backend supports search, we should add `&q=${query}`.
-
-    // Assuming backend endpoint: GET /problems/?skip=...&limit=...
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/problems/?skip=${offset}&limit=${ITEMS_PER_PAGE}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/problems/?page_size=${ITEMS_PER_PAGE}&page_number=${currentPage}`, {
       headers: {
         'Authorization': `Bearer ${session?.user?.accessToken}`,
       },
-      // Force no-store to ensure fresh data, or use next: { revalidate: 0 }
       cache: 'no-store'
     });
 
@@ -242,8 +233,8 @@ export async function fetchProblems(
       throw new Error('Failed to fetch problems from API');
     }
 
-    const problems: Problem[] = await response.json();
-    return problems;
+    const data: { problems: Problem[]; current_page: number; total_pages: number } = await response.json();
+    return data.problems;
   } catch (error) {
     console.error('API Error:', error);
     throw new Error('Failed to fetch problems.');
@@ -251,23 +242,9 @@ export async function fetchProblems(
 }
 
 export async function fetchProblemsPages(query: string) {
-  // We need an endpoint to count problems or get total pages.
-  // If the backend doesn't provide a count endpoint, we might have to fetch all or guess.
-  // For now, I'll assume we can just fetch a large number or 
-  // temporarily return a fixed number if the API doesn't support count.
-
-  // Ideally: GET /problems/count?q=...
-  // Or check if GET /problems returns a count in headers or envelope.
-  // The current backend listing returns a list.
-
-  // WORKAROUND: Just return 1 page for now until backend supports count, 
-  // or fetch all to count (inefficient but works for small datasets).
-
   try {
     const session = await auth();
-    // Fetching all (or a large limit) to count. 
-    // Backend limit cap is 100.
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/problems/?limit=100`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/problems/?page_size=${ITEMS_PER_PAGE}&page_number=1`, {
       headers: {
         'Authorization': `Bearer ${session?.user?.accessToken}`,
       },
@@ -275,9 +252,8 @@ export async function fetchProblemsPages(query: string) {
 
     if (!response.ok) return 1;
 
-    const problems = await response.json();
-    const totalPages = Math.ceil(problems.length / ITEMS_PER_PAGE);
-    return totalPages || 1;
+    const data: { problems: Problem[]; current_page: number; total_pages: number } = await response.json();
+    return data.total_pages || 1;
   } catch (error) {
     console.error('API Error:', error);
     return 1;
@@ -318,9 +294,7 @@ export async function fetchMySubmissions(problemId: number) {
   }
 
   try {
-    // The backend /my/{problemId} endpoint expects a UUID for problemId, but we have an int.
-    // Workaround: Use the general listing endpoint with filtering by problemId and userId.
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/submissions/?problemId=${problemId}&userId=${session.user.id}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/submissions/my/${problemId}`, {
       headers: {
         'Authorization': `Bearer ${session.user.accessToken}`,
       },
