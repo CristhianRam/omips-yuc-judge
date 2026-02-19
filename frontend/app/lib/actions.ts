@@ -4,33 +4,6 @@ import { signIn, auth } from '@/auth';
 import { AuthError } from 'next-auth';
 import { z } from 'zod';
 import { redirect } from 'next/navigation';
-import postgres from 'postgres';
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
-
-const FormSchema = z.object({
-  id: z.string(),
-  customerId: z.string(),
-  amount: z.coerce.number(),
-  status: z.enum(['pending', 'paid']),
-  date: z.string(),
-});
-
-
-const CreateInvoice = FormSchema.omit({ id: true, date: true });
-export async function createInvoice(formData: FormData) {
-  const { customerId, amount, status } = CreateInvoice.parse({
-    customerId: formData.get('customerId'),
-    amount: formData.get('amount'),
-    status: formData.get('status'),
-  });
-  const amountInCents = amount * 100;
-  const date = new Date().toISOString().split('T')[0];
-
-  await sql`
-    INSERT INTO invoices (customer_id, amount, status, date)
-    VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-  `;
-}
 
 export async function authenticate(
   prevState: string | undefined,
@@ -50,6 +23,8 @@ export async function authenticate(
     throw error;
   }
 }
+
+
 
 const SignupSchema = z.object({
   username: z.string().min(1, 'Name is required'),
@@ -262,6 +237,8 @@ export async function updateProblem(id: number, prevState: any, formData: FormDa
   redirect('/dashboard/problems');
 }
 
+import { revalidatePath } from 'next/cache';
+
 export async function deleteProblem(id: number) {
   const session = await auth();
   if (!session?.user?.accessToken) {
@@ -273,16 +250,35 @@ export async function deleteProblem(id: number) {
   }
 
   try {
-    await fetch(`${process.env.NEXT_PUBLIC_API}/problems/${id}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/problems/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${session.user.accessToken}`,
       },
     });
+
+    if (!response.ok) {
+      let errorMessage = `Failed to delete problem: ${response.status} ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        if (errorData.detail) {
+          errorMessage += ` - ${errorData.detail}`;
+        }
+      } catch (e) {
+        const errorText = await response.text();
+        if (errorText) {
+          errorMessage += ` - ${errorText}`;
+        }
+      }
+      throw new Error(errorMessage);
+    }
+
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to Delete Problem.');
   }
+
+  revalidatePath('/dashboard/problems');
   redirect('/dashboard/problems');
 }
 

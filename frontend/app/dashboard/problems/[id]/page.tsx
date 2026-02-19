@@ -3,6 +3,7 @@ import { fetchProblemById } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import SubmitForm from '@/app/ui/problems/submit-form';
 import SubmissionsList from '@/app/ui/problems/submissions-list';
+import MarkdownRenderer from '@/app/ui/markdown-renderer';
 import { auth } from '@/auth';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
@@ -46,11 +47,9 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
                     </div>
                 </div>
 
-                <div className="prose max-w-none">
+                <div>
                     <h3 className="text-lg font-semibold mb-2">Description</h3>
-                    <div className="whitespace-pre-wrap text-gray-800">
-                        {problem.description}
-                    </div>
+                    <MarkdownRenderer content={problem.description} />
                 </div>
             </div>
 

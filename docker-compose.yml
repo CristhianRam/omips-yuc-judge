@@ -1,0 +1,71 @@
+# Full-stack docker-compose for local testing.
+# Run from the project root: docker compose up --build
+#
+# Services:
+#   - frontend: Next.js app on http://localhost:3000
+#   - api: FastAPI backend on http://localhost:8080
+#   - worker: ReKarel worker
+#   - db: PostgreSQL 15
+#   - redis: Redis 7
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Since all API calls are server-side (Next.js server components),
+        # we use the Docker internal network URL.
+        NEXT_PUBLIC_API: http://api:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    environment:
+      - AUTH_SECRET=change-me-in-production
+      - AUTH_TRUST_HOST=true
+
+  api:
+    build: ./backend/judge
+    ports:
+      - "8080:8000"
+    volumes:
+      - problem_data:/data/problems
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - ./backend/.env
+
+  worker:
+    build: ./backend/rekarel-worker
+    volumes:
+      - problem_data:/data/problems
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - ./backend/.env
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: judge
+      POSTGRES_USER: judge
+      POSTGRES_PASSWORD: judge
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U judge -d judge"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5433:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+volumes:
+  problem_data:
