@@ -56,7 +56,7 @@ def change_user_role(
 
 @router.get("/", response_model=UserListResponse)
 def get_users(
-    current_admin: CurrentAdminDep,
+    current_user: CurrentUserDep,
     session: SessionDep,
     page_size: int = Query(default=50, ge=1, le=100),
     page_number: int = Query(default=1, ge=1),
@@ -65,4 +65,7 @@ def get_users(
     """
     Obtiene la lista de usuarios con paginación y filtrado por rol.
     """
+    if current_user.role not in ["admin", "coach"]:
+        raise HTTPException(status_code=403, detail="No tienes permisos suficientes")
+
     return handle_user_list(session, page_size, page_number, role)
