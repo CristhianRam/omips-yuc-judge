@@ -1,7 +1,9 @@
 import {
   Problem,
   Submission,
+  SubmissionPreview,
   TestCase,
+  UserPublic,
 } from './definitions';
 import { auth } from '@/auth';
 
@@ -131,5 +133,161 @@ export async function fetchTestCases(problemId: number) {
   } catch (error) {
     console.error('API Error:', error);
     return [];
+  }
+}
+
+// ─── Submissions List (with filters) ────────────────────────────────────────
+
+export async function fetchSubmissions(
+  currentPage: number,
+  verdict?: string,
+  status?: string,
+  userId?: string,
+) {
+  const session = await auth();
+  if (!session?.user?.accessToken) return [];
+
+  try {
+    const params = new URLSearchParams();
+    params.set('page_size', ITEMS_PER_PAGE.toString());
+    params.set('page_number', currentPage.toString());
+    if (verdict) params.set('verdict', verdict);
+    if (status) params.set('status', status);
+    if (userId) params.set('userId', userId);
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/submissions/?${params.toString()}`, {
+      headers: {
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      console.error('Failed to fetch submissions:', await response.text());
+      return [];
+    }
+
+    const data: { submissions: SubmissionPreview[]; current_page: number; total_pages: number } = await response.json();
+    return data.submissions;
+  } catch (error) {
+    console.error('API Error:', error);
+    return [];
+  }
+}
+
+export async function fetchSubmissionsPages(
+  verdict?: string,
+  status?: string,
+  userId?: string,
+) {
+  const session = await auth();
+  if (!session?.user?.accessToken) return 1;
+
+  try {
+    const params = new URLSearchParams();
+    params.set('page_size', ITEMS_PER_PAGE.toString());
+    params.set('page_number', '1');
+    if (verdict) params.set('verdict', verdict);
+    if (status) params.set('status', status);
+    if (userId) params.set('userId', userId);
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/submissions/?${params.toString()}`, {
+      headers: {
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+    });
+
+    if (!response.ok) return 1;
+
+    const data: { submissions: SubmissionPreview[]; current_page: number; total_pages: number } = await response.json();
+    return data.total_pages || 1;
+  } catch (error) {
+    console.error('API Error:', error);
+    return 1;
+  }
+}
+
+// ─── Users List ─────────────────────────────────────────────────────────────
+
+export async function fetchUsers(currentPage: number, role?: string) {
+  const session = await auth();
+  if (!session?.user?.accessToken) return [];
+
+  try {
+    const params = new URLSearchParams();
+    params.set('page_size', ITEMS_PER_PAGE.toString());
+    params.set('page_number', currentPage.toString());
+    if (role) params.set('role', role);
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/users/?${params.toString()}`, {
+      headers: {
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      console.error('Failed to fetch users:', await response.text());
+      return [];
+    }
+
+    const data: { users: UserPublic[]; current_page: number; total_pages: number } = await response.json();
+    return data.users;
+  } catch (error) {
+    console.error('API Error:', error);
+    return [];
+  }
+}
+
+export async function fetchUsersPages(role?: string) {
+  const session = await auth();
+  if (!session?.user?.accessToken) return 1;
+
+  try {
+    const params = new URLSearchParams();
+    params.set('page_size', ITEMS_PER_PAGE.toString());
+    params.set('page_number', '1');
+    if (role) params.set('role', role);
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/users/?${params.toString()}`, {
+      headers: {
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+    });
+
+    if (!response.ok) return 1;
+
+    const data: { users: UserPublic[]; current_page: number; total_pages: number } = await response.json();
+    return data.total_pages || 1;
+  } catch (error) {
+    console.error('API Error:', error);
+    return 1;
+  }
+}
+
+export async function fetchUserById(userId: string) {
+  const session = await auth();
+  if (!session?.user?.accessToken) return null;
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/users/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+      cache: 'no-store',
+    });
+
+    if (response.status === 404) return null;
+
+    if (!response.ok) {
+      console.error('Failed to fetch user:', await response.text());
+      return null;
+    }
+
+    const user: UserPublic = await response.json();
+    return user;
+  } catch (error) {
+    console.error('API Error:', error);
+    return null;
   }
 }

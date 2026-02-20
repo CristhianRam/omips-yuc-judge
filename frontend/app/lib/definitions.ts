@@ -70,3 +70,22 @@ export interface Submission {
   failedTestcase?: number;
   errorMessage?: string;
 }
+
+// Matches backend SubmissionPreview (from GET /submissions/)
+export interface SubmissionPreview {
+  id: string;
+  userName: string;
+  problemId: number;
+  contestId?: number;
+  status: string;
+  verdict?: string;
+  createdAt: string;
+}
+
+// Matches backend UserPublic (from GET /users/ and GET /users/{id})
+export interface UserPublic {
+  id: string;
+  username: string;
+  email: string;
+  role: Role;
+}
