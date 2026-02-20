@@ -12,7 +12,7 @@ from app.schemas.submission_schemas import (
     SubmissionRequest,
     SubmissionResponse,
 )
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy import func
 from sqlmodel import Session, desc, select
 
@@ -45,14 +45,26 @@ def handle_submission_create(
     has_testcases = session.exec(statement).first() is not None
     if not has_testcases:
         raise HTTPException(
-            status_code=404, detail="No se encontraron testcases para este problema"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No se encontraron testcases para este problema",
         )
 
-    if (
-        request.contest_id is not None
-        and session.get(Contest, request.contest_id) is None
-    ):
-        raise HTTPException(status_code=404, detail="Concurso no encontrado")
+    if request.contest_id is not None:
+        contest = session.get(Contest, request.contest_id)
+        if contest is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Concurso no encontrado"
+            )
+        if not contest.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El concurso no está activo",
+            )
+        if current_user not in contest.participants:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="No estás inscrito a este concurso",
+            )
 
     submission = Submission(
         user_id=current_user.id,
@@ -102,12 +114,17 @@ def handle_submission_get(
     """
     submission = session.get(Submission, submission_id)
     if not submission:
-        raise HTTPException(status_code=404, detail="Envío no encontrado")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Envío no encontrado"
+        )
     if submission.user_id != current_user.id and current_user.role not in (
         UserRole.COACH,
         UserRole.ADMIN,
     ):
-        raise HTTPException(status_code=403, detail="No autorizado para ver este envío")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No autorizado para ver este envío",
+        )
 
     user = session.get(User, submission.user_id)
     user_name = user.username if user else "Unknown"
