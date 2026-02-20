@@ -6,6 +6,8 @@ import {
   BookOpen,
   Trophy,
   LayoutDashboard,
+  PaperclipIcon,
+  SendIcon,
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -14,6 +16,7 @@ const links = [
   { name: 'Problems', href: '/dashboard/problems', icon: BookOpen },
   { name: 'Contests', href: '/dashboard/contests', icon: Trophy },
   { name: 'Students', href: '/dashboard/students', icon: Users, trainerOnly: true },
+  { name: 'Submissions', href: '/dashboard/submissions', icon: SendIcon}
 ];
 
 export default function NavLinks({ role }: { role: string }) {
