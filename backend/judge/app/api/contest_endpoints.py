@@ -7,6 +7,7 @@ from app.schemas.contest_schemas import (
     ContestPublic,
     ContestUpdate,
 )
+from app.schemas.user_schemas import UserPublic
 from app.services.contest_services import (
     handle_add_problem,
     handle_contest_create,
@@ -21,8 +22,6 @@ from app.services.contest_services import (
     handle_remove_problem,
 )
 from fastapi import APIRouter, status
-
-from judge.app.schemas.user_schemas import UserPublic
 
 router = APIRouter(prefix="/contests", tags=["Contest"])
 

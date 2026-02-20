@@ -9,11 +9,10 @@ from app.schemas.contest_schemas import (
     ContestPublic,
     ContestUpdate,
 )
+from app.schemas.user_schemas import UserPublic
 from app.services.problem_services import get_problem_or_404
 from fastapi import HTTPException, status
 from sqlmodel import Session, desc, func, select
-
-from judge.app.schemas.user_schemas import UserPublic
 
 
 def check_coach_permission(current_user):
