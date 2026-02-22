@@ -1,5 +1,6 @@
 import Pagination from '@/app/ui/pagination';
 import Search from '@/app/ui/search';
+import ProblemFilters from '@/app/ui/problems/filters';
 import Table from '@/app/ui/problems/table';
 import { CreateProblem } from '@/app/ui/problems/buttons';
 import { lusitana } from '@/app/ui/fonts';
@@ -18,16 +19,18 @@ export default async function Page(props: {
   searchParams?: Promise<{
     query?: string;
     page?: string;
+    difficulty?: string;
   }>;
 }) {
   const searchParams = await props.searchParams;
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
+  const difficulty = searchParams?.difficulty || '';
 
   const session = await auth();
   const role = session?.user?.role || 'student';
 
-  const totalPages = await fetchProblemsPages(query);
+  const totalPages = await fetchProblemsPages(query, difficulty || undefined);
 
   return (
     <div className="w-full">
@@ -35,11 +38,14 @@ export default async function Page(props: {
         <h1 className={`${lusitana.className} text-2xl`}>Problems</h1>
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-        <Search placeholder="Search problems..." />
+        <div className="flex-1 max-w-xl">
+          <Search placeholder="Search problems..." />
+        </div>
+        <ProblemFilters />
         {(role === 'admin' || role === 'coach') && <CreateProblem />}
       </div>
-      <Suspense key={query + currentPage} fallback={<ProblemsTableSkeleton />}>
-        <Table query={query} currentPage={currentPage} role={role} />
+      <Suspense key={query + currentPage + difficulty} fallback={<ProblemsTableSkeleton />}>
+        <Table query={query} currentPage={currentPage} role={role} difficulty={difficulty || undefined} />
       </Suspense>
       <div className="mt-5 flex w-full justify-center">
         <Pagination totalPages={totalPages} />

@@ -4,19 +4,18 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 const VERDICT_OPTIONS = [
     { label: 'All Verdicts', value: '' },
-    { label: 'Accepted', value: 'Accepted' },
-    { label: 'Wrong Answer', value: 'Wrong Answer' },
-    { label: 'Time Limit Exceeded', value: 'Time Limit Exceeded' },
-    { label: 'Runtime Error', value: 'Runtime Error' },
-    { label: 'Compilation Error', value: 'Compilation Error' },
+    { label: 'Accepted', value: 'AC' },
+    { label: 'Wrong Answer', value: 'WA' },
+    { label: 'Time Limit Exceeded', value: 'TLE' },
+    { label: 'Runtime Error', value: 'RE' },
+    { label: 'Compilation Error', value: 'CE' },
 ];
 
 const STATUS_OPTIONS = [
     { label: 'All Statuses', value: '' },
-    { label: 'Pending', value: 'Pending' },
-    { label: 'Compiling', value: 'Compiling' },
-    { label: 'Running', value: 'Running' },
-    { label: 'Done', value: 'Done' },
+    { label: 'Queued', value: 'QUEUED' },
+    { label: 'Judging', value: 'JUDGING' },
+    { label: 'Completed', value: 'COMPLETED' },
 ];
 
 export default function SubmissionFilters() {

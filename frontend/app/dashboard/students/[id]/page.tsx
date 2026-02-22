@@ -51,7 +51,7 @@ export default async function Page(props: {
         <main>
             <Breadcrumbs
                 breadcrumbs={[
-                    { label: 'Students', href: '/dashboard/students' },
+                    { label: 'Users', href: '/dashboard/students' },
                     {
                         label: user.username,
                         href: `/dashboard/students/${userId}`,

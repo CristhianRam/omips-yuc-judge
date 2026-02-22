@@ -12,11 +12,17 @@ const ITEMS_PER_PAGE = 6;
 export async function fetchProblems(
   query: string,
   currentPage: number,
+  difficulty?: string
 ) {
   const session = await auth();
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/problems/?page_size=${ITEMS_PER_PAGE}&page_number=${currentPage}`, {
+    let url = `${process.env.NEXT_PUBLIC_API}/problems/?page_size=${ITEMS_PER_PAGE}&page_number=${currentPage}`;
+    if (difficulty) {
+      url += `&difficulty=${difficulty}`;
+    }
+
+    const response = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${session?.user?.accessToken}`,
       },
@@ -35,10 +41,15 @@ export async function fetchProblems(
   }
 }
 
-export async function fetchProblemsPages(query: string) {
+export async function fetchProblemsPages(query: string, difficulty?: string) {
   try {
     const session = await auth();
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/problems/?page_size=${ITEMS_PER_PAGE}&page_number=1`, {
+    let url = `${process.env.NEXT_PUBLIC_API}/problems/?page_size=${ITEMS_PER_PAGE}&page_number=1`;
+    if (difficulty) {
+      url += `&difficulty=${difficulty}`;
+    }
+
+    const response = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${session?.user?.accessToken}`,
       },

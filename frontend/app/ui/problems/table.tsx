@@ -8,12 +8,14 @@ export default async function ProblemsTable({
   query,
   currentPage,
   role,
+  difficulty,
 }: {
   query: string;
   currentPage: number;
   role: string;
+  difficulty?: string;
 }) {
-  const problems = await fetchProblems(query, currentPage);
+  const problems = await fetchProblems(query, currentPage, difficulty);
 
   return (
     <div className="mt-6 flow-root">
