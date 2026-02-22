@@ -23,7 +23,7 @@ export default function SubmissionsTableBody({
     showRuntime?: boolean;
 }) {
     const { isOpen, submission, loading, error, openDetail, closeDetail } =
-        useSubmissionDetail(accessToken);
+        useSubmissionDetail();
 
     return (
         <>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import {
     XMarkIcon,
     ClockIcon,
@@ -9,6 +10,11 @@ import {
     ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
 import type { Submission } from '@/app/lib/definitions';
+
+const CodeEditor = dynamic(
+    () => import('@/app/ui/codemirror/code-editor'),
+    { ssr: false },
+);
 
 /**
  * Renders the detail modal overlay. Must be used alongside useSubmissionDetail hook.
@@ -109,11 +115,7 @@ export function SubmissionDetailOverlay({
                             {/* Source code */}
                             <div>
                                 <p className="text-sm font-semibold text-gray-700 mb-2">Source Code</p>
-                                <div className="rounded-md bg-gray-900 p-4 overflow-auto max-h-96">
-                                    <pre className="text-sm text-gray-100 font-mono whitespace-pre">
-                                        {submission.code}
-                                    </pre>
-                                </div>
+                                <CodeEditor value={submission.code} readOnly />
                             </div>
                         </div>
                     )}
@@ -126,7 +128,7 @@ export function SubmissionDetailOverlay({
 /**
  * Hook to manage submission detail modal state.
  */
-export function useSubmissionDetail(accessToken: string) {
+export function useSubmissionDetail() {
     const [isOpen, setIsOpen] = useState(false);
     const [submission, setSubmission] = useState<Submission | null>(null);
     const [loading, setLoading] = useState(false);
@@ -139,12 +141,7 @@ export function useSubmissionDetail(accessToken: string) {
 
         try {
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API}/submissions/${submissionId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
+                `/api/submissions/${submissionId}`,
             );
 
             if (!response.ok) {
