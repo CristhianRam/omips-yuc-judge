@@ -51,16 +51,16 @@ export default async function Page(props: {
         <main>
             <Breadcrumbs
                 breadcrumbs={[
-                    { label: 'Users', href: '/dashboard/students' },
+                    { label: 'Users', href: '/dashboard/users' },
                     {
                         label: user.username,
-                        href: `/dashboard/students/${userId}`,
+                        href: `/dashboard/users/${userId}`,
                         active: true,
                     },
                 ]}
             />
 
-            {/* Student Info Card */}
+            {/* User Info Card */}
             <div className="rounded-md bg-gray-50 p-4 md:p-6 mb-6">
                 <div className="flex items-center justify-between">
                     <div>
@@ -80,7 +80,7 @@ export default async function Page(props: {
                 </div>
             </div>
 
-            {/* Student's Submissions */}
+            {/* User's Submissions */}
             <div>
                 <h3 className="text-lg font-semibold mb-2">Submissions</h3>
                 <Suspense key={`${currentPage}-${verdict}-${status}`} fallback={<SubmissionsSkeletonSmall />}>

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import clsx from 'clsx';
 
-export default async function StudentsTable({
+export default async function UsersTable({
     currentPage,
     role,
 }: {
@@ -15,7 +15,7 @@ export default async function StudentsTable({
     if (!users || users.length === 0) {
         return (
             <div className="mt-6 rounded-md bg-gray-50 p-4">
-                <p className="text-sm text-gray-500">No students found.</p>
+                <p className="text-sm text-gray-500">No users found.</p>
             </div>
         );
     }
@@ -29,7 +29,7 @@ export default async function StudentsTable({
                         {users.map((user) => (
                             <Link
                                 key={user.id}
-                                href={`/dashboard/students/${user.id}`}
+                                href={`/dashboard/users/${user.id}`}
                                 className="block mb-2 w-full rounded-md bg-white p-4 hover:bg-blue-50 transition-colors"
                             >
                                 <div className="flex items-center justify-between">
@@ -76,7 +76,7 @@ export default async function StudentsTable({
                                     <td className="whitespace-nowrap py-3 pl-6 pr-3">
                                         <div className="flex justify-end">
                                             <Link
-                                                href={`/dashboard/students/${user.id}`}
+                                                href={`/dashboard/users/${user.id}`}
                                                 className="flex items-center gap-1 text-blue-600 font-medium hover:underline"
                                             >
                                                 View <ChevronRight size={16} />

@@ -1,6 +1,6 @@
 import Pagination from '@/app/ui/pagination';
-import StudentsTable from '@/app/ui/students/table';
-import UserFilters from '@/app/ui/students/filters';
+import UsersTable from '@/app/ui/users/table';
+import UserFilters from '@/app/ui/users/filters';
 import { lusitana } from '@/app/ui/fonts';
 import { Suspense } from 'react';
 import { fetchUsersPages } from '@/app/lib/data';
@@ -44,8 +44,8 @@ export default async function Page(props: {
             <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
                 <UserFilters />
             </div>
-            <Suspense key={`${currentPage}-${roleFilter}`} fallback={<StudentsTableSkeleton />}>
-                <StudentsTable currentPage={currentPage} role={roleFilter || undefined} />
+            <Suspense key={`${currentPage}-${roleFilter}`} fallback={<UsersTableSkeleton />}>
+                <UsersTable currentPage={currentPage} role={roleFilter || undefined} />
             </Suspense>
             <div className="mt-5 flex w-full justify-center">
                 <Pagination totalPages={totalPages} />
@@ -54,7 +54,7 @@ export default async function Page(props: {
     );
 }
 
-function StudentsTableSkeleton() {
+function UsersTableSkeleton() {
     return (
         <div className="mt-6 flow-root">
             <div className="inline-block min-w-full align-middle">
