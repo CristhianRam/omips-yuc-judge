@@ -398,3 +398,38 @@ export async function createTestCase(problemId: number, formData: FormData) {
     return { message: `Network Error: ${error}` };
   }
 }
+
+export async function updateUserRole(id: string, prevState: { message: string | null; errors: any }, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.accessToken) {
+    return { message: 'Not authenticated', errors: {} };
+  }
+
+  if (session.user.role !== 'admin') {
+    return { message: 'Unauthorized: Only admins can perform this action', errors: {} };
+  }
+
+  const role = formData.get('role');
+  if (!role || (role !== 'student' && role !== 'coach' && role !== 'admin')) {
+    return { message: 'Invalid role provided', errors: { role: ['Please select a valid role.'] } };
+  }
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/users/${id}/role?new_role=${role}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return { message: `Failed to update user role: ${errorText}`, errors: {} };
+    }
+  } catch (error) {
+    return { message: `Network Error: ${error}`, errors: {} };
+  }
+
+  revalidatePath('/dashboard/users');
+  redirect('/dashboard/users');
+}

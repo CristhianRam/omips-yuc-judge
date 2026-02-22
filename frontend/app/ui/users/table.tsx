@@ -2,6 +2,8 @@ import { fetchUsers } from '@/app/lib/data';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import clsx from 'clsx';
+import { UpdateUser } from '@/app/ui/users/buttons';
+import { auth } from '@/auth';
 
 export default async function UsersTable({
     currentPage,
@@ -10,6 +12,8 @@ export default async function UsersTable({
     currentPage: number;
     role?: string;
 }) {
+    const session = await auth();
+    const currentRole = session?.user?.role || 'student';
     const users = await fetchUsers(currentPage, role);
 
     if (!users || users.length === 0) {
@@ -39,6 +43,7 @@ export default async function UsersTable({
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <RoleBadge role={user.role} />
+                                        {currentRole === 'admin' && <UpdateUser id={user.id} />}
                                         <ChevronRight size={16} className="text-gray-400" />
                                     </div>
                                 </div>
@@ -74,7 +79,8 @@ export default async function UsersTable({
                                         <RoleBadge role={user.role} />
                                     </td>
                                     <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                                        <div className="flex justify-end">
+                                        <div className="flex justify-end gap-2">
+                                            {currentRole === 'admin' && <UpdateUser id={user.id} />}
                                             <Link
                                                 href={`/dashboard/users/${user.id}`}
                                                 className="flex items-center gap-1 text-blue-600 font-medium hover:underline"
