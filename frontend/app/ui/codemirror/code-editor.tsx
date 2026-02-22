@@ -51,7 +51,7 @@ export default function CodeEditor({
             EditorView.theme({
                 '&': {
                     height: readOnly ? 'auto' : '350px',
-                    maxHeight: readOnly ? '400px' : undefined,
+                    maxHeight: readOnly ? '400px' : null,
                     fontSize: '14px',
                 },
                 '.cm-scroller': {
@@ -59,7 +59,7 @@ export default function CodeEditor({
                     fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
                 },
                 '.cm-content': {
-                    minHeight: readOnly ? undefined : '300px',
+                    minHeight: readOnly ? null : '300px',
                 },
                 '&.cm-focused': {
                     outline: readOnly ? 'none' : '2px solid #3b82f6',
