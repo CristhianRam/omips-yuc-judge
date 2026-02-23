@@ -2,20 +2,24 @@ import { fetchUsers } from '@/app/lib/data';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import clsx from 'clsx';
+import { UpdateUser } from '@/app/ui/users/buttons';
+import { auth } from '@/auth';
 
-export default async function StudentsTable({
+export default async function UsersTable({
     currentPage,
     role,
 }: {
     currentPage: number;
     role?: string;
 }) {
+    const session = await auth();
+    const currentRole = session?.user?.role || 'student';
     const users = await fetchUsers(currentPage, role);
 
     if (!users || users.length === 0) {
         return (
             <div className="mt-6 rounded-md bg-gray-50 p-4">
-                <p className="text-sm text-gray-500">No students found.</p>
+                <p className="text-sm text-gray-500">No users found.</p>
             </div>
         );
     }
@@ -29,7 +33,7 @@ export default async function StudentsTable({
                         {users.map((user) => (
                             <Link
                                 key={user.id}
-                                href={`/dashboard/students/${user.id}`}
+                                href={`/dashboard/users/${user.id}`}
                                 className="block mb-2 w-full rounded-md bg-white p-4 hover:bg-blue-50 transition-colors"
                             >
                                 <div className="flex items-center justify-between">
@@ -39,6 +43,7 @@ export default async function StudentsTable({
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <RoleBadge role={user.role} />
+                                        {currentRole === 'admin' && <UpdateUser id={user.id} />}
                                         <ChevronRight size={16} className="text-gray-400" />
                                     </div>
                                 </div>
@@ -74,9 +79,10 @@ export default async function StudentsTable({
                                         <RoleBadge role={user.role} />
                                     </td>
                                     <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                                        <div className="flex justify-end">
+                                        <div className="flex justify-end gap-2">
+                                            {currentRole === 'admin' && <UpdateUser id={user.id} />}
                                             <Link
-                                                href={`/dashboard/students/${user.id}`}
+                                                href={`/dashboard/users/${user.id}`}
                                                 className="flex items-center gap-1 text-blue-600 font-medium hover:underline"
                                             >
                                                 View <ChevronRight size={16} />

@@ -1,5 +1,6 @@
 import Pagination from '@/app/ui/pagination';
-import StudentsTable from '@/app/ui/students/table';
+import UsersTable from '@/app/ui/users/table';
+import UserFilters from '@/app/ui/users/filters';
 import { lusitana } from '@/app/ui/fonts';
 import { Suspense } from 'react';
 import { fetchUsersPages } from '@/app/lib/data';
@@ -7,16 +8,18 @@ import { Metadata } from 'next';
 import { auth } from '@/auth';
 
 export const metadata: Metadata = {
-    title: 'Students',
+    title: 'Users',
 };
 
 export default async function Page(props: {
     searchParams?: Promise<{
         page?: string;
+        role?: string;
     }>;
 }) {
     const searchParams = await props.searchParams;
     const currentPage = Number(searchParams?.page) || 1;
+    const roleFilter = searchParams?.role || '';
 
     const session = await auth();
     const role = session?.user?.role || 'student';
@@ -31,15 +34,18 @@ export default async function Page(props: {
         );
     }
 
-    const totalPages = await fetchUsersPages();
+    const totalPages = await fetchUsersPages(roleFilter || undefined);
 
     return (
         <div className="w-full">
             <div className="flex w-full items-center justify-between">
-                <h1 className={`${lusitana.className} text-2xl`}>Students</h1>
+                <h1 className={`${lusitana.className} text-2xl`}>Users</h1>
             </div>
-            <Suspense key={currentPage} fallback={<StudentsTableSkeleton />}>
-                <StudentsTable currentPage={currentPage} />
+            <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+                <UserFilters />
+            </div>
+            <Suspense key={`${currentPage}-${roleFilter}`} fallback={<UsersTableSkeleton />}>
+                <UsersTable currentPage={currentPage} role={roleFilter || undefined} />
             </Suspense>
             <div className="mt-5 flex w-full justify-center">
                 <Pagination totalPages={totalPages} />
@@ -48,7 +54,7 @@ export default async function Page(props: {
     );
 }
 
-function StudentsTableSkeleton() {
+function UsersTableSkeleton() {
     return (
         <div className="mt-6 flow-root">
             <div className="inline-block min-w-full align-middle">

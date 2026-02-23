@@ -15,8 +15,8 @@ const links = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Problems', href: '/dashboard/problems', icon: BookOpen },
   { name: 'Contests', href: '/dashboard/contests', icon: Trophy },
-  { name: 'Students', href: '/dashboard/students', icon: Users, trainerOnly: true },
-  { name: 'Submissions', href: '/dashboard/submissions', icon: SendIcon}
+  { name: 'Users', href: '/dashboard/users', icon: Users, trainerOnly: true },
+  { name: 'Submissions', href: '/dashboard/submissions', icon: SendIcon }
 ];
 
 export default function NavLinks({ role }: { role: string }) {
