@@ -4,7 +4,7 @@ import { loadTestcases } from "./loader/testcases"
 import { compareOutput } from "./evaluator/compare"
 import { SubmissionJob, SubmissionUpdate } from "./types"
 import { DOMParser } from "@xmldom/xmldom" 
-import { updateSubmissionStatus } from "./db"
+import { updateScoreboardEntry, updateSubmissionStatus } from "./db"
 import { start } from "node:repl"
 
 const ERRORCODES = {
@@ -76,7 +76,13 @@ export async function startWorker() {
       let error: string | undefined;
 
       // 2. Compilar código
-      const [program] = compile(job.sourceCode, false);
+      let program: ReturnType<typeof compile>[0] | null = null;
+      try {
+        program = compile(job.sourceCode, false)[0]
+      } catch(e) {
+        error = (e as Error).message || "Error de compilación desconocido.";
+      }
+
       let maxRuntimeMs = 0;
       let maxMemoryMb = 0.0;
       let runtimeMs = 0;
@@ -84,7 +90,6 @@ export async function startWorker() {
 
       if (!program) {
         verdict = "CE"; // Compilation Error
-        error = "Error de sintaxis: Revisa tu código Rekarel Java.";
       } else {
         // 3. Evaluar casos de prueba
         const testcases = await loadTestcases(job.problemId);
@@ -144,6 +149,20 @@ export async function startWorker() {
         error_message: error || null,
         failed_testcase: failCase || null
       });
+
+      if (job.contestData && job.contestData.solved === false) {
+        console.log(`Actualizando scoreboard para usuario ${job.contestData.user_id} en concurso ${job.contestData.contest_id}...`);
+        await updateScoreboardEntry(
+          job.contestData.contest_id,
+          job.contestData.user_id,
+          job.problemId,
+          {
+            bad_submissions: job.contestData.bad_submissions + (verdict === "AC" ? 0 : 1),
+            score: verdict === "AC" ? job.contestData.points : null,
+            solved: verdict === "AC" ? true : null
+          }
+        );
+      }
 
       console.log(`✅ Finalizado: ${verdict} en ${runtimeMs}ms`);
 

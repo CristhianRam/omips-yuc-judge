@@ -5,3 +5,4 @@ from .problem import Problem, ProblemDifficulty
 from .submission import Submission
 from .testcase import TestCase
 from .user import User, UserRole
+from .scoreboard import ScoreboardEntry
