@@ -7,6 +7,7 @@ from app.schemas.contest_schemas import (
     ContestPublic,
     ContestUpdate,
 )
+from app.schemas.scoreboard_schemas import Scoreboard
 from app.schemas.user_schemas import UserPublic
 from app.services.contest_services import (
     handle_add_problem,
@@ -17,6 +18,7 @@ from app.services.contest_services import (
     handle_contest_problem_list,
     handle_contest_update,
     handle_get_contest_participants,
+    handle_get_contest_scoreboard,
     handle_join_contest,
     handle_leave_contest,
     handle_remove_problem,
@@ -98,7 +100,7 @@ def get_contest_problems(
     current_user: CurrentUserDep,
     contest_id: int,
 ):
-    return handle_contest_problem_list(session, contest_id)
+    return handle_contest_problem_list(current_user, session, contest_id)
 
 
 @router.post("/{contest_id}/join", status_code=status.HTTP_200_OK)
@@ -130,3 +132,16 @@ def get_contest_participants(
     contest_id: int,
 ):
     return handle_get_contest_participants(session, contest_id)
+
+
+@router.get(
+    "/{contest_id}/scoreboard",
+    response_model=Scoreboard,
+    status_code=status.HTTP_200_OK,
+)
+def get_contest_scoreboard(
+    session: SessionDep,
+    current_user: CurrentUserDep,
+    contest_id: int,
+):
+    return handle_get_contest_scoreboard(current_user, session, contest_id)

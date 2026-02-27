@@ -1,6 +1,8 @@
+import uuid
+from datetime import datetime, timezone
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ContestProblemCreate(BaseModel):
@@ -23,11 +25,30 @@ class ContestProblemPublic(BaseModel):
         from_attributes = True
 
 
+class ContestProblemPayload(BaseModel):
+    """Schema para mostrar un problema dentro de un concurso."""
+
+    contest_id: int
+    user_id: uuid.UUID
+    points: int
+    solved: bool
+    bad_submissions: int
+
+
 class ContestCreate(BaseModel):
     """Schema para crear concurso."""
 
     title: str = Field(min_length=1, max_length=255)
     description: str = Field(min_length=1)
+    start_date: datetime
+    end_date: Optional[datetime] = Field(default=None)
+
+    @field_validator("start_date", "end_date", mode="after")
+    @classmethod
+    def ensure_utc(cls, v: Optional[datetime]) -> Optional[datetime]:
+        if v is not None and v.tzinfo is None:
+            return v.replace(tzinfo=timezone.utc)
+        return v
 
 
 class ContestPublic(BaseModel):
@@ -36,7 +57,8 @@ class ContestPublic(BaseModel):
     id: int
     title: str
     description: str
-    is_active: bool
+    start_date: datetime
+    end_date: Optional[datetime] = Field(default=None)
 
     class Config:
         from_attributes = True
@@ -47,6 +69,9 @@ class ContestUpdate(BaseModel):
 
     title: Optional[str] = Field(None, min_length=1, max_length=255)
     description: Optional[str] = Field(None, min_length=1)
+    open: Optional[bool] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
 
 
 class ContestListResponse(BaseModel):

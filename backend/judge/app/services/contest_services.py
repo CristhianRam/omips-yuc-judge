@@ -1,6 +1,9 @@
+from datetime import datetime, timezone
+
 from app.models import Contest
 from app.models.contest_problem import ContestProblem
-from app.models.user import User
+from app.models.scoreboard import ScoreboardEntry
+from app.models.user import User, UserRole
 from app.schemas.contest_schemas import (
     ContestCreate,
     ContestListResponse,
@@ -9,10 +12,12 @@ from app.schemas.contest_schemas import (
     ContestPublic,
     ContestUpdate,
 )
+from app.schemas.scoreboard_schemas import Scoreboard, ScoreboardUser, ScoreProblem
 from app.schemas.user_schemas import UserPublic
 from app.services.problem_services import get_problem_or_404
 from fastapi import HTTPException, status
-from sqlmodel import Session, desc, func, select
+from sqlalchemy.orm import selectinload
+from sqlmodel import Session, col, desc, func, select
 
 
 def check_coach_permission(current_user):
@@ -55,6 +60,8 @@ def handle_contest_create(
     contest = Contest(
         title=request.title,
         description=request.description,
+        start_date=request.start_date,
+        end_date=request.end_date,
     )
 
     try:
@@ -149,6 +156,12 @@ def handle_contest_update(
 
     contest = get_contest_or_404(contest_id, session)
 
+    if contest.open is True and request.open is False:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes cerrar un concurso ya abierto para registro",
+        )
+
     update_data = request.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(contest, key, value)
@@ -207,6 +220,12 @@ def handle_add_problem(
     contest = get_contest_or_404(contest_id, session)
     problem = get_problem_or_404(request.problem_id, session)
 
+    if contest.open:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes añadir problemas a un concurso abierto para registro",
+        )
+
     try:
         contest.problems.append(
             ContestProblem(
@@ -247,6 +266,13 @@ def handle_remove_problem(
 
     if not relation:
         raise HTTPException(status_code=404, detail="Relación no encontrada")
+
+    if relation.contest.open:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes eliminar problemas de un concurso abierto para registro",
+        )
+
     try:
         session.delete(relation)
         session.commit()
@@ -259,11 +285,14 @@ def handle_remove_problem(
     return None
 
 
-def handle_contest_problem_list(session, contest_id: int) -> list[ContestProblemPublic]:
+def handle_contest_problem_list(
+    current_user: User, session: Session, contest_id: int
+) -> list[ContestProblemPublic]:
     """
     Listar problemas de un concurso.
 
     Args:
+        current_user: Usuario actual.
         session: Sesión de base de datos.
         contest_id: ID del concurso.
 
@@ -271,6 +300,17 @@ def handle_contest_problem_list(session, contest_id: int) -> list[ContestProblem
         List[ContestProblemPublic]: Lista de problemas del concurso.
     """
     contest = get_contest_or_404(contest_id, session)
+
+    datetime_now = datetime.now(timezone.utc)
+    start_date = contest.start_date
+    if start_date.tzinfo is None:
+        start_date = start_date.replace(tzinfo=timezone.utc)
+
+    contest_has_started = start_date <= datetime_now
+
+    if not contest_has_started and current_user.role == UserRole.STUDENT:
+        return []
+
     problems = []
     for problem in contest.problems:
         problems.append(
@@ -301,10 +341,25 @@ def handle_join_contest(session, contest_id: int, current_user) -> None:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Ya estás inscrito a este concurso",
         )
+    datetime_now = datetime.now(timezone.utc)
+    if contest.end_date is not None and contest.end_date < datetime_now:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El concurso ya ha terminado",
+        )
 
     contest.participants.append(current_user)
+
     try:
         session.add(contest)
+        for problem in contest.problems:
+            session.add(
+                ScoreboardEntry(
+                    user_id=current_user.id,
+                    contest_id=contest_id,
+                    problem_id=problem.problem_id,  # type: ignore
+                )
+            )
         session.commit()
     except Exception:
         session.rollback()
@@ -357,3 +412,72 @@ def handle_get_contest_participants(session, contest_id: int) -> list[UserPublic
         for user in contest.participants
     ]
     return participants
+
+
+def handle_get_contest_scoreboard(current_user, session, contest_id: int):
+    # 1. Cargamos el concurso y sus participantes en un solo paso
+    # Usamos selectinload para que la relación 'participants' se cargue eficientemente
+    statement = (
+        select(Contest)
+        .where(Contest.id == contest_id)
+        .options(selectinload(getattr(Contest, "participants")))
+    )
+    contest = session.exec(statement).first()
+
+    if not contest:
+        raise HTTPException(status_code=404, detail="Concurso no encontrado")
+
+    # 2. Validación de permisos (Coach/Admin o Participante)
+    is_participant = any(p.id == current_user.id for p in contest.participants)
+    if current_user.role not in ["admin", "coach"] and not is_participant:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permitido ver este scoreboard",
+        )
+
+    # 3. Traemos TODAS las entradas del marcador y el 'order' del problema
+    # Unimos ScoreboardEntry con ContestProblem para tener la letra del problema (A, B, C...)
+    entries_statement = (
+        select(ScoreboardEntry, ContestProblem.order)
+        .join(
+            ContestProblem,
+            col(ScoreboardEntry.problem_id) == col(ContestProblem.problem_id),
+        )
+        .where(ScoreboardEntry.contest_id == contest_id)
+    )
+    all_results = session.exec(entries_statement).all()
+
+    # 4. Agrupamos en un diccionario: { user_id: [ScoreProblem, ...] }
+    # Esto evita hacer SELECTs dentro de un bucle for
+    user_results_map = {}
+    for entry, p_order in all_results:
+        if entry.user_id not in user_results_map:
+            user_results_map[entry.user_id] = []
+
+        user_results_map[entry.user_id].append(
+            ScoreProblem(
+                score=entry.score,
+                order=p_order,
+                bad_submissions=entry.bad_submissions,
+                solved=entry.solved,
+            )
+        )
+
+    # 5. Construimos la lista final de usuarios
+    final_users = []
+    for participant in contest.participants:
+        problems_scored = user_results_map.get(participant.id, [])
+        total_score = sum(p.score for p in problems_scored)
+
+        final_users.append(
+            ScoreboardUser(
+                username=participant.username,
+                problems=problems_scored,
+                total_score=total_score,
+            )
+        )
+
+    # 6. Ranking: Ordenamos por puntaje total (Descendente)
+    final_users.sort(key=lambda u: u.total_score, reverse=True)
+
+    return Scoreboard(users=final_users)

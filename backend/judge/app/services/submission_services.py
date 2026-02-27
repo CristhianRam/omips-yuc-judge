@@ -1,9 +1,19 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from app.core.redis import redis_conn
-from app.models import Contest, Problem, Submission, TestCase, User, UserRole
+from app.models import (
+    Contest,
+    Problem,
+    Submission,
+    TestCase,
+    User,
+    UserRole,
+    scoreboard,
+)
+from app.models.contest_problem import ContestProblem
+from app.schemas.contest_schemas import ContestProblemPayload
 from app.schemas.submission_schemas import (
     SubmissionCreateResponse,
     SubmissionListRequest,
@@ -49,13 +59,30 @@ def handle_submission_create(
             detail="No se encontraron testcases para este problema",
         )
 
+    contest_data = None
+
     if request.contest_id is not None:
         contest = session.get(Contest, request.contest_id)
         if contest is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Concurso no encontrado"
             )
-        if not contest.is_active:
+
+        datetime_now = datetime.now(timezone.utc)
+
+        start_date = contest.start_date
+        if start_date.tzinfo is None:
+            start_date = start_date.replace(tzinfo=timezone.utc)
+
+        end_date = contest.end_date
+        if end_date is not None and end_date.tzinfo is None:
+            end_date = end_date.replace(tzinfo=timezone.utc)
+
+        contest_active = start_date <= datetime_now and (
+            end_date is None or end_date >= datetime_now
+        )
+
+        if not contest_active:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="El concurso no está activo",
@@ -66,6 +93,35 @@ def handle_submission_create(
                 detail="No estás inscrito a este concurso",
             )
 
+        contest_problem_entry = session.get(
+            ContestProblem, (request.contest_id, request.problem_id)
+        )
+
+        if not contest_problem_entry:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No se encontró el problema en el concurso",
+            )
+
+        scoreboard_entry = session.get(
+            scoreboard.ScoreboardEntry,
+            (current_user.id, request.contest_id, request.problem_id),
+        )
+
+        if not scoreboard_entry:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No se encontró la entrada del marcador para este problema y usuario",
+            )
+
+        contest_data = ContestProblemPayload(
+            contest_id=request.contest_id,
+            user_id=current_user.id,
+            points=contest_problem_entry.points,
+            solved=scoreboard_entry.solved,
+            bad_submissions=scoreboard_entry.bad_submissions,
+        )
+
     submission = Submission(
         user_id=current_user.id,
         problem_id=request.problem_id,
@@ -73,16 +129,18 @@ def handle_submission_create(
         contest_id=request.contest_id,
     )
 
-    session.add(submission)
     try:
+        session.add(submission)
         session.commit()
-        session.refresh(submission)
     except Exception:
         session.rollback()
         raise HTTPException(status_code=500, detail="Error al crear el envío")
 
+    session.refresh(submission)
+
     payload = {
         "submissionId": submission.id,
+        "contestData": contest_data.model_dump(mode="json") if contest_data else None,
         "problemId": submission.problem_id,
         "sourceCode": submission.code,
         "timeLimitMs": problem_time_limit,
