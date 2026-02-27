@@ -59,6 +59,7 @@ class ContestPublic(BaseModel):
     description: str
     start_date: datetime
     end_date: Optional[datetime] = Field(default=None)
+    open: bool
 
     class Config:
         from_attributes = True
