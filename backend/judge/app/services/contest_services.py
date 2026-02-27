@@ -335,6 +335,11 @@ def handle_join_contest(session, contest_id: int, current_user) -> None:
     """
 
     contest = get_contest_or_404(contest_id, session)
+    if contest.open is False:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No puedes unirte a un concurso cerrado para registro",
+        )
 
     if current_user in contest.participants:
         raise HTTPException(
