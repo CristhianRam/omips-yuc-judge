@@ -282,7 +282,7 @@ export async function deleteProblem(id: number) {
   redirect('/dashboard/problems');
 }
 
-export async function submitSolution(problemId: number, prevState: any, formData: FormData) {
+export async function submitSolution(problemId: number, prevState: any, formData: FormData, contestId?: number) {
   const session = await auth();
   if (!session?.user?.accessToken) {
     return {
@@ -304,16 +304,21 @@ export async function submitSolution(problemId: number, prevState: any, formData
   const { code } = validatedFields.data;
 
   try {
+    const body: Record<string, unknown> = {
+      problemId: problemId,
+      sourceCode: code,
+    };
+    if (contestId) {
+      body.contestId = contestId;
+    }
+
     const response = await fetch(`${process.env.NEXT_PUBLIC_API}/submissions/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${session.user.accessToken}`,
       },
-      body: JSON.stringify({
-        problemId: problemId,
-        sourceCode: code,
-      }),
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
@@ -432,4 +437,292 @@ export async function updateUserRole(id: string, prevState: { message: string | 
 
   revalidatePath('/dashboard/users');
   redirect('/dashboard/users');
+}
+
+// ─── Contest Actions ────────────────────────────────────────────────────────
+
+const ContestSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(255),
+  description: z.string().min(1, 'Description is required'),
+  start_date: z.string().min(1, 'Start date is required'),
+  end_date: z.string().optional(),
+});
+
+export async function createContest(prevState: any, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.accessToken) {
+    return { message: 'Not authenticated' };
+  }
+
+  if (session.user.role !== 'admin' && session.user.role !== 'coach') {
+    return { message: 'Unauthorized: Only admins and coaches can create contests' };
+  }
+
+  const validatedFields = ContestSchema.safeParse({
+    title: formData.get('title'),
+    description: formData.get('description'),
+    start_date: formData.get('start_date'),
+    end_date: formData.get('end_date') || undefined,
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Contest.',
+    };
+  }
+
+  const { title, description, start_date, end_date } = validatedFields.data;
+
+  try {
+    const body: Record<string, unknown> = {
+      title,
+      description,
+      start_date: new Date(start_date).toISOString(),
+    };
+    if (end_date) {
+      body.end_date = new Date(end_date).toISOString();
+    }
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/contests/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return { message: `Failed to create contest: ${errorText}` };
+    }
+  } catch (error) {
+    return { message: `Error: Failed to Create Contest. ${error}` };
+  }
+
+  revalidatePath('/dashboard/contests');
+  redirect('/dashboard/contests');
+}
+
+export async function updateContest(id: number, prevState: any, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.accessToken) {
+    return { message: 'Not authenticated' };
+  }
+
+  if (session.user.role !== 'admin' && session.user.role !== 'coach') {
+    return { message: 'Unauthorized' };
+  }
+
+  const body: Record<string, unknown> = {};
+  const title = formData.get('title');
+  const description = formData.get('description');
+  const open = formData.get('open');
+  const start_date = formData.get('start_date');
+  const end_date = formData.get('end_date');
+
+  if (title) body.title = title;
+  if (description) body.description = description;
+  if (open !== null) body.open = open === 'true';
+  if (start_date) body.start_date = new Date(start_date as string).toISOString();
+  if (end_date) body.end_date = new Date(end_date as string).toISOString();
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/contests/${id}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return { message: `Failed to update contest: ${errorText}` };
+    }
+  } catch (error) {
+    return { message: `Error: Failed to Update Contest. ${error}` };
+  }
+
+  revalidatePath(`/dashboard/contests/${id}`);
+  redirect(`/dashboard/contests/${id}`);
+}
+
+export async function deleteContest(id: number) {
+  const session = await auth();
+  if (!session?.user?.accessToken) {
+    throw new Error('Not authenticated');
+  }
+
+  if (session.user.role !== 'admin' && session.user.role !== 'coach') {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/contests/${id}/`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to delete contest: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    throw new Error('Failed to Delete Contest.');
+  }
+
+  revalidatePath('/dashboard/contests');
+  redirect('/dashboard/contests');
+}
+
+export async function joinContest(contestId: number) {
+  const session = await auth();
+  if (!session?.user?.accessToken) {
+    return { message: 'Not authenticated' };
+  }
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/contests/${contestId}/join`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      try {
+        const errorJson = JSON.parse(errorText);
+        return { message: errorJson.detail || 'Failed to join contest' };
+      } catch {
+        return { message: `Failed to join contest: ${errorText}` };
+      }
+    }
+
+    return { message: 'Successfully joined the contest!' };
+  } catch (error) {
+    return { message: `Error: ${error}` };
+  }
+}
+
+export async function leaveContest(contestId: number) {
+  const session = await auth();
+  if (!session?.user?.accessToken) {
+    return { message: 'Not authenticated' };
+  }
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/contests/${contestId}/leave`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      try {
+        const errorJson = JSON.parse(errorText);
+        return { message: errorJson.detail || 'Failed to leave contest' };
+      } catch {
+        return { message: `Failed to leave contest: ${errorText}` };
+      }
+    }
+
+    return { message: 'Successfully left the contest.' };
+  } catch (error) {
+    return { message: `Error: ${error}` };
+  }
+}
+
+export async function addProblemToContest(contestId: number, prevState: any, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.accessToken) {
+    return { message: 'Not authenticated' };
+  }
+
+  if (session.user.role !== 'admin' && session.user.role !== 'coach') {
+    return { message: 'Unauthorized' };
+  }
+
+  const problemId = Number(formData.get('problem_id'));
+  const points = Number(formData.get('points')) || 100;
+  const order = formData.get('order') as string;
+
+  if (!problemId || !order) {
+    return { message: 'Problem ID and Order are required.' };
+  }
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/contests/${contestId}/addproblem/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+      body: JSON.stringify({
+        problem_id: problemId,
+        points,
+        order,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      try {
+        const errorJson = JSON.parse(errorText);
+        return { message: errorJson.detail || 'Failed to add problem' };
+      } catch {
+        return { message: `Failed to add problem: ${errorText}` };
+      }
+    }
+
+    revalidatePath(`/dashboard/contests/${contestId}`);
+    return { message: 'Problem added successfully!' };
+  } catch (error) {
+    return { message: `Error: ${error}` };
+  }
+}
+
+export async function removeProblemFromContest(contestId: number, problemId: number) {
+  const session = await auth();
+  if (!session?.user?.accessToken) {
+    return { message: 'Not authenticated' };
+  }
+
+  if (session.user.role !== 'admin' && session.user.role !== 'coach') {
+    return { message: 'Unauthorized' };
+  }
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/contests/${contestId}/removeproblem/${problemId}/`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.user.accessToken}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      try {
+        const errorJson = JSON.parse(errorText);
+        return { message: errorJson.detail || 'Failed to remove problem' };
+      } catch {
+        return { message: `Failed to remove problem: ${errorText}` };
+      }
+    }
+
+    revalidatePath(`/dashboard/contests/${contestId}`);
+    return { message: 'Problem removed successfully.' };
+  } catch (error) {
+    return { message: `Error: ${error}` };
+  }
 }
