@@ -11,14 +11,16 @@ export default async function Page(props: {
     const contestId = Number(params.id);
     const problemId = Number(params.problemId);
 
-    const [contest, problem] = await Promise.all([
+    const [contestResult, problem] = await Promise.all([
         fetchContestById(contestId),
         fetchProblemById(problemId),
     ]);
 
-    if (!contest || !problem) {
+    if (!contestResult || contestResult === 'forbidden' || !problem) {
         notFound();
     }
+
+    const contest = contestResult;
 
     return (
         <main>
@@ -39,10 +41,10 @@ export default async function Page(props: {
                     <h1 className="text-2xl font-bold">{problem.title}</h1>
                     <span
                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium uppercase ${problem.difficulty === 'easy'
-                                ? 'bg-green-100 text-green-800'
-                                : problem.difficulty === 'medium'
-                                    ? 'bg-yellow-100 text-yellow-800'
-                                    : 'bg-red-100 text-red-800'
+                            ? 'bg-green-100 text-green-800'
+                            : problem.difficulty === 'medium'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-red-100 text-red-800'
                             }`}
                     >
                         {problem.difficulty}

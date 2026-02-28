@@ -11,11 +11,13 @@ export const metadata: Metadata = {
 export default async function Page(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     const id = Number(params.id);
-    const contest = await fetchContestById(id);
+    const result = await fetchContestById(id);
 
-    if (!contest) {
+    if (!result || result === 'forbidden') {
         notFound();
     }
+
+    const contest = result;
 
     return (
         <main>

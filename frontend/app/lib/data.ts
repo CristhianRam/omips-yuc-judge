@@ -369,7 +369,7 @@ export async function fetchContestsPages() {
   }
 }
 
-export async function fetchContestById(id: number) {
+export async function fetchContestById(id: number): Promise<ContestPublic | 'forbidden' | null> {
   const session = await auth();
   if (!session?.user?.accessToken) return null;
 
@@ -385,7 +385,7 @@ export async function fetchContestById(id: number) {
     );
 
     if (response.status === 404) return null;
-    if (response.status === 403) return null;
+    if (response.status === 403) return 'forbidden';
 
     if (!response.ok) {
       throw new Error(`Failed to fetch contest. Status: ${response.status}`);

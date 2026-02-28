@@ -25,15 +25,57 @@ function formatDate(dateStr: string) {
 export default async function Page(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     const id = Number(params.id);
-    const contest = await fetchContestById(id);
+    const result = await fetchContestById(id);
 
-    if (!contest) {
+    // True 404
+    if (result === null) {
         notFound();
     }
 
     const session = await auth();
     const role = session?.user?.role || 'student';
     const isCoachOrAdmin = role === 'admin' || role === 'coach';
+
+    // 403 — user is not enrolled in this contest
+    if (result === 'forbidden') {
+        return (
+            <main>
+                <Breadcrumbs
+                    breadcrumbs={[
+                        { label: 'Contests', href: '/dashboard/contests' },
+                        {
+                            label: `Contest #${id}`,
+                            href: `/dashboard/contests/${id}`,
+                            active: true,
+                        },
+                    ]}
+                />
+
+                <div className="rounded-md bg-gray-50 p-6 md:p-8 text-center">
+                    <div className="mx-auto max-w-md">
+                        <div className="mb-4 text-5xl">🏆</div>
+                        <h1 className="text-2xl font-bold mb-2">Join this Contest</h1>
+                        <p className="text-gray-600 mb-6">
+                            You need to enroll in this contest before you can view the problems,
+                            participants, and scoreboard.
+                        </p>
+                        <JoinLeaveButton
+                            contestId={id}
+                            isParticipant={false}
+                            isOpen={true}
+                            isFinished={false}
+                        />
+                        <p className="mt-4 text-xs text-gray-400">
+                            If registration is closed, contact your coach for access.
+                        </p>
+                    </div>
+                </div>
+            </main>
+        );
+    }
+
+    // User has access — show full contest detail
+    const contest = result;
 
     const [problems, participants, scoreboard] = await Promise.all([
         fetchContestProblems(id),
