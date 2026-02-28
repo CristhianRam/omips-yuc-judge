@@ -144,36 +144,46 @@ export async function createProblem(prevState: any, formData: FormData) {
     const problemId = problem.id;
 
     // Handle Test Cases
-    // Expecting formData to contain pairs of files: testcase_input_0, testcase_output_0, etc.
-    // Or we can iterate through keys.
-    // Ideally, the form should send `testcase_input[]` and `testcase_output[]` but iterating specifically might be safer for pairing.
-
-    // Simple approach: Check for `input_file_0` and `output_file_0`, `input_file_1`...
     let i = 0;
+    const failedTestCases: number[] = [];
     while (formData.has(`input_file_${i}`)) {
       const inputFile = formData.get(`input_file_${i}`) as File;
       const outputFile = formData.get(`output_file_${i}`) as File;
 
-      if (inputFile && outputFile) {
+      if (inputFile && outputFile && inputFile.size > 0 && outputFile.size > 0) {
         const tcFormData = new FormData();
         tcFormData.append('name', `Test Case ${i + 1}`);
         tcFormData.append('input_file', inputFile);
         tcFormData.append('output_file', outputFile);
 
-        const tcResponse = await fetch(`${process.env.NEXT_PUBLIC_API}/testcases/${problemId}`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.user.accessToken}`,
-          },
-          body: tcFormData,
-        });
+        try {
+          const tcResponse = await fetch(`${process.env.NEXT_PUBLIC_API}/testcases/${problemId}`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${session.user.accessToken}`,
+            },
+            body: tcFormData,
+          });
 
-        if (!tcResponse.ok) {
-          console.error(`Failed to upload testcase ${i}:`, await tcResponse.text());
-          // Should we abort? convert to warning? For now log and continue.
+          if (!tcResponse.ok) {
+            console.error(`Failed to upload testcase ${i}:`, await tcResponse.text());
+            failedTestCases.push(i + 1);
+          }
+        } catch (tcError) {
+          console.error(`Network error uploading testcase ${i}:`, tcError);
+          failedTestCases.push(i + 1);
         }
+      } else if (formData.has(`input_file_${i}`)) {
+        // File field exists but file has no content
+        failedTestCases.push(i + 1);
       }
       i++;
+    }
+
+    if (failedTestCases.length > 0) {
+      return {
+        message: `Problem created (ID: ${problemId}), but ${failedTestCases.length} test case(s) failed to upload (Test Cases: ${failedTestCases.join(', ')}). Please go to the problem edit page to add test cases.`,
+      };
     }
 
   } catch (error) {
@@ -182,8 +192,7 @@ export async function createProblem(prevState: any, formData: FormData) {
     };
   }
 
-  // Revalidate path
-  // revalidatePath('/dashboard/problems');
+  revalidatePath('/dashboard/problems');
   redirect('/dashboard/problems');
 }
 

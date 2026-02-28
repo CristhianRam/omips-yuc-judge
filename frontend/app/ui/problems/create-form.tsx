@@ -257,7 +257,7 @@ export default function Form() {
 
                 <div id="form-error" aria-live="polite" aria-atomic="true">
                     {state.message && (
-                        <p className="mt-2 text-sm text-red-500">
+                        <p className={`mt-2 text-sm ${state.message.toLowerCase().includes('failed') ? 'text-red-500' : 'text-green-600'}`}>
                             {state.message}
                         </p>
                     )}
