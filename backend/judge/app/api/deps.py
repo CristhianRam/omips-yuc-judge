@@ -75,10 +75,10 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
 
 def get_current_coach(current_user: User = Depends(get_current_user)) -> User:
 
-    if current_user.role != UserRole.COACH:
+    if current_user.role not in (UserRole.ADMIN, UserRole.COACH):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Se requieren privilegios de Entrenador",
+            detail="Se requieren privilegios de Entrenador o Administrador",
         )
     return current_user
 

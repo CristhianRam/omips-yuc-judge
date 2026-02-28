@@ -13,20 +13,42 @@ export type User = {
 
 export type Role = 'admin' | 'coach' | 'student';
 
-export interface Contest {
-  id: string;
+// Matches backend ContestPublic
+export interface ContestPublic {
+  id: number;
   title: string;
-  status: 'Live' | 'Upcoming' | 'Past';
-  duration: string;
-  participants: number;
+  description: string;
+  start_date: string;
+  end_date: string | null;
+  open: boolean;
 }
 
-export interface Student {
-  id: string;
-  name: string;
-  email: string;
-  progress: number;
-  lastActive: string;
+// Matches backend ContestProblemPublic
+export interface ContestProblemPublic {
+  problem_id: number;
+  problem_name: string;
+  points: number;
+  order: string;
+}
+
+// Matches backend ScoreProblem
+export interface ScoreProblem {
+  score: number;
+  order: string;
+  bad_submissions: number;
+  solved: boolean;
+}
+
+// Matches backend ScoreboardUser
+export interface ScoreboardUser {
+  username: string;
+  problems: ScoreProblem[];
+  total_score: number;
+}
+
+// Matches backend Scoreboard
+export interface Scoreboard {
+  users: ScoreboardUser[];
 }
 
 export type ProblemDifficulty = 'easy' | 'medium' | 'hard';
