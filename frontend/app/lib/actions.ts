@@ -348,6 +348,66 @@ export async function submitSolution(problemId: number, prevState: any, formData
   }
 }
 
+export async function submitContestSolution(
+  problemId: number,
+  contestId: number,
+  prevState: any,
+  formData: FormData,
+) {
+  const session = await auth();
+  if (!session?.user?.accessToken) {
+    return { message: 'Not authenticated. Please log in to submit.' };
+  }
+
+  const validatedFields = SubmissionSchema.safeParse({
+    code: formData.get('code'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Submit Solution.',
+    };
+  }
+
+  const { code } = validatedFields.data;
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/submissions/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.user.accessToken}`,
+      },
+      body: JSON.stringify({
+        problemId,
+        sourceCode: code,
+        contestId,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      try {
+        const errorJson = JSON.parse(errorText);
+        if (typeof errorJson.detail === 'string') {
+          return { message: errorJson.detail };
+        }
+        if (Array.isArray(errorJson.detail)) {
+          return { message: errorJson.detail[0]?.msg || 'Validation error' };
+        }
+        return { message: JSON.stringify(errorJson.detail) || 'Failed to submit.' };
+      } catch {
+        return { message: `Failed to submit: ${errorText}` };
+      }
+    }
+
+    return { message: 'Success! Solution queued for judging.' };
+  } catch (error) {
+    return { message: `Network Error: ${error}` };
+  }
+}
+
 export async function deleteTestCase(problemId: number, testcaseId: string) {
   const session = await auth();
   if (!session?.user?.accessToken) {

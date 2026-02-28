@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react';
 import { Button } from '@/app/ui/button';
-import { submitSolution } from '@/app/lib/actions';
+import { submitContestSolution } from '@/app/lib/actions';
 import dynamic from 'next/dynamic';
 
 const CodeEditor = dynamic(
@@ -18,14 +18,9 @@ export default function ContestSubmitForm({
     contestId: number;
 }) {
     const initialState = { message: null, errors: {} };
-
-    // Bind both problemId and wrap the action to pass contestId
-    const submitAction = async (prevState: any, formData: FormData) => {
-        return submitSolution(problemId, prevState, formData, contestId);
-    };
-
+    const submitWithIds = submitContestSolution.bind(null, problemId, contestId);
     // @ts-ignore
-    const [state, dispatch] = useActionState(submitAction, initialState);
+    const [state, dispatch] = useActionState(submitWithIds, initialState);
 
     return (
         <form action={dispatch} className="mt-6">
