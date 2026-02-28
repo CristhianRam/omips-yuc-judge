@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { EditorState } from '@codemirror/state';
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from '@codemirror/view';
 import { defaultKeymap, indentWithTab, history, historyKeymap } from '@codemirror/commands';
@@ -28,13 +28,11 @@ export default function CodeEditor({
 }: CodeEditorProps) {
     const editorRef = useRef<HTMLDivElement>(null);
     const viewRef = useRef<EditorView | null>(null);
-    const hiddenInputRef = useRef<HTMLInputElement>(null);
+    const [inputValue, setInputValue] = useState(initialValue);
 
     const handleChange = useCallback(
         (value: string) => {
-            if (hiddenInputRef.current) {
-                hiddenInputRef.current.value = value;
-            }
+            setInputValue(value);
             onChange?.(value);
         },
         [onChange]
@@ -120,10 +118,10 @@ export default function CodeEditor({
             />
             {!readOnly && (
                 <input
-                    ref={hiddenInputRef}
                     type="hidden"
                     name={name}
-                    defaultValue={initialValue}
+                    value={inputValue}
+                    readOnly
                 />
             )}
         </div>
