@@ -1,5 +1,8 @@
 import {
+  ContestPublic,
+  ContestProblemPublic,
   Problem,
+  Scoreboard,
   Submission,
   SubmissionPreview,
   TestCase,
@@ -297,6 +300,174 @@ export async function fetchUserById(userId: string) {
 
     const user: UserPublic = await response.json();
     return user;
+  } catch (error) {
+    console.error('API Error:', error);
+    return null;
+  }
+}
+
+// ─── Contests ───────────────────────────────────────────────────────────────
+
+export async function fetchContests(currentPage: number) {
+  const session = await auth();
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/contests/list?page_size=${ITEMS_PER_PAGE}&page_number=${currentPage}`,
+      {
+        headers: {
+          ...(session?.user?.accessToken
+            ? { Authorization: `Bearer ${session.user.accessToken}` }
+            : {}),
+        },
+        cache: 'no-store',
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch contests from API');
+    }
+
+    const data: {
+      contests: ContestPublic[];
+      current_page: number;
+      total_pages: number;
+    } = await response.json();
+    return data.contests;
+  } catch (error) {
+    console.error('API Error:', error);
+    throw new Error('Failed to fetch contests.');
+  }
+}
+
+export async function fetchContestsPages() {
+  const session = await auth();
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/contests/list?page_size=${ITEMS_PER_PAGE}&page_number=1`,
+      {
+        headers: {
+          ...(session?.user?.accessToken
+            ? { Authorization: `Bearer ${session.user.accessToken}` }
+            : {}),
+        },
+      },
+    );
+
+    if (!response.ok) return 1;
+
+    const data: {
+      contests: ContestPublic[];
+      current_page: number;
+      total_pages: number;
+    } = await response.json();
+    return data.total_pages || 1;
+  } catch (error) {
+    console.error('API Error:', error);
+    return 1;
+  }
+}
+
+export async function fetchContestById(id: number) {
+  const session = await auth();
+  if (!session?.user?.accessToken) return null;
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/contests/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.user.accessToken}`,
+        },
+        cache: 'no-store',
+      },
+    );
+
+    if (response.status === 404) return null;
+    if (response.status === 403) return null;
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch contest. Status: ${response.status}`);
+    }
+
+    const contest: ContestPublic = await response.json();
+    return contest;
+  } catch (error) {
+    console.error('API Error:', error);
+    return null;
+  }
+}
+
+export async function fetchContestProblems(contestId: number) {
+  const session = await auth();
+  if (!session?.user?.accessToken) return [];
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/contests/${contestId}/problems`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.user.accessToken}`,
+        },
+        cache: 'no-store',
+      },
+    );
+
+    if (!response.ok) return [];
+
+    const problems: ContestProblemPublic[] = await response.json();
+    return problems;
+  } catch (error) {
+    console.error('API Error:', error);
+    return [];
+  }
+}
+
+export async function fetchContestParticipants(contestId: number) {
+  const session = await auth();
+  if (!session?.user?.accessToken) return [];
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/contests/${contestId}/participants`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.user.accessToken}`,
+        },
+        cache: 'no-store',
+      },
+    );
+
+    if (!response.ok) return [];
+
+    const participants: UserPublic[] = await response.json();
+    return participants;
+  } catch (error) {
+    console.error('API Error:', error);
+    return [];
+  }
+}
+
+export async function fetchContestScoreboard(contestId: number) {
+  const session = await auth();
+  if (!session?.user?.accessToken) return null;
+
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API}/contests/${contestId}/scoreboard`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.user.accessToken}`,
+        },
+        cache: 'no-store',
+      },
+    );
+
+    if (!response.ok) return null;
+
+    const scoreboard: Scoreboard = await response.json();
+    return scoreboard;
   } catch (error) {
     console.error('API Error:', error);
     return null;
