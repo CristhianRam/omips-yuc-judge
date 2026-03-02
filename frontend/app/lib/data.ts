@@ -1,7 +1,9 @@
 import {
   ContestPublic,
   ContestProblemPublic,
+  DashboardStats,
   Problem,
+  RecentSubmission,
   Scoreboard,
   Submission,
   SubmissionPreview,
@@ -473,3 +475,70 @@ export async function fetchContestScoreboard(contestId: number) {
     return null;
   }
 }
+
+// ─── Dashboard Stats ────────────────────────────────────────────────────────
+
+export async function fetchDashboardStats(
+  role: string,
+  userId: string,
+): Promise<DashboardStats> {
+  const session = await auth();
+  const token = session?.user?.accessToken;
+  const headers: Record<string, string> = token
+    ? { Authorization: `Bearer ${token}` }
+    : {};
+
+  // Helper: fetch a paginated endpoint with page_size=1 to get total count
+  async function fetchCount(url: string): Promise<number> {
+    try {
+      const res = await fetch(url, { headers, cache: 'no-store' });
+      if (!res.ok) return 0;
+      const data = await res.json();
+      return data.total_pages ?? 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  const API = process.env.NEXT_PUBLIC_API;
+
+  // Parallel requests
+  const [totalProblems, totalContests, thirdCardValue, recentRes] =
+    await Promise.all([
+      // Total problems
+      fetchCount(`${API}/problems/?page_size=1&page_number=1`),
+      // Total contests
+      fetchCount(`${API}/contests/list?page_size=1&page_number=1`),
+      // 3rd card: students = my submissions count, coach/admin = enrolled students
+      role === 'student'
+        ? fetchCount(
+          `${API}/submissions/?page_size=1&page_number=1&userId=${userId}`,
+        )
+        : fetchCount(
+          `${API}/users/?page_size=1&page_number=1&role=student`,
+        ),
+      // Recent submissions (last 5)
+      fetch(`${API}/submissions/?page_size=5&page_number=1`, {
+        headers,
+        cache: 'no-store',
+      }).catch(() => null),
+    ]);
+
+  let recentSubmissions: RecentSubmission[] = [];
+  if (recentRes && recentRes.ok) {
+    const data: {
+      submissions: RecentSubmission[];
+      current_page: number;
+      total_pages: number;
+    } = await recentRes.json();
+    recentSubmissions = data.submissions;
+  }
+
+  return {
+    totalProblems,
+    totalContests,
+    thirdCardValue,
+    recentSubmissions,
+  };
+}
+

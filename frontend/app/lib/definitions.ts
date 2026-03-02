@@ -111,3 +111,21 @@ export interface UserPublic {
   email: string;
   role: Role;
 }
+
+// Dashboard stats (assembled from multiple existing endpoints)
+export interface RecentSubmission {
+  id: string;
+  userName: string;
+  problemId: number;
+  verdict: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface DashboardStats {
+  totalProblems: number;
+  totalContests: number;
+  // Coach/Admin: enrolled students count; Student: my submissions count
+  thirdCardValue: number;
+  recentSubmissions: RecentSubmission[];
+}
