@@ -42,8 +42,8 @@
     "submissions": "Submissions"
   },
   "dashboard": {
-    "greetingCoach": "Welcome back, Coach!",
-    "greetingStudent": "Welcome back, Champion!",
+    "greetingCoach": "Welcome back, {name}!",
+    "greetingStudent": "Welcome back, {name}!",
     "subtitle": "Here is what's happening in your OMIPS ecosystem.",
     "totalProblems": "Total Problems",
     "activeContests": "Active Contests",

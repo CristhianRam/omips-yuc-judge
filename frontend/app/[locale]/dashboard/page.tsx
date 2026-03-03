@@ -16,8 +16,8 @@ export default async function Page() {
 
   const greeting =
     role === 'admin' || role === 'coach'
-      ? t('greetingCoach')
-      : t('greetingStudent');
+      ? t('greetingCoach', { name: username })
+      : t('greetingStudent', { name: username });
 
   return (
     <main>
