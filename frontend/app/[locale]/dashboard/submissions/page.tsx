@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import { fetchSubmissionsPages } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { auth } from '@/auth';
+import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
   title: 'Submissions',
@@ -25,6 +26,7 @@ export default async function Page(props: {
 
   const session = await auth();
   const userId = session?.user?.id || '';
+  const t = await getTranslations('submissions');
 
   const totalPages = await fetchSubmissionsPages(
     verdict || undefined,
@@ -35,7 +37,7 @@ export default async function Page(props: {
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
-        <h1 className={`${lusitana.className} text-2xl`}>My Submissions</h1>
+        <h1 className={`${lusitana.className} text-2xl`}>{t('title')}</h1>
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
         <SubmissionFilters />

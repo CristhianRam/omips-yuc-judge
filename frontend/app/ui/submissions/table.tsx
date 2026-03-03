@@ -2,6 +2,7 @@ import { fetchSubmissions } from '@/app/lib/data';
 import { auth } from '@/auth';
 import type { SubmissionPreview } from '@/app/lib/definitions';
 import SubmissionsTableBody from './submissions-table-body';
+import { getTranslations } from 'next-intl/server';
 
 export default async function SubmissionsTable({
     currentPage,
@@ -17,11 +18,12 @@ export default async function SubmissionsTable({
     const submissions = await fetchSubmissions(currentPage, verdict, status, userId);
     const session = await auth();
     const accessToken = session?.user?.accessToken || '';
+    const t = await getTranslations('submissions');
 
     if (!submissions || submissions.length === 0) {
         return (
             <div className="mt-6 rounded-md bg-gray-50 p-4">
-                <p className="text-sm text-gray-500">No submissions found.</p>
+                <p className="text-sm text-gray-500">{t('noSubmissionsFound')}</p>
             </div>
         );
     }

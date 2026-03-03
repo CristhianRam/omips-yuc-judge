@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import type { SubmissionPreview } from '@/app/lib/definitions';
 import {
     useSubmissionDetail,
@@ -8,6 +8,7 @@ import {
     StatusBadge,
     VerdictBadge,
 } from './submission-detail-modal';
+import { useTranslations } from 'next-intl';
 
 export default function SubmissionsTableBody({
     submissions,
@@ -24,6 +25,7 @@ export default function SubmissionsTableBody({
 }) {
     const { isOpen, submission, loading, error, openDetail, closeDetail } =
         useSubmissionDetail();
+    const t = useTranslations('submissions');
 
     return (
         <>
@@ -41,7 +43,7 @@ export default function SubmissionsTableBody({
                                     <div className="flex items-center justify-between border-b pb-4">
                                         <div>
                                             {showProblem && (
-                                                <p className="text-sm font-medium">Problem #{sub.problemId}</p>
+                                                <p className="text-sm font-medium">{t('problem')} #{sub.problemId}</p>
                                             )}
                                             <p className="text-xs text-gray-500">
                                                 {new Date(sub.createdAt).toLocaleString()}
@@ -68,17 +70,17 @@ export default function SubmissionsTableBody({
                         <table className="hidden min-w-full text-gray-900 md:table">
                             <thead className="rounded-lg text-left text-sm font-normal">
                                 <tr>
-                                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">Date</th>
+                                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">{t('date')}</th>
                                     {showProblem && (
-                                        <th scope="col" className="px-3 py-5 font-medium">Problem</th>
+                                        <th scope="col" className="px-3 py-5 font-medium">{t('problem')}</th>
                                     )}
                                     {showUser && (
-                                        <th scope="col" className="px-3 py-5 font-medium">User</th>
+                                        <th scope="col" className="px-3 py-5 font-medium">{t('user')}</th>
                                     )}
-                                    <th scope="col" className="px-3 py-5 font-medium">Status</th>
-                                    <th scope="col" className="px-3 py-5 font-medium">Verdict</th>
+                                    <th scope="col" className="px-3 py-5 font-medium">{t('status')}</th>
+                                    <th scope="col" className="px-3 py-5 font-medium">{t('verdict')}</th>
                                     {showRuntime && (
-                                        <th scope="col" className="px-3 py-5 font-medium">Runtime</th>
+                                        <th scope="col" className="px-3 py-5 font-medium">{t('runtime')}</th>
                                     )}
                                 </tr>
                             </thead>
@@ -99,7 +101,7 @@ export default function SubmissionsTableBody({
                                                     className="text-blue-600 hover:underline font-medium"
                                                     onClick={(e) => e.stopPropagation()}
                                                 >
-                                                    Problem #{sub.problemId}
+                                                    {t('problem')} #{sub.problemId}
                                                 </Link>
                                             </td>
                                         )}

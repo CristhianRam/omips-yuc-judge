@@ -1,9 +1,10 @@
 import { fetchUsers } from '@/app/lib/data';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ChevronRight } from 'lucide-react';
 import clsx from 'clsx';
 import { UpdateUser } from '@/app/ui/users/buttons';
 import { auth } from '@/auth';
+import { getTranslations } from 'next-intl/server';
 
 export default async function UsersTable({
     currentPage,
@@ -15,11 +16,13 @@ export default async function UsersTable({
     const session = await auth();
     const currentRole = session?.user?.role || 'student';
     const users = await fetchUsers(currentPage, role);
+    const t = await getTranslations('users');
+    const tc = await getTranslations('common');
 
     if (!users || users.length === 0) {
         return (
             <div className="mt-6 rounded-md bg-gray-50 p-4">
-                <p className="text-sm text-gray-500">No users found.</p>
+                <p className="text-sm text-gray-500">{t('noUsersFound')}</p>
             </div>
         );
     }
@@ -55,11 +58,11 @@ export default async function UsersTable({
                     <table className="hidden min-w-full text-gray-900 md:table">
                         <thead className="rounded-lg text-left text-sm font-normal">
                             <tr>
-                                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">Username</th>
-                                <th scope="col" className="px-3 py-5 font-medium">Email</th>
-                                <th scope="col" className="px-3 py-5 font-medium">Role</th>
+                                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">{t('username')}</th>
+                                <th scope="col" className="px-3 py-5 font-medium">{t('email')}</th>
+                                <th scope="col" className="px-3 py-5 font-medium">{t('role')}</th>
                                 <th scope="col" className="relative py-3 pl-3 pr-4 sm:pr-6">
-                                    <span className="sr-only">View</span>
+                                    <span className="sr-only">{tc('view')}</span>
                                 </th>
                             </tr>
                         </thead>
@@ -85,7 +88,7 @@ export default async function UsersTable({
                                                 href={`/dashboard/users/${user.id}`}
                                                 className="flex items-center gap-1 text-blue-600 font-medium hover:underline"
                                             >
-                                                View <ChevronRight size={16} />
+                                                {tc('view')} <ChevronRight size={16} />
                                             </Link>
                                         </div>
                                     </td>

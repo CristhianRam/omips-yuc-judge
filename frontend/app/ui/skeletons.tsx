@@ -85,18 +85,40 @@ export function LatestInvoicesSkeleton() {
 export default function DashboardSkeleton() {
   return (
     <>
-      <div
-        className={`${shimmer} relative mb-4 h-8 w-36 overflow-hidden rounded-md bg-gray-100`}
-      />
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <CardSkeleton />
+      {/* Welcome heading */}
+      <div className="mb-6">
+        <div
+          className={`${shimmer} relative h-9 w-72 overflow-hidden rounded-md bg-gray-100`}
+        />
+        <div
+          className={`${shimmer} relative mt-2 h-4 w-64 overflow-hidden rounded-md bg-gray-100`}
+        />
+      </div>
+      {/* 3 stat cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <CardSkeleton />
         <CardSkeleton />
         <CardSkeleton />
       </div>
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
-        <RevenueChartSkeleton />
-        <LatestInvoicesSkeleton />
+      {/* Recent activity */}
+      <div className="mt-6 rounded-xl border border-gray-200 bg-white p-6">
+        <div
+          className={`${shimmer} relative mb-4 h-7 w-40 overflow-hidden rounded-md bg-gray-100`}
+        />
+        <div className="divide-y divide-gray-100">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex items-center justify-between py-3">
+              <div className="flex items-center gap-3">
+                <div className={`${shimmer} relative h-8 w-8 overflow-hidden rounded-full bg-gray-100`} />
+                <div>
+                  <div className={`${shimmer} relative h-4 w-48 overflow-hidden rounded bg-gray-100`} />
+                  <div className={`${shimmer} relative mt-1 h-3 w-32 overflow-hidden rounded bg-gray-100`} />
+                </div>
+              </div>
+              <div className={`${shimmer} relative h-6 w-20 overflow-hidden rounded-full bg-gray-100`} />
+            </div>
+          ))}
+        </div>
       </div>
     </>
   );

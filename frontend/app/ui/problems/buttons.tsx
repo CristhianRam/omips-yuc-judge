@@ -1,14 +1,16 @@
 import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { deleteProblem } from '@/app/lib/actions';
+import { getTranslations } from 'next-intl/server';
 
-export function CreateProblem() {
+export async function CreateProblem() {
+    const t = await getTranslations('problems');
     return (
         <Link
             href="/dashboard/problems/create"
             className="flex h-10 items-center rounded-lg bg-blue-600 px-4 text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         >
-            <span className="hidden md:block">Create Problem</span>{' '}
+            <span className="hidden md:block">{t('createProblem')}</span>{' '}
             <PlusIcon className="h-5 md:ml-4" />
         </Link>
     );
