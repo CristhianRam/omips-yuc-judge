@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { UserIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
 import { updateUserRole } from '@/app/lib/actions';

@@ -1,5 +1,5 @@
 import { PencilIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 export function UpdateUser({ id }: { id: string }) {
     return (

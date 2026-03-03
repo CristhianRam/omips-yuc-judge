@@ -1,18 +1,20 @@
 'use client';
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-
-const DIFFICULTY_OPTIONS = [
-    { label: 'All Difficulties', value: '' },
-    { label: 'Easy', value: 'easy' },
-    { label: 'Medium', value: 'medium' },
-    { label: 'Hard', value: 'hard' },
-];
+import { useTranslations } from 'next-intl';
 
 export default function ProblemFilters() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
+    const t = useTranslations('problems');
+
+    const DIFFICULTY_OPTIONS = [
+        { label: t('allDifficulties'), value: '' },
+        { label: t('easy'), value: 'easy' },
+        { label: t('medium'), value: 'medium' },
+        { label: t('hard'), value: 'hard' },
+    ];
 
     const currentDifficulty = searchParams.get('difficulty') || '';
 

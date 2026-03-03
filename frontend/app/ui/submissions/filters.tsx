@@ -1,27 +1,29 @@
 'use client';
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-
-const VERDICT_OPTIONS = [
-    { label: 'All Verdicts', value: '' },
-    { label: 'Accepted', value: 'AC' },
-    { label: 'Wrong Answer', value: 'WA' },
-    { label: 'Time Limit Exceeded', value: 'TLE' },
-    { label: 'Runtime Error', value: 'RE' },
-    { label: 'Compilation Error', value: 'CE' },
-];
-
-const STATUS_OPTIONS = [
-    { label: 'All Statuses', value: '' },
-    { label: 'Queued', value: 'QUEUED' },
-    { label: 'Judging', value: 'JUDGING' },
-    { label: 'Completed', value: 'COMPLETED' },
-];
+import { useTranslations } from 'next-intl';
 
 export default function SubmissionFilters() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
+    const t = useTranslations('submissions');
+
+    const VERDICT_OPTIONS = [
+        { label: t('allVerdicts'), value: '' },
+        { label: t('accepted'), value: 'AC' },
+        { label: t('wrongAnswer'), value: 'WA' },
+        { label: t('timeLimitExceeded'), value: 'TLE' },
+        { label: t('runtimeError'), value: 'RE' },
+        { label: t('compilationError'), value: 'CE' },
+    ];
+
+    const STATUS_OPTIONS = [
+        { label: t('allStatuses'), value: '' },
+        { label: t('queued'), value: 'QUEUED' },
+        { label: t('judging'), value: 'JUDGING' },
+        { label: t('completed'), value: 'COMPLETED' },
+    ];
 
     const currentVerdict = searchParams.get('verdict') || '';
     const currentStatus = searchParams.get('status') || '';

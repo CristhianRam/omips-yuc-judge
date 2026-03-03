@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { fetchDashboardStats } from '@/app/lib/data';
 import { DashboardCards } from '@/app/ui/dashboard/cards';
 import { RecentActivity } from '@/app/ui/dashboard/recent-activity';
+import { getTranslations } from 'next-intl/server';
 
 export default async function Page() {
   const session = await auth();
@@ -11,11 +12,12 @@ export default async function Page() {
   const username = session?.user?.username || 'User';
 
   const stats = await fetchDashboardStats(role, userId);
+  const t = await getTranslations('dashboard');
 
   const greeting =
     role === 'admin' || role === 'coach'
-      ? 'Welcome back, Coach!'
-      : 'Welcome back, Champion!';
+      ? t('greetingCoach')
+      : t('greetingStudent');
 
   return (
     <main>
@@ -24,7 +26,7 @@ export default async function Page() {
           {greeting}
         </h1>
         <p className="mt-1 text-sm text-gray-500">
-          Here is what&apos;s happening in your OMIPS ecosystem.
+          {t('subtitle')}
         </p>
       </div>
 

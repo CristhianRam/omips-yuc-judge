@@ -1,13 +1,9 @@
-import '@/app/ui/global.css'
-import { inter } from './ui/fonts';
+// This root layout exists only as a fallback.
+// The actual layout with <html>/<body> is in app/[locale]/layout.tsx
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html lang="en">
-      <body className={`${inter.className} antialiased overflow-hidden`}>{children}</body>
-    </html>
-  );
+  return children;
 }

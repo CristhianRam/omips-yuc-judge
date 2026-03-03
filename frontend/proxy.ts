@@ -1,9 +1,10 @@
-import NextAuth from 'next-auth';
-import { authConfig } from './auth.config';
- 
-export default NextAuth(authConfig).auth;
- 
+import createMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
+
+// next-intl handles locale detection, redirects, and URL rewriting
+export default createMiddleware(routing);
+
 export const config = {
-  // https://nextjs.org/docs/app/api-reference/file-conventions/proxy#matcher
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+  // Match all pathnames except API routes, Next.js internals, and static files
+  matcher: ['/((?!api|_next|_vercel|.*\\..*).*)'],
 };

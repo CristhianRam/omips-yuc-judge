@@ -1,5 +1,6 @@
 import { BookOpen, Trophy, Users, Send } from 'lucide-react';
 import { lusitana } from '@/app/ui/fonts';
+import { getTranslations } from 'next-intl/server';
 
 interface CardProps {
     title: string;
@@ -30,7 +31,7 @@ function Card({ title, value, icon, badge, borderColor = 'border-gray-200' }: Ca
     );
 }
 
-export function DashboardCards({
+export async function DashboardCards({
     role,
     totalProblems,
     totalContests,
@@ -42,31 +43,32 @@ export function DashboardCards({
     thirdCardValue: number;
 }) {
     const isCoachOrAdmin = role === 'admin' || role === 'coach';
+    const t = await getTranslations('dashboard');
 
     return (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Card
-                title="Total Problems"
+                title={t('totalProblems')}
                 value={totalProblems}
                 icon={<BookOpen className="h-5 w-5 text-blue-600" />}
                 borderColor="border-blue-100"
             />
             <Card
-                title="Active Contests"
+                title={t('activeContests')}
                 value={totalContests}
                 icon={<Trophy className="h-5 w-5 text-amber-500" />}
                 borderColor="border-amber-100"
             />
             {isCoachOrAdmin ? (
                 <Card
-                    title="Enrolled Students"
+                    title={t('enrolledStudents')}
                     value={thirdCardValue}
                     icon={<Users className="h-5 w-5 text-teal-600" />}
                     borderColor="border-teal-100"
                 />
             ) : (
                 <Card
-                    title="My Submissions"
+                    title={t('mySubmissions')}
                     value={thirdCardValue}
                     icon={<Send className="h-5 w-5 text-green-600" />}
                     borderColor="border-green-100"

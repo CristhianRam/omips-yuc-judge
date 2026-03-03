@@ -9,11 +9,11 @@ import { Suspense } from 'react';
 import { fetchProblemsPages } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { auth } from '@/auth';
+import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
   title: 'Problems',
 };
-
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -31,15 +31,16 @@ export default async function Page(props: {
   const role = session?.user?.role || 'student';
 
   const totalPages = await fetchProblemsPages(query, difficulty || undefined);
+  const t = await getTranslations('problems');
 
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
-        <h1 className={`${lusitana.className} text-2xl`}>Problems</h1>
+        <h1 className={`${lusitana.className} text-2xl`}>{t('title')}</h1>
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
         <div className="flex-1 max-w-xl">
-          <Search placeholder="Search problems..." />
+          <Search placeholder={t('searchPlaceholder')} />
         </div>
         <ProblemFilters />
         {(role === 'admin' || role === 'coach') && <CreateProblem />}

@@ -1,18 +1,20 @@
 'use client';
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-
-const ROLE_OPTIONS = [
-    { label: 'All Roles', value: '' },
-    { label: 'Student', value: 'student' },
-    { label: 'Coach', value: 'coach' },
-    { label: 'Admin', value: 'admin' },
-];
+import { useTranslations } from 'next-intl';
 
 export default function UserFilters() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
+    const t = useTranslations('users');
+
+    const ROLE_OPTIONS = [
+        { label: t('allRoles'), value: '' },
+        { label: t('student'), value: 'student' },
+        { label: t('coach'), value: 'coach' },
+        { label: t('admin'), value: 'admin' },
+    ];
 
     const currentRole = searchParams.get('role') || '';
 

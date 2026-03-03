@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import { fetchUsersPages } from '@/app/lib/data';
 import { Metadata } from 'next';
 import { auth } from '@/auth';
+import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
     title: 'Users',
@@ -23,13 +24,14 @@ export default async function Page(props: {
 
     const session = await auth();
     const role = session?.user?.role || 'student';
+    const t = await getTranslations('users');
 
     // Only admin and coach can see this page
     if (role !== 'admin' && role !== 'coach') {
         return (
             <div className="w-full">
-                <h1 className={`${lusitana.className} text-2xl`}>Access Denied</h1>
-                <p className="mt-4 text-gray-500">You don&apos;t have permission to view this page.</p>
+                <h1 className={`${lusitana.className} text-2xl`}>{t('accessDenied')}</h1>
+                <p className="mt-4 text-gray-500">{t('noPermission')}</p>
             </div>
         );
     }
@@ -39,7 +41,7 @@ export default async function Page(props: {
     return (
         <div className="w-full">
             <div className="flex w-full items-center justify-between">
-                <h1 className={`${lusitana.className} text-2xl`}>Users</h1>
+                <h1 className={`${lusitana.className} text-2xl`}>{t('title')}</h1>
             </div>
             <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
                 <UserFilters />

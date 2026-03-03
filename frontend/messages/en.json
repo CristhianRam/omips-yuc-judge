@@ -1,0 +1,140 @@
+{
+  "common": {
+    "search": "Search",
+    "view": "View",
+    "delete": "Delete",
+    "edit": "Edit",
+    "actions": "Actions",
+    "signOut": "Sign Out",
+    "noResults": "No results found."
+  },
+  "landing": {
+    "welcome": "Welcome to BeeperCode.",
+    "description": "This is a platform for",
+    "rekarel": "Rekarel",
+    "broughtBy": ", brought to you by your couch Cristian and Saul.",
+    "logIn": "Log in",
+    "signUp": "Sign up"
+  },
+  "login": {
+    "title": "Please log in to continue.",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter password",
+    "submit": "Log in"
+  },
+  "signup": {
+    "title": "Please sign up to continue.",
+    "name": "Name",
+    "namePlaceholder": "Enter your name",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email address",
+    "password": "Password",
+    "passwordPlaceholder": "Enter password",
+    "submit": "Sign Up"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "problems": "Problems",
+    "contests": "Contests",
+    "users": "Users",
+    "submissions": "Submissions"
+  },
+  "dashboard": {
+    "greetingCoach": "Welcome back, Coach!",
+    "greetingStudent": "Welcome back, Champion!",
+    "subtitle": "Here is what's happening in your OMIPS ecosystem.",
+    "totalProblems": "Total Problems",
+    "activeContests": "Active Contests",
+    "enrolledStudents": "Enrolled Students",
+    "mySubmissions": "My Submissions",
+    "recentActivity": "Recent Activity",
+    "noRecentSubmissions": "No recent submissions yet.",
+    "newSubmissionFor": "New submission for",
+    "problem": "Problem",
+    "by": "by"
+  },
+  "verdicts": {
+    "accepted": "ACCEPTED",
+    "wrongAnswer": "WRONG ANSWER",
+    "timeLimit": "TIME LIMIT",
+    "runtimeError": "RUNTIME ERROR",
+    "compileError": "COMPILE ERROR"
+  },
+  "time": {
+    "justNow": "just now",
+    "minuteAgo": "{count} min ago",
+    "minutesAgo": "{count} mins ago",
+    "hourAgo": "{count} hr ago",
+    "hoursAgo": "{count} hrs ago",
+    "dayAgo": "{count} day ago",
+    "daysAgo": "{count} days ago"
+  },
+  "problems": {
+    "title": "Problems",
+    "searchPlaceholder": "Search problems...",
+    "createProblem": "Create Problem",
+    "problem": "Problem",
+    "difficulty": "Difficulty",
+    "timeMemory": "Time/Memory",
+    "limits": "Limits",
+    "solve": "Solve",
+    "allDifficulties": "All Difficulties",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
+  },
+  "contests": {
+    "title": "Contests",
+    "createContest": "Create Contest",
+    "contest": "Contest",
+    "status": "Status",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "registration": "Registration",
+    "active": "Active",
+    "upcoming": "Upcoming",
+    "finished": "Finished",
+    "open": "Open",
+    "closed": "Closed",
+    "openForRegistration": "Open for registration"
+  },
+  "users": {
+    "title": "Users",
+    "username": "Username",
+    "email": "Email",
+    "role": "Role",
+    "noUsersFound": "No users found.",
+    "accessDenied": "Access Denied",
+    "noPermission": "You don't have permission to view this page.",
+    "allRoles": "All Roles",
+    "admin": "Admin",
+    "coach": "Coach",
+    "student": "Student"
+  },
+  "submissions": {
+    "title": "My Submissions",
+    "noSubmissionsFound": "No submissions found.",
+    "allVerdicts": "All Verdicts",
+    "allStatuses": "All Statuses",
+    "date": "Date",
+    "problem": "Problem",
+    "user": "User",
+    "status": "Status",
+    "verdict": "Verdict",
+    "runtime": "Runtime",
+    "accepted": "Accepted",
+    "wrongAnswer": "Wrong Answer",
+    "timeLimitExceeded": "Time Limit Exceeded",
+    "runtimeError": "Runtime Error",
+    "compilationError": "Compilation Error",
+    "queued": "Queued",
+    "judging": "Judging",
+    "completed": "Completed"
+  },
+  "languageSwitcher": {
+    "en": "English",
+    "es": "Español"
+  }
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import { ContestProblemPublic } from '@/app/lib/definitions';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ChevronRight, TrashIcon } from 'lucide-react';
 import AddProblemForm from './add-problem-form';
 import { removeProblemFromContest } from '@/app/lib/actions';

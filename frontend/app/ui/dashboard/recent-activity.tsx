@@ -1,6 +1,7 @@
 import { Clock } from 'lucide-react';
 import { RecentSubmission } from '@/app/lib/definitions';
 import { lusitana } from '@/app/ui/fonts';
+import { getTranslations } from 'next-intl/server';
 
 function timeAgo(dateStr: string): string {
     const date = new Date(dateStr);
@@ -51,18 +52,20 @@ function VerdictBadge({ verdict, status }: { verdict: string | null; status: str
     );
 }
 
-export function RecentActivity({
+export async function RecentActivity({
     submissions,
 }: {
     submissions: RecentSubmission[];
 }) {
+    const t = await getTranslations('dashboard');
+
     if (submissions.length === 0) {
         return (
             <div className="mt-6 rounded-xl border border-gray-200 bg-white p-6">
                 <h2 className={`${lusitana.className} mb-4 text-xl font-bold text-gray-900`}>
-                    Recent Activity
+                    {t('recentActivity')}
                 </h2>
-                <p className="text-sm text-gray-500">No recent submissions yet.</p>
+                <p className="text-sm text-gray-500">{t('noRecentSubmissions')}</p>
             </div>
         );
     }
@@ -70,7 +73,7 @@ export function RecentActivity({
     return (
         <div className="mt-6 rounded-xl border border-gray-200 bg-white p-6">
             <h2 className={`${lusitana.className} mb-4 text-xl font-bold text-gray-900`}>
-                Recent Activity
+                {t('recentActivity')}
             </h2>
             <div className="divide-y divide-gray-100">
                 {submissions.map((sub) => (
@@ -84,13 +87,13 @@ export function RecentActivity({
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-gray-900">
-                                    New submission for{' '}
+                                    {t('newSubmissionFor')}{' '}
                                     <span className="font-semibold text-blue-600">
-                                        Problem #{sub.problemId}
+                                        {t('problem')} #{sub.problemId}
                                     </span>
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                    by {sub.userName} · {timeAgo(sub.createdAt)}
+                                    {t('by')} {sub.userName} · {timeAgo(sub.createdAt)}
                                 </p>
                             </div>
                         </div>

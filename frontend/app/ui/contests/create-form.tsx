@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { createContest } from '@/app/lib/actions';
 
 export default function CreateContestForm() {

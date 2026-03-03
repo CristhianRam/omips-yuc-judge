@@ -1,7 +1,8 @@
 import { fetchContests } from '@/app/lib/data';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ChevronRight, Trophy } from 'lucide-react';
 import clsx from 'clsx';
+import { getTranslations } from 'next-intl/server';
 
 function getContestStatus(contest: {
     start_date: string;
@@ -12,24 +13,24 @@ function getContestStatus(contest: {
     const start = new Date(contest.start_date);
     const end = contest.end_date ? new Date(contest.end_date) : null;
 
-    if (end && now > end) return 'Finished';
-    if (now >= start) return 'Active';
-    return 'Upcoming';
+    if (end && now > end) return 'finished';
+    if (now >= start) return 'active';
+    return 'upcoming';
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, label }: { status: string; label: string }) {
     return (
         <span
             className={clsx(
                 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold',
                 {
-                    'bg-green-100 text-green-800': status === 'Active',
-                    'bg-blue-100 text-blue-800': status === 'Upcoming',
-                    'bg-gray-100 text-gray-600': status === 'Finished',
+                    'bg-green-100 text-green-800': status === 'active',
+                    'bg-blue-100 text-blue-800': status === 'upcoming',
+                    'bg-gray-100 text-gray-600': status === 'finished',
                 },
             )}
         >
-            {status}
+            {label}
         </span>
     );
 }
@@ -52,6 +53,14 @@ export default async function ContestsTable({
     role: string;
 }) {
     const contests = await fetchContests(currentPage);
+    const t = await getTranslations('contests');
+    const tc = await getTranslations('common');
+
+    const statusLabels: Record<string, string> = {
+        active: t('active'),
+        upcoming: t('upcoming'),
+        finished: t('finished'),
+    };
 
     return (
         <div className="mt-6 flow-root">
@@ -73,13 +82,13 @@ export default async function ContestsTable({
                                                 {formatDate(contest.start_date)}
                                             </p>
                                         </div>
-                                        <StatusBadge status={status} />
+                                        <StatusBadge status={status} label={statusLabels[status]} />
                                     </div>
                                     <div className="flex w-full items-center justify-between pt-4">
                                         <div className="flex items-center gap-2">
                                             {contest.open && (
                                                 <span className="text-xs text-green-600 font-medium">
-                                                    Open for registration
+                                                    {t('openForRegistration')}
                                                 </span>
                                             )}
                                         </div>
@@ -87,7 +96,7 @@ export default async function ContestsTable({
                                             href={`/dashboard/contests/${contest.id}`}
                                             className="flex items-center gap-1 text-blue-600 font-medium hover:underline text-sm"
                                         >
-                                            View <ChevronRight size={16} />
+                                            {tc('view')} <ChevronRight size={16} />
                                         </Link>
                                     </div>
                                 </div>
@@ -100,22 +109,22 @@ export default async function ContestsTable({
                         <thead className="rounded-lg text-left text-sm font-normal">
                             <tr>
                                 <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                                    Contest
+                                    {t('contest')}
                                 </th>
                                 <th scope="col" className="px-3 py-5 font-medium">
-                                    Status
+                                    {t('status')}
                                 </th>
                                 <th scope="col" className="px-3 py-5 font-medium">
-                                    Start Date
+                                    {t('startDate')}
                                 </th>
                                 <th scope="col" className="px-3 py-5 font-medium">
-                                    End Date
+                                    {t('endDate')}
                                 </th>
                                 <th scope="col" className="px-3 py-5 font-medium">
-                                    Registration
+                                    {t('registration')}
                                 </th>
                                 <th scope="col" className="relative py-3 pl-3 pr-4 sm:pr-6">
-                                    <span className="sr-only">Actions</span>
+                                    <span className="sr-only">{tc('actions')}</span>
                                 </th>
                             </tr>
                         </thead>
@@ -134,7 +143,7 @@ export default async function ContestsTable({
                                             </div>
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-3">
-                                            <StatusBadge status={status} />
+                                            <StatusBadge status={status} label={statusLabels[status]} />
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-3 text-sm">
                                             {formatDate(contest.start_date)}
@@ -153,7 +162,7 @@ export default async function ContestsTable({
                                                         : 'bg-red-50 text-red-700',
                                                 )}
                                             >
-                                                {contest.open ? 'Open' : 'Closed'}
+                                                {contest.open ? t('open') : t('closed')}
                                             </span>
                                         </td>
                                         <td className="whitespace-nowrap py-3 pl-6 pr-3">
@@ -162,7 +171,7 @@ export default async function ContestsTable({
                                                     href={`/dashboard/contests/${contest.id}`}
                                                     className="flex items-center gap-1 text-blue-600 font-medium hover:underline mr-4"
                                                 >
-                                                    View <ChevronRight size={16} />
+                                                    {tc('view')} <ChevronRight size={16} />
                                                 </Link>
                                             </div>
                                         </td>

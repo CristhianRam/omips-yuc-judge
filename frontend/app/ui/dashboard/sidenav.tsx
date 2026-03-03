@@ -1,10 +1,13 @@
-import Link from 'next/link';
 import NavLinks from '@/app/ui/dashboard/nav-links';
 import { LogOut } from 'lucide-react';
 import { signOut } from '@/auth';
 import OmipsIcon from '@/app/ui/omips-icon';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/i18n/navigation';
+import LanguageSwitcher from '@/app/ui/language-switcher';
 
-export default function SideNav({ role }: { role: string }) {
+export default async function SideNav({ role }: { role: string }) {
+  const t = await getTranslations('common');
   return (
     <div className="flex h-full flex-col px-3 py-4 md:px-2">
       <Link
@@ -18,7 +21,11 @@ export default function SideNav({ role }: { role: string }) {
       </Link>
       <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">
         <NavLinks role={role} />
-        <div className="hidden h-auto w-full grow rounded-lg bg-gray-50 md:block"></div>
+        <div className="hidden h-auto w-full grow rounded-lg bg-gray-50 md:block">
+          <div className="p-3">
+            <LanguageSwitcher />
+          </div>
+        </div>
         <form
           action={async () => {
             'use server';
@@ -27,7 +34,7 @@ export default function SideNav({ role }: { role: string }) {
         >
           <button className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-lg bg-gray-50 p-3 text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors md:flex-none md:justify-start md:p-2 md:px-3">
             <LogOut className="w-6 flex-shrink-0" />
-            <div className="hidden md:block">Sign Out</div>
+            <div className="hidden md:block">{t('signOut')}</div>
           </button>
         </form>
       </div>

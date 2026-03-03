@@ -1,0 +1,140 @@
+{
+    "common": {
+        "search": "Buscar",
+        "view": "Ver",
+        "delete": "Eliminar",
+        "edit": "Editar",
+        "actions": "Acciones",
+        "signOut": "Cerrar sesión",
+        "noResults": "No se encontraron resultados."
+    },
+    "landing": {
+        "welcome": "Bienvenido a BeeperCode.",
+        "description": "Es una plataforma para",
+        "rekarel": "Rekarel",
+        "broughtBy": ", creado por tu coach Cristian y Saul.",
+        "logIn": "Iniciar sesión",
+        "signUp": "Registrarse"
+    },
+    "login": {
+        "title": "Inicia sesión para continuar.",
+        "username": "Usuario",
+        "usernamePlaceholder": "Ingresa tu nombre de usuario",
+        "password": "Contraseña",
+        "passwordPlaceholder": "Ingresa tu contraseña",
+        "submit": "Iniciar sesión"
+    },
+    "signup": {
+        "title": "Regístrate para continuar.",
+        "name": "Nombre",
+        "namePlaceholder": "Ingresa tu nombre",
+        "email": "Correo electrónico",
+        "emailPlaceholder": "Ingresa tu correo electrónico",
+        "password": "Contraseña",
+        "passwordPlaceholder": "Ingresa tu contraseña",
+        "submit": "Registrarse"
+    },
+    "nav": {
+        "dashboard": "Inicio",
+        "problems": "Problemas",
+        "contests": "Concursos",
+        "users": "Usuarios",
+        "submissions": "Envíos"
+    },
+    "dashboard": {
+        "greetingCoach": "¡Bienvenido de vuelta, Coach!",
+        "greetingStudent": "¡Bienvenido de vuelta, Campeón!",
+        "subtitle": "Esto es lo que está pasando en tu ecosistema OMIPS.",
+        "totalProblems": "Total de Problemas",
+        "activeContests": "Concursos Activos",
+        "enrolledStudents": "Estudiantes Inscritos",
+        "mySubmissions": "Mis Envíos",
+        "recentActivity": "Actividad Reciente",
+        "noRecentSubmissions": "Aún no hay envíos recientes.",
+        "newSubmissionFor": "Nuevo envío para",
+        "problem": "Problema",
+        "by": "por"
+    },
+    "verdicts": {
+        "accepted": "ACEPTADO",
+        "wrongAnswer": "RESPUESTA INCORRECTA",
+        "timeLimit": "LÍMITE DE TIEMPO",
+        "runtimeError": "ERROR DE EJECUCIÓN",
+        "compileError": "ERROR DE COMPILACIÓN"
+    },
+    "time": {
+        "justNow": "justo ahora",
+        "minuteAgo": "hace {count} min",
+        "minutesAgo": "hace {count} mins",
+        "hourAgo": "hace {count} hr",
+        "hoursAgo": "hace {count} hrs",
+        "dayAgo": "hace {count} día",
+        "daysAgo": "hace {count} días"
+    },
+    "problems": {
+        "title": "Problemas",
+        "searchPlaceholder": "Buscar problemas...",
+        "createProblem": "Crear Problema",
+        "problem": "Problema",
+        "difficulty": "Dificultad",
+        "timeMemory": "Tiempo/Memoria",
+        "limits": "Límites",
+        "solve": "Resolver",
+        "allDifficulties": "Todas las Dificultades",
+        "easy": "Fácil",
+        "medium": "Medio",
+        "hard": "Difícil"
+    },
+    "contests": {
+        "title": "Concursos",
+        "createContest": "Crear Concurso",
+        "contest": "Concurso",
+        "status": "Estado",
+        "startDate": "Fecha de Inicio",
+        "endDate": "Fecha de Fin",
+        "registration": "Registro",
+        "active": "Activo",
+        "upcoming": "Próximo",
+        "finished": "Finalizado",
+        "open": "Abierto",
+        "closed": "Cerrado",
+        "openForRegistration": "Abierto para registro"
+    },
+    "users": {
+        "title": "Usuarios",
+        "username": "Nombre de usuario",
+        "email": "Correo electrónico",
+        "role": "Rol",
+        "noUsersFound": "No se encontraron usuarios.",
+        "accessDenied": "Acceso Denegado",
+        "noPermission": "No tienes permiso para ver esta página.",
+        "allRoles": "Todos los Roles",
+        "admin": "Administrador",
+        "coach": "Coach",
+        "student": "Estudiante"
+    },
+    "submissions": {
+        "title": "Mis Envíos",
+        "noSubmissionsFound": "No se encontraron envíos.",
+        "allVerdicts": "Todos los Veredictos",
+        "allStatuses": "Todos los Estados",
+        "date": "Fecha",
+        "problem": "Problema",
+        "user": "Usuario",
+        "status": "Estado",
+        "verdict": "Veredicto",
+        "runtime": "Tiempo de ejecución",
+        "accepted": "Aceptado",
+        "wrongAnswer": "Respuesta Incorrecta",
+        "timeLimitExceeded": "Límite de Tiempo Excedido",
+        "runtimeError": "Error de Ejecución",
+        "compilationError": "Error de Compilación",
+        "queued": "En cola",
+        "judging": "Evaluando",
+        "completed": "Completado"
+    },
+    "languageSwitcher": {
+        "en": "English",
+        "es": "Español"
+    }
+}

@@ -1,8 +1,9 @@
 import { fetchProblems } from "@/app/lib/data";
-import Link from "next/link";
+import { Link } from '@/i18n/navigation';
 import { ChevronRight, Code2 } from "lucide-react";
 import clsx from 'clsx'
 import { UpdateProblem, DeleteProblem } from "./buttons";
+import { getTranslations } from 'next-intl/server';
 
 export default async function ProblemsTable({
   query,
@@ -16,6 +17,7 @@ export default async function ProblemsTable({
   difficulty?: string;
 }) {
   const problems = await fetchProblems(query, currentPage, difficulty);
+  const t = await getTranslations('problems');
 
   return (
     <div className="mt-6 flow-root">
@@ -27,7 +29,7 @@ export default async function ProblemsTable({
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
                     <p className="text-sm font-medium">{problem.title}</p>
-                    <p className="text-xs text-gray-500">Limits: {problem.time_limit_ms}ms / {problem.memory_limit_mb}MB</p>
+                    <p className="text-xs text-gray-500">{t('limits')}: {problem.time_limit_ms}ms / {problem.memory_limit_mb}MB</p>
                   </div>
                   <DifficultyBadge difficulty={problem.difficulty} />
                 </div>
@@ -37,7 +39,7 @@ export default async function ProblemsTable({
                       href={`/dashboard/problems/${problem.id}`}
                       className="flex items-center gap-1 text-blue-600 font-medium hover:underline text-sm"
                     >
-                      Solve <ChevronRight size={16} />
+                      {t('solve')} <ChevronRight size={16} />
                     </Link>
                   </div>
                   {(role === 'admin' || role === 'coach') && (
@@ -53,9 +55,9 @@ export default async function ProblemsTable({
           <table className="hidden min-w-full text-gray-900 md:table">
             <thead className="rounded-lg text-left text-sm font-normal">
               <tr>
-                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">Problem</th>
-                <th scope="col" className="px-3 py-5 font-medium">Difficulty</th>
-                <th scope="col" className="px-3 py-5 font-medium">Time/Memory</th>
+                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">{t('problem')}</th>
+                <th scope="col" className="px-3 py-5 font-medium">{t('difficulty')}</th>
+                <th scope="col" className="px-3 py-5 font-medium">{t('timeMemory')}</th>
                 <th scope="col" className="relative py-3 pl-3 pr-4 sm:pr-6">
                   <span className="sr-only">Actions</span>
                 </th>
@@ -82,7 +84,7 @@ export default async function ProblemsTable({
                         href={`/dashboard/problems/${problem.id}`}
                         className="flex items-center gap-1 text-blue-600 font-medium hover:underline mr-4"
                       >
-                        Solve <ChevronRight size={16} />
+                        {t('solve')} <ChevronRight size={16} />
                       </Link>
                       {(role === 'admin' || role === 'coach') && (
                         <>
