@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import NavLinks from '@/app/ui/dashboard/nav-links';
-import { Code2, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { signOut } from '@/auth';
+import OmipsIcon from '@/app/ui/omips-icon';
 
 export default function SideNav({ role }: { role: string }) {
   return (
@@ -10,9 +11,9 @@ export default function SideNav({ role }: { role: string }) {
         className="mb-2 flex h-20 items-end justify-start rounded-lg bg-blue-600 p-4 md:h-40"
         href="/"
       >
-        <div className="w-32 text-white md:w-40 flex items-center gap-2">
-          <Code2 className="w-10 h-10" />
-          <span className="text-xl font-bold">KarelJudge</span>
+        <div className="w-full text-white flex items-center gap-3">
+          <OmipsIcon width={120} />
+          <span className="text-2xl font-bold tracking-tight">KarelJudge</span>
         </div>
       </Link>
       <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">

@@ -24,7 +24,7 @@ export default async function Page() {
           {greeting}
         </h1>
         <p className="mt-1 text-sm text-gray-500">
-          Here is what&apos;s happening in your Karel ecosystem.
+          Here is what&apos;s happening in your OMIPS ecosystem.
         </p>
       </div>
 
