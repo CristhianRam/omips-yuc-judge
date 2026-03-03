@@ -12,8 +12,8 @@ export default function SideNav({ role }: { role: string }) {
         href="/"
       >
         <div className="w-full text-white flex items-center gap-3">
-          <OmipsIcon width={120} />
-          <span className="text-2xl font-bold tracking-tight">KarelJudge</span>
+          <OmipsIcon className="w-12 md:w-28" />
+          <span className="text-2xl font-bold tracking-tight">BeeperCode</span>
         </div>
       </Link>
       <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">

@@ -6,8 +6,8 @@ export default function OmipsLogo() {
     <div
       className={`${lusitana.className} flex flex-row items-center gap-3 leading-none text-white`}
     >
-      <OmipsIcon width={140} />
-      <span className="text-3xl font-bold tracking-tight">KarelJudge</span>
+      <OmipsIcon className="w-16 md:w-36" />
+      <span className="text-xl md:text-3xl font-bold tracking-tight">BeeperCode</span>
     </div>
   );
 }
