@@ -7,3 +7,8 @@ npm-debug.log
 .env
 .env.local
 .env.*.local
+.env.production
+coverage
+.vercel
+*.log
+.DS_Store
