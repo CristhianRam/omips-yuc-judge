@@ -2,6 +2,7 @@ import Breadcrumbs from '@/app/ui/problems/breadcrumbs';
 import { fetchProblemById, fetchContestById } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import ContestSubmitForm from '@/app/ui/contests/contest-submit-form';
+import SubmissionsList from '@/app/ui/problems/submissions-list';
 import MarkdownRenderer from '@/app/ui/markdown-renderer';
 
 export default async function Page(props: {
@@ -77,7 +78,9 @@ export default async function Page(props: {
             <div className="mt-8">
                 <h2 className="text-xl font-bold mb-4">Submit Solution</h2>
                 <ContestSubmitForm problemId={problem.id} contestId={contest.id} />
+                <SubmissionsList problemId={problem.id} />
             </div>
         </main>
     );
 }
+
