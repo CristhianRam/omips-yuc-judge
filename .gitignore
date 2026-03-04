@@ -23,6 +23,10 @@ next-env.d.ts
 
 # ===== Env =====
 .env
+.env.local
+.env.production
+.env.*.local
+backend/.env
 
 # ===== Logs =====
 *.log
