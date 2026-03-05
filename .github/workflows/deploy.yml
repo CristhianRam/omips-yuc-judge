@@ -33,7 +33,7 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_PREFIX }}-frontend:latest,${{ env.IMAGE_PREFIX }}-frontend:${{ github.sha }}
           build-args: |
-            NEXT_PUBLIC_API=https://your-domain.com/api
+            NEXT_PUBLIC_API=https://beepercodes.win/api
 
       - name: Build & push API
         uses: docker/build-push-action@v5
