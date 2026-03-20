@@ -130,10 +130,11 @@ docker compose down
 - Redis
 
 ### Worker
-- Node.js
 - TypeScript
 - Redis
-- Sandbox de ejecución
+
+### Database
+- PostgreSQL
 
 ### Frontend
 - Node.js
