@@ -3,9 +3,8 @@
 Plataforma web de **juez virtual y gestión de problemas y concursos** para la **Olimpiada Mexicana de Informática para Primaria y Secundaria (OMIPS) – Delegación Yucatán**.
 
 Este sistema permite:
-- Administrar problemas.
+- Administrar y crear problemas.
 - Ejecutar envíos de código automáticamente.
-- Evaluar soluciones en múltiples lenguajes.
 - Crear concursos.
 - Gestionar participantes.
 - Calificar en tiempo real.
