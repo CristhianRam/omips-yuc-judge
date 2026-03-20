@@ -126,10 +126,8 @@ docker compose down
 ## 🛠 Tecnologías
 
 ### Backend
-- Node.js
-- TypeScript
+- Python (FastAPI)
 - Redis
-- Docker
 
 ### Worker
 - Node.js
