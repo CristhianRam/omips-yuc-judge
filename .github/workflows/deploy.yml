@@ -13,55 +13,61 @@ jobs:
     permissions:
       contents: read
       packages: write
-
     steps:
       - name: Set lowercase image prefix
         run: echo "IMAGE_PREFIX=ghcr.io/${OWNER,,}/omips" >> $GITHUB_ENV
         env:
           OWNER: '${{ secrets.GHCR_USER }}'
-
+      
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.GHCR_USER }}
           password: ${{ secrets.GHCR_TOKEN }}
-
+      
       - name: Build & push frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: true
-          tags: ${{ env.IMAGE_PREFIX }}-frontend:latest,${{ env.IMAGE_PREFIX }}-frontend:${{ github.sha }}
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-frontend:latest
+            ${{ env.IMAGE_PREFIX }}-frontend:${{ github.sha }}
           build-args: |
             NEXT_PUBLIC_API=http://api:8000
-
+      
       - name: Build & push API
         uses: docker/build-push-action@v5
         with:
           context: ./backend/judge
           push: true
-          tags: ${{ env.IMAGE_PREFIX }}-api:latest,${{ env.IMAGE_PREFIX }}-api:${{ github.sha }}
-
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-api:latest
+            ${{ env.IMAGE_PREFIX }}-api:${{ github.sha }}
+      
       - name: Build & push Worker
         uses: docker/build-push-action@v5
         with:
           context: ./backend/rekarel-worker
           push: true
-          tags: ${{ env.IMAGE_PREFIX }}-worker:latest,${{ env.IMAGE_PREFIX }}-worker:${{ github.sha }}
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-worker:latest
+            ${{ env.IMAGE_PREFIX }}-worker:${{ github.sha }}
 
   deploy:
     needs: build-and-push
     runs-on: [self-hosted, linux, x64]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
       - name: Deploy to VPS
+        env:
+          GHCR_OWNER: ${{ secrets.GHCR_USER }}
         run: |
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GHCR_USER }} --password-stdin
           docker compose --env-file ~/beeperCode/.env -f docker-compose.prod.yml pull
