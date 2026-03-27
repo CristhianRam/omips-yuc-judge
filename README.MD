@@ -10,6 +10,7 @@ Este sistema permite:
 - Calificar en tiempo real.
 
 ---
+live on: 
 
 ## 🧠 Arquitectura General
 
