@@ -17,7 +17,7 @@ class ProblemCreate(BaseModel):
     @classmethod
     def validate_markdown(cls, v: str) -> str:
         """Validar que el Markdown no sea demasiado largo."""
-        max_length = 50000
+        max_length = 30000
         if len(v) > max_length:
             raise ValueError(f"La descripción no puede exceder {max_length} caracteres")
         return v

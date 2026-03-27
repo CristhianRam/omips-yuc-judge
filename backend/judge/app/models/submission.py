@@ -26,7 +26,7 @@ class SubmissionVerdict(str, Enum):
 
 class Submission(SQLModel, table=True):
     id: Optional[UUID] = Field(default_factory=uuid4, primary_key=True)
-    user_id: UUID = Field(foreign_key="user.id")
+    user_id: UUID = Field(foreign_key="user.id", ondelete="CASCADE")
     problem_id: int = Field(foreign_key="problem.id", ondelete="CASCADE")
     contest_id: Optional[int] = Field(
         default=None, foreign_key="contest.id", ondelete="SET NULL"
