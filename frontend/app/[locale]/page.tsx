@@ -22,7 +22,10 @@ export default function Page() {
                         <a href="https://rekarel.olimpiadadeinformatica.org.mx/" className="text-blue-500">
                             {t('rekarel')}
                         </a>
-                        {t('broughtBy')}
+                        {t.rich('broughtBy', {
+                            cris: (chunks) => <a href="https://www.linkedin.com/in/cristhian-ramirez-couoh/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{chunks}</a>,
+                            saul: (chunks) => <a href="https://www.linkedin.com/in/saulcanche/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{chunks}</a>
+                        })}
                     </p>
                     <div className='flex items-center gap-5'>
                         <Link

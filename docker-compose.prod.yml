@@ -7,26 +7,14 @@
 #   DATABASE_URL, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 services:
-  # ─── Reverse Proxy (ONLY public-facing service) ───
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - frontend
-      - api
-    restart: unless-stopped
-
   # ─── Frontend (internal only — no ports exposed) ───
   frontend:
     image: ghcr.io/${GHCR_OWNER:-your-username}/omips-frontend:latest
     environment:
       - AUTH_SECRET=${AUTH_SECRET}
       - AUTH_TRUST_HOST=true
+    ports:
+      - "3000:3000"
     depends_on:
       - api
     restart: unless-stopped
@@ -45,6 +33,9 @@ services:
       - ALGORITHM=${ALGORITHM:-HS256}
       - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
       - TESTCASES_DIR=/data/problems
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
@@ -65,6 +56,9 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - ALGORITHM=${ALGORITHM:-HS256}
       - TESTCASES_DIR=/data/problems
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
     depends_on:
       - redis
       - db
