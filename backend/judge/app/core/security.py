@@ -16,7 +16,7 @@ def get_secret_key() -> str:
 
 SECRET_KEY = get_secret_key()
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60))
 
 # Configuramos bcrypt para hashear contraseñas
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

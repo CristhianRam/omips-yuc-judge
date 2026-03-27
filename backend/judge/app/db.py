@@ -4,13 +4,21 @@ from typing import Annotated
 from fastapi import Depends
 from sqlmodel import Session, create_engine
 
+
 # Configuración de la base de datos
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test.db")
+def get_db_url() -> str:
+    url = os.getenv("DATABASE_URL")
+    if not url:
+        raise ValueError("DATABASE_URL no configurada")
+    return url
+
+
+DATABASE_URL = get_db_url()
 
 # Motor de la base de datos
 engine = create_engine(
     DATABASE_URL,
-    echo=True,  # Cambia a False en producción
+    echo=False,  # Cambia a False en producción
 )
 
 
