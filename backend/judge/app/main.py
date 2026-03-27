@@ -2,7 +2,6 @@ from contextlib import asynccontextmanager
 
 from app.api.auth_endpoints import router as auth_router
 from app.api.contest_endpoints import router as contest_router
-from app.api.dev_endpoints import router as dev_router
 from app.api.problem_endpoints import router as problem_router
 from app.api.submission_endpoints import router as submissions_router
 from app.api.testcase_endpoints import router as testcase_router
@@ -23,7 +22,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="OMIPS Yucatan Judge API", version="1.0.0", lifespan=lifespan)
 
-app.include_router(dev_router)
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(problem_router)
