@@ -33,7 +33,7 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_PREFIX }}-frontend:latest,${{ env.IMAGE_PREFIX }}-frontend:${{ github.sha }}
           build-args: |
-            NEXT_PUBLIC_API=https://beepercodes.win/api
+            NEXT_PUBLIC_API=http://api:8000
 
       - name: Build & push API
         uses: docker/build-push-action@v5
@@ -51,18 +51,15 @@ jobs:
 
   deploy:
     needs: build-and-push
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, fmat-vs-omi]
 
     steps:
-      - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd /opt/omips
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GHCR_USER }} --password-stdin
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
-            docker image prune -f
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS
+        run: |
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ secrets.GHCR_USER }} --password-stdin
+          docker compose --env-file ~/beeperCode/.env -f docker-compose.prod.yml pull
+          docker compose --env-file ~/beeperCode/.env -f docker-compose.prod.yml up -d --remove-orphans
+          docker image prune -f
