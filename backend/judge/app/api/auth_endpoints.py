@@ -1,4 +1,5 @@
 from datetime import timedelta
+from operator import or_
 from typing import Annotated
 
 from app.core.security import (
@@ -58,8 +59,10 @@ def login(
     """
     Endpoint para obtener el Token JWT (Login).
     """
-    # 1. Buscar usuario por username
-    query = select(User).where(User.username == form_data.username)
+    # 1. Buscar usuario por username o email
+    query = select(User).where(
+        or_(User.username == form_data.username, User.email == form_data.username)
+    )
     user = session.exec(query).first()
 
     # 2. Verificar usuario y contraseña
