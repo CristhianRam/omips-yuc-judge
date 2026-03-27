@@ -55,7 +55,7 @@ jobs:
 
   deploy:
     needs: build-and-push
-    runs-on: fmat-vs-omi
+    runs-on: [self-hosted, linux, x64]
 
     steps:
       - name: Checkout code
