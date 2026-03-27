@@ -6,7 +6,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/omips
 
 jobs:
   build-and-push:
@@ -16,6 +15,11 @@ jobs:
       packages: write
 
     steps:
+      - name: Set lowercase image prefix
+        run: echo "IMAGE_PREFIX=ghcr.io/${OWNER,,}/omips" >> $GITHUB_ENV
+        env:
+          OWNER: '${{ secrets.GHCR_USER }}'
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -23,8 +27,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.GHCR_USER }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Build & push frontend
         uses: docker/build-push-action@v5
