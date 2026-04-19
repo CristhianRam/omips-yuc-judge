@@ -5,6 +5,7 @@ from rq import Queue
 
 redis_host = os.getenv("REDIS_HOST", "localhost")
 redis_port = int(os.getenv("REDIS_PORT", 6379))
+redis_password = os.getenv("REDIS_PASSWORD", None)
 
-redis_conn = Redis(host=redis_host, port=redis_port)
+redis_conn = Redis(host=redis_host, port=redis_port, password=redis_password)
 submission_queue = Queue("submissions", connection=redis_conn)
