@@ -5,7 +5,7 @@ from app.core.testcase_storage import (
     read_testcase_file,
     save_testcase_files,
 )
-from app.models import TestCase
+from app.models import Problem, TestCase
 from app.schemas.testcase_schemas import (
     TestCasePublic,
     TestCaseWithContent,
@@ -112,11 +112,8 @@ def handle_testcase_list(problem_id: int, session) -> list[TestCasePublic]:
     Returns:
         list[TestCasePublic]: Lista de testcases encontrados.
     """
-    problem_exists = session.exec(
-        select(TestCase.problem_id).where(TestCase.problem_id == problem_id)
-    ).first()
-
-    if not problem_exists:
+    problem = session.get(Problem, problem_id)
+    if not problem:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="El problema no existe"
         )

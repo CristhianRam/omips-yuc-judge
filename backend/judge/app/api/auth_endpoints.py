@@ -12,7 +12,7 @@ from app.core.security import (
     verify_password,
 )
 from app.db import SessionDep
-from app.models import EmailVerification, User
+from app.models import PendingRegistration, User
 from app.schemas.user_schemas import (
     EmailVerificationRequest,
     MessageResponse,
@@ -32,8 +32,19 @@ VERIFICATION_CODE_DIGITS = 6
 
 
 def _verification_ttl_minutes() -> int:
-    value = int(os.getenv("EMAIL_VERIFICATION_TTL_MINUTES", "10"))
+    try:
+        value = int(os.getenv("EMAIL_VERIFICATION_TTL_MINUTES", "10"))
+    except ValueError:
+        value = 10
     return max(value, 1)
+
+
+def _normalize_email(email: str) -> str:
+    return email.strip().lower()
+
+
+def _normalize_username(username: str) -> str:
+    return username.strip()
 
 
 def _generate_verification_code() -> str:
@@ -50,76 +61,86 @@ def _is_code_expired(expires_at: datetime) -> bool:
     return expires_at < datetime.now(timezone.utc)
 
 
-def _set_verification_code(session: SessionDep, user: User) -> str:
+def _upsert_pending_registration(
+    session: SessionDep, *, email: str, username: str, password_hash: str
+) -> str:
+    now_utc = datetime.now(timezone.utc)
     code = _generate_verification_code()
     code_hash = _hash_verification_code(code)
-    expires_at = datetime.now(timezone.utc) + timedelta(minutes=_verification_ttl_minutes())
+    expires_at = now_utc + timedelta(minutes=_verification_ttl_minutes())
 
-    verification = session.exec(
-        select(EmailVerification).where(EmailVerification.user_id == user.id)
+    pending = session.exec(
+        select(PendingRegistration).where(PendingRegistration.email == email)
     ).first()
 
-    if verification:
-        verification.code_hash = code_hash
-        verification.expires_at = expires_at
-        verification.email = user.email
-        session.add(verification)
+    if pending:
+        pending.username = username
+        pending.password_hash = password_hash
+        pending.code_hash = code_hash
+        pending.expires_at = expires_at
+        pending.updated_at = now_utc
+        session.add(pending)
     else:
         session.add(
-            EmailVerification(
-                user_id=user.id,
-                email=user.email,
+            PendingRegistration(
+                email=email,
+                username=username,
+                password_hash=password_hash,
                 code_hash=code_hash,
                 expires_at=expires_at,
+                created_at=now_utc,
+                updated_at=now_utc,
             )
         )
 
     return code
 
 
+def _refresh_pending_code(session: SessionDep, pending: PendingRegistration) -> str:
+    code = _generate_verification_code()
+    pending.code_hash = _hash_verification_code(code)
+    pending.expires_at = datetime.now(timezone.utc) + timedelta(
+        minutes=_verification_ttl_minutes()
+    )
+    pending.updated_at = datetime.now(timezone.utc)
+    session.add(pending)
+    return code
+
+
 @router.post("/register", response_model=RegistrationResponse)
 def register(user_in: UserCreate, session: SessionDep):
     """
-    Registra un usuario inactivo y envía código de verificación por correo.
+    Inicia registro pendiente y envia codigo de verificacion por correo.
+    El usuario se crea en la tabla final solo despues de verificar el codigo.
     """
-    normalized_email = user_in.email.strip().lower()
-    existing_by_email = session.exec(
-        select(User).where(User.email == normalized_email)
+    normalized_email = _normalize_email(str(user_in.email))
+    normalized_username = _normalize_username(user_in.username)
+
+    if not normalized_username:
+        raise HTTPException(status_code=400, detail="El nombre de usuario es obligatorio")
+
+    existing_active_email = session.exec(
+        select(User).where(User.email == normalized_email, User.is_active == True)
     ).first()
+    if existing_active_email:
+        raise HTTPException(status_code=400, detail="El email ya esta registrado")
 
-    if existing_by_email and existing_by_email.is_active:
-        raise HTTPException(status_code=400, detail="El email ya está registrado")
-
-    existing_by_username = session.exec(
-        select(User).where(User.username == user_in.username)
+    existing_active_username = session.exec(
+        select(User).where(User.username == normalized_username, User.is_active == True)
     ).first()
-
-    if existing_by_username and (
-        not existing_by_email or existing_by_username.id != existing_by_email.id
-    ):
-        raise HTTPException(status_code=400, detail="El nombre de usuario ya está en uso")
-
-    user = existing_by_email or User(
-        username=user_in.username,
-        email=normalized_email,
-        hashed_password=get_password_hash(user_in.password),
-        is_active=False,
-    )
-
-    if existing_by_email:
-        user.username = user_in.username
-        user.email = normalized_email
-        user.hashed_password = get_password_hash(user_in.password)
-        user.is_active = False
+    if existing_active_username:
+        raise HTTPException(status_code=400, detail="El nombre de usuario ya esta en uso")
 
     try:
-        session.add(user)
-        session.flush()
-
-        code = _set_verification_code(session, user)
+        code = _upsert_pending_registration(
+            session,
+            email=normalized_email,
+            username=normalized_username,
+            password_hash=get_password_hash(user_in.password),
+        )
         send_verification_email(
-            to_email=user.email,
-            username=user.username,
+            to_email=normalized_email,
+            username=normalized_username,
             code=code,
             expires_minutes=_verification_ttl_minutes(),
         )
@@ -129,69 +150,116 @@ def register(user_in: UserCreate, session: SessionDep):
         raise HTTPException(status_code=500, detail=str(exc))
     except Exception:
         session.rollback()
-        raise HTTPException(status_code=500, detail="Error al crear el usuario")
+        raise HTTPException(status_code=500, detail="Error al iniciar el registro")
 
     return RegistrationResponse(
-        message="Te enviamos un código de verificación a tu correo",
-        email=user.email,
+        message="Te enviamos un codigo de verificacion a tu correo",
+        email=normalized_email,
     )
 
 
 @router.post("/verify-email", response_model=MessageResponse)
 def verify_email(payload: EmailVerificationRequest, session: SessionDep):
-    normalized_email = payload.email.strip().lower()
-    user = session.exec(select(User).where(User.email == normalized_email)).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    normalized_email = _normalize_email(str(payload.email))
 
-    if user.is_active:
-        return MessageResponse(message="El correo ya está verificado")
-
-    verification = session.exec(
-        select(EmailVerification).where(EmailVerification.user_id == user.id)
+    pending = session.exec(
+        select(PendingRegistration).where(PendingRegistration.email == normalized_email)
     ).first()
-    if not verification:
-        raise HTTPException(status_code=400, detail="No hay un código activo para este correo")
+    if not pending:
+        raise HTTPException(status_code=400, detail="No hay un codigo activo para este correo")
 
-    if _is_code_expired(verification.expires_at):
-        session.delete(verification)
+    if _is_code_expired(pending.expires_at):
+        session.delete(pending)
         session.commit()
-        raise HTTPException(status_code=400, detail="El código expiró. Solicita uno nuevo")
+        raise HTTPException(status_code=400, detail="El codigo expiro. Solicita uno nuevo")
 
-    if _hash_verification_code(payload.code) != verification.code_hash:
-        raise HTTPException(status_code=400, detail="El código es incorrecto")
+    if _hash_verification_code(payload.code) != pending.code_hash:
+        raise HTTPException(status_code=400, detail="El codigo es incorrecto")
 
-    user.is_active = True
+    existing_user_by_email = session.exec(
+        select(User).where(User.email == normalized_email)
+    ).first()
+
+    username_owner = session.exec(
+        select(User).where(User.username == pending.username)
+    ).first()
+
+    if username_owner and (
+        not existing_user_by_email or username_owner.id != existing_user_by_email.id
+    ):
+        if username_owner.is_active:
+            raise HTTPException(
+                status_code=400,
+                detail="El nombre de usuario ya esta en uso. Registra de nuevo con otro.",
+            )
+        session.delete(username_owner)
+        session.flush()
+
+    user = existing_user_by_email or User(
+        email=normalized_email,
+        username=pending.username,
+        hashed_password=pending.password_hash,
+        is_active=True,
+    )
+
+    if existing_user_by_email:
+        user.username = pending.username
+        user.hashed_password = pending.password_hash
+        user.is_active = True
 
     try:
         session.add(user)
-        session.delete(verification)
+        session.delete(pending)
         session.commit()
     except Exception:
         session.rollback()
+
+        conflict_email = session.exec(
+            select(User).where(User.email == normalized_email, User.is_active == True)
+        ).first()
+        if conflict_email:
+            raise HTTPException(
+                status_code=400,
+                detail="El correo ya fue verificado. Inicia sesion.",
+            )
+
+        conflict_username = session.exec(
+            select(User).where(User.username == pending.username, User.is_active == True)
+        ).first()
+        if conflict_username:
+            raise HTTPException(
+                status_code=400,
+                detail="El nombre de usuario ya esta en uso. Registra de nuevo con otro.",
+            )
+
         raise HTTPException(status_code=500, detail="No se pudo verificar el correo")
 
-    return MessageResponse(message="Correo verificado correctamente. Ya puedes iniciar sesión")
+    return MessageResponse(message="Correo verificado correctamente. Ya puedes iniciar sesion")
 
 
 @router.post("/resend-verification", response_model=MessageResponse)
 def resend_verification(payload: ResendVerificationRequest, session: SessionDep):
-    normalized_email = payload.email.strip().lower()
-    user = session.exec(select(User).where(User.email == normalized_email)).first()
+    normalized_email = _normalize_email(str(payload.email))
 
-    if not user:
+    active_user = session.exec(
+        select(User).where(User.email == normalized_email, User.is_active == True)
+    ).first()
+    if active_user:
+        return MessageResponse(message="El correo ya esta verificado")
+
+    pending = session.exec(
+        select(PendingRegistration).where(PendingRegistration.email == normalized_email)
+    ).first()
+    if not pending:
         return MessageResponse(
-            message="Si el correo existe, se envió un nuevo código de verificación"
+            message="Si el correo existe, se envio un nuevo codigo de verificacion"
         )
 
-    if user.is_active:
-        return MessageResponse(message="El correo ya está verificado")
-
     try:
-        code = _set_verification_code(session, user)
+        code = _refresh_pending_code(session, pending)
         send_verification_email(
-            to_email=user.email,
-            username=user.username,
+            to_email=pending.email,
+            username=pending.username,
             code=code,
             expires_minutes=_verification_ttl_minutes(),
         )
@@ -201,9 +269,9 @@ def resend_verification(payload: ResendVerificationRequest, session: SessionDep)
         raise HTTPException(status_code=500, detail=str(exc))
     except Exception:
         session.rollback()
-        raise HTTPException(status_code=500, detail="No se pudo reenviar el código")
+        raise HTTPException(status_code=500, detail="No se pudo reenviar el codigo")
 
-    return MessageResponse(message="Te enviamos un nuevo código de verificación")
+    return MessageResponse(message="Te enviamos un nuevo codigo de verificacion")
 
 
 @router.post("/token", response_model=Token)
@@ -214,7 +282,7 @@ def login(
     """
     Endpoint para obtener el Token JWT (Login).
     """
-    login_id = form_data.username.strip()
+    login_id = _normalize_username(form_data.username)
     login_email = login_id.lower()
     query = select(User).where(or_(User.username == login_id, User.email == login_email))
     user = session.exec(query).first()
@@ -222,40 +290,14 @@ def login(
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario o contraseña incorrectos",
+            detail="Usuario o contrasena incorrectos",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Debes verificar tu correo antes de iniciar sesión",
-        )
-
-    verification = session.exec(
-        select(EmailVerification).where(EmailVerification.user_id == user.id)
-    ).first()
-    if verification:
-        if user.is_active:
-            user.is_active = False
-            session.add(user)
-        if _is_code_expired(verification.expires_at):
-            session.delete(verification)
-            try:
-                session.commit()
-            except Exception:
-                session.rollback()
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="El código de verificación expiró. Solicita uno nuevo",
-            )
-        try:
-            session.commit()
-        except Exception:
-            session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Debes verificar tu correo antes de iniciar sesión",
+            detail="Debes verificar tu correo antes de iniciar sesion",
         )
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

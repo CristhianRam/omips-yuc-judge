@@ -14,7 +14,13 @@ MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 def get_problem_testcases_dir(problem_id: int) -> Path:
     """Obtiene el directorio de testcases de un problema."""
     problem_dir = TESTCASES_DIR / str(problem_id) / "testcases"
-    problem_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        problem_dir.mkdir(parents=True, exist_ok=True)
+    except PermissionError as exc:
+        raise IOError(
+            f"Sin permisos para escribir en '{TESTCASES_DIR}'. "
+            "Revisa permisos del volumen compartido de testcases."
+        ) from exc
     return problem_dir
 
 

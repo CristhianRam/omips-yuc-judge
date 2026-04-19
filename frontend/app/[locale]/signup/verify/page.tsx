@@ -2,14 +2,17 @@ import AcmeLogo from '@/app/ui/acme-logo';
 import VerifyEmailForm from '@/app/ui/verify-email-form';
 
 type VerifyEmailPageProps = {
-  searchParams?: {
+  searchParams?: Promise<{
     email?: string;
-  };
+  }>;
 };
 
-export default function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
+export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
+  const resolvedSearchParams = await searchParams;
   const initialEmail =
-    typeof searchParams?.email === 'string' ? searchParams.email : '';
+    typeof resolvedSearchParams?.email === 'string'
+      ? resolvedSearchParams.email
+      : '';
 
   return (
     <main className="flex items-center justify-center md:h-screen">

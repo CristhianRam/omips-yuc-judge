@@ -26,6 +26,7 @@ services:
 
   api:
     build: ./backend/judge
+    user: "0:0"
     ports:
       - "8080:8000"
     volumes:
@@ -40,6 +41,7 @@ services:
 
   worker:
     build: ./backend/rekarel-worker
+    user: "0:0"
     volumes:
       - problem_data:/data/problems
     depends_on:
