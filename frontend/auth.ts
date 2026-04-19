@@ -44,9 +44,19 @@ export const { auth, signIn, signOut } = NextAuth({
             body: formData,
           });
 
-          if (!response.ok) return null;
+          if (!response.ok) {
+            let message = 'Invalid credentials.';
+            try {
+              const errorData = await response.json();
+              if (typeof errorData?.detail === 'string') {
+                message = errorData.detail;
+              }
+            } catch {
+              // Keep default message
+            }
+            throw new Error(message);
+          }
 
-          console.log("response status: ", response.status);
           const data = await response.json();
           const token = data.access_token;
 
@@ -56,15 +66,14 @@ export const { auth, signIn, signOut } = NextAuth({
             }
           });
 
+          if (!res.ok) return null;
+
           const userData = await res.json();
-          console.log(`id: ${userData.id}`);
           return {
             token, // This maps to user.token in the jwt callback
             ...userData // hash id, username, role, email
           };
         }
-
-        console.log('Invalid credentials');
         return null;
       }
     }),

@@ -13,6 +13,12 @@ export async function authenticate(
     await signIn('credentials', formData);
   } catch (error) {
     if (error instanceof AuthError) {
+      const backendMessage = (error.cause as { err?: { message?: string } } | undefined)
+        ?.err?.message;
+      if (backendMessage) {
+        return backendMessage;
+      }
+
       switch (error.type) {
         case 'CredentialsSignin':
           return 'Invalid credentials.';
@@ -24,7 +30,16 @@ export async function authenticate(
   }
 }
 
-
+async function getApiError(response: Response, fallback: string) {
+  try {
+    const errorData = await response.json();
+    if (typeof errorData?.detail === 'string') return errorData.detail;
+    if (Array.isArray(errorData?.detail)) return errorData.detail[0]?.msg || fallback;
+    return fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 const SignupSchema = z.object({
   username: z.string().min(1, 'Name is required'),
@@ -33,26 +48,19 @@ const SignupSchema = z.object({
 });
 
 export async function signup(prevState: string | undefined, formData: FormData) {
-  console.log('API URL:', process.env.NEXT_PUBLIC_API);
-  console.log('Full URL:', `${process.env.NEXT_PUBLIC_API}/auth/register`);
-
   const validatedFields = SignupSchema.safeParse({
     username: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),
   });
 
-  console.log('Validation result:', validatedFields);
-
   if (!validatedFields.success) {
     return 'Missing Fields. Failed to Register.';
   }
 
   const { username, email, password } = validatedFields.data;
-  console.log('Data to send:', { username, email, password });
 
   try {
-    console.log('About to fetch...');
     const response = await fetch(`${process.env.NEXT_PUBLIC_API}/auth/register`, {
       method: 'POST',
       headers: {
@@ -61,21 +69,89 @@ export async function signup(prevState: string | undefined, formData: FormData) 
       body: JSON.stringify({ username, email, password }),
     });
 
-    console.log('Response status:', response.status);
-    console.log('Response ok:', response.ok);
-
     if (!response.ok) {
-      const errorData = await response.json();
-      console.log('Error data:', errorData);
-      if (typeof errorData.detail === 'string') return errorData.detail;
-      if (Array.isArray(errorData.detail)) return errorData.detail[0]?.msg || 'Validation error';
-      return 'Failed to register.';
+      return await getApiError(response, 'Failed to register.');
     }
   } catch (error) {
-    console.log('Catch block error:', error);
-    return `Failed to Register. Network error. ${error}`;
+    return `Failed to register. Network error. ${error}`;
   }
-  redirect('/login');
+
+  redirect(`/signup/verify?email=${encodeURIComponent(email)}`);
+}
+
+const VerifyEmailSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  code: z
+    .string()
+    .regex(/^[0-9]{6}$/, 'Verification code must have 6 digits'),
+});
+
+export async function verifyEmailCode(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  const validatedFields = VerifyEmailSchema.safeParse({
+    email: formData.get('email'),
+    code: formData.get('code'),
+  });
+
+  if (!validatedFields.success) {
+    return 'Invalid verification code.';
+  }
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/auth/verify-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(validatedFields.data),
+    });
+
+    if (!response.ok) {
+      return await getApiError(response, 'Failed to verify email.');
+    }
+  } catch (error) {
+    return `Failed to verify email. Network error. ${error}`;
+  }
+
+  redirect('/login?verified=1');
+}
+
+const ResendVerificationSchema = z.object({
+  email: z.string().email('Invalid email address'),
+});
+
+export async function resendVerificationCode(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  const validatedFields = ResendVerificationSchema.safeParse({
+    email: formData.get('email'),
+  });
+
+  if (!validatedFields.success) {
+    return 'Invalid email.';
+  }
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/auth/resend-verification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(validatedFields.data),
+    });
+
+    if (!response.ok) {
+      return await getApiError(response, 'Failed to resend code.');
+    }
+
+    const data = await response.json();
+    return data?.message || 'Verification code sent.';
+  } catch (error) {
+    return `Failed to resend code. Network error. ${error}`;
+  }
 }
 
 const ProblemSchema = z.object({

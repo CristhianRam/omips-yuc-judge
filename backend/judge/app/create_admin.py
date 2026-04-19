@@ -32,6 +32,7 @@ def create_admin():
             username=admin_user,
             hashed_password=get_password_hash(admin_password),
             role=UserRole.ADMIN,
+            is_active=True,
         )
 
         session.add(admin_user)

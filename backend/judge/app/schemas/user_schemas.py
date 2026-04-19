@@ -22,6 +22,24 @@ class Token(BaseModel):
     token_type: str
 
 
+class RegistrationResponse(BaseModel):
+    message: str
+    email: EmailStr
+
+
+class EmailVerificationRequest(BaseModel):
+    email: EmailStr
+    code: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
+
+
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr
+
+
+class MessageResponse(BaseModel):
+    message: str
+
+
 class UserListResponse(BaseModel):
     users: list[UserPublic]
     current_page: int

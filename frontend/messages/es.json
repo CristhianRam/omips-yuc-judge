@@ -34,6 +34,16 @@
         "passwordPlaceholder": "Ingresa tu contraseña",
         "submit": "Registrarse"
     },
+    "emailVerification": {
+        "title": "Verifica tu correo",
+        "subtitle": "Ingresa el codigo de 6 digitos que enviamos a tu correo.",
+        "email": "Correo electronico",
+        "emailPlaceholder": "Ingresa tu correo electronico",
+        "code": "Codigo de verificacion",
+        "codePlaceholder": "Codigo de 6 digitos",
+        "verifyButton": "Verificar cuenta",
+        "resendButton": "Reenviar codigo"
+    },
     "nav": {
         "dashboard": "Inicio",
         "problems": "Problemas",
