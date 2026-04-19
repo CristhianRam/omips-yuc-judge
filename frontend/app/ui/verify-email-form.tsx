@@ -7,12 +7,16 @@ import { Button } from '@/app/ui/button';
 import { lusitana } from '@/app/ui/fonts';
 import { resendVerificationCode, verifyEmailCode } from '@/app/lib/actions';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 
 type VerifyEmailFormProps = {
   initialEmail?: string;
 };
 
 export default function VerifyEmailForm({ initialEmail = '' }: VerifyEmailFormProps) {
+  const searchParams = useSearchParams();
+  const emailFromQuery = searchParams.get('email')?.trim() || '';
+  const effectiveEmail = (initialEmail || emailFromQuery).trim();
   const [verifyMessage, verifyAction, isVerifying] = useActionState(
     verifyEmailCode,
     undefined,
@@ -31,7 +35,7 @@ export default function VerifyEmailForm({ initialEmail = '' }: VerifyEmailFormPr
       <p className="mb-4 text-sm text-gray-600">{t('subtitle')}</p>
 
       <form action={verifyAction} className="space-y-4">
-        <input type="hidden" name="email" value={initialEmail} />
+        <input type="hidden" name="email" value={effectiveEmail} />
 
         <div>
           <label
@@ -75,11 +79,11 @@ export default function VerifyEmailForm({ initialEmail = '' }: VerifyEmailFormPr
       </form>
 
       <form action={resendAction} className="mt-2">
-        <input type="hidden" name="email" value={initialEmail} />
+        <input type="hidden" name="email" value={effectiveEmail} />
         <button
           type="submit"
           className="inline-flex items-center text-sm font-medium text-blue-700 hover:text-blue-800 disabled:text-gray-400"
-          disabled={isResending || !initialEmail}
+          disabled={isResending || !effectiveEmail}
         >
           <ArrowPathIcon className="mr-2 h-4 w-4" />
           {t('resendButton')}

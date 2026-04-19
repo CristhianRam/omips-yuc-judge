@@ -23,6 +23,7 @@ services:
   # ─── API (internal only — no ports exposed) ───
   api:
     image: ghcr.io/${GHCR_OWNER:-your-username}/omips-api:latest
+    user: "0:0"
     volumes:
       - problem_data:/data/problems
     environment:
@@ -53,6 +54,7 @@ services:
   # ─── Worker (internal only — no ports exposed) ───
   worker:
     image: ghcr.io/${GHCR_OWNER:-your-username}/omips-worker:latest
+    user: "0:0"
     volumes:
       - problem_data:/data/problems
     environment:

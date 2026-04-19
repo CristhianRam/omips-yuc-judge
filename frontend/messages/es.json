@@ -22,6 +22,8 @@
         "usernamePlaceholder": "Ingresa tu nombre de usuario",
         "password": "Contraseña",
         "passwordPlaceholder": "Ingresa tu contraseña",
+        "showPassword": "Mostrar contraseña",
+        "hidePassword": "Ocultar contraseña",
         "submit": "Iniciar sesión"
     },
     "signup": {
@@ -32,6 +34,8 @@
         "emailPlaceholder": "Ingresa tu correo electrónico",
         "password": "Contraseña",
         "passwordPlaceholder": "Ingresa tu contraseña",
+        "showPassword": "Mostrar contraseña",
+        "hidePassword": "Ocultar contraseña",
         "submit": "Registrarse"
     },
     "emailVerification": {
