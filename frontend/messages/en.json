@@ -34,6 +34,16 @@
     "passwordPlaceholder": "Enter password",
     "submit": "Sign Up"
   },
+  "emailVerification": {
+    "title": "Verify your email",
+    "subtitle": "Enter the 6-digit code we sent to your email.",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email address",
+    "code": "Verification code",
+    "codePlaceholder": "6-digit code",
+    "verifyButton": "Verify account",
+    "resendButton": "Resend code"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "problems": "Problems",

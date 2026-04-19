@@ -4,7 +4,8 @@
 # Requires a .env file in the same directory with:
 #   POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD,
 #   REDIS_PASSWORD, AUTH_SECRET, SECRET_KEY,
-#   DATABASE_URL, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+#   DATABASE_URL, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES,
+#   SMTP_USER, SMTP_PASSWORD
 
 services:
   # ─── Frontend (internal only — no ports exposed) ───
@@ -36,6 +37,12 @@ services:
       - ADMIN_USER=${ADMIN_USER}
       - ADMIN_EMAIL=${ADMIN_EMAIL}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+      - EMAIL_VERIFICATION_TTL_MINUTES=${EMAIL_VERIFICATION_TTL_MINUTES:-10}
     depends_on:
       db:
         condition: service_healthy
