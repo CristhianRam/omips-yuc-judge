@@ -24,6 +24,7 @@ from app.schemas.user_schemas import (
 from app.services.email_services import EmailDeliveryError, send_verification_email
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -61,6 +62,14 @@ def _is_code_expired(expires_at: datetime) -> bool:
     return expires_at < datetime.now(timezone.utc)
 
 
+def _get_pending_registration_for_update(
+    session: SessionDep, *, email: str
+) -> PendingRegistration | None:
+    query = select(PendingRegistration).where(PendingRegistration.email == email)
+    query = query.with_for_update()
+    return session.exec(query).first()
+
+
 def _upsert_pending_registration(
     session: SessionDep, *, email: str, username: str, password_hash: str
 ) -> str:
@@ -69,9 +78,7 @@ def _upsert_pending_registration(
     code_hash = _hash_verification_code(code)
     expires_at = now_utc + timedelta(minutes=_verification_ttl_minutes())
 
-    pending = session.exec(
-        select(PendingRegistration).where(PendingRegistration.email == email)
-    ).first()
+    pending = _get_pending_registration_for_update(session, email=email)
 
     if pending:
         pending.username = username
@@ -93,17 +100,18 @@ def _upsert_pending_registration(
             )
         )
 
+    session.flush()
     return code
 
 
 def _refresh_pending_code(session: SessionDep, pending: PendingRegistration) -> str:
+    now_utc = datetime.now(timezone.utc)
     code = _generate_verification_code()
     pending.code_hash = _hash_verification_code(code)
-    pending.expires_at = datetime.now(timezone.utc) + timedelta(
-        minutes=_verification_ttl_minutes()
-    )
-    pending.updated_at = datetime.now(timezone.utc)
+    pending.expires_at = now_utc + timedelta(minutes=_verification_ttl_minutes())
+    pending.updated_at = now_utc
     session.add(pending)
+    session.flush()
     return code
 
 
@@ -131,26 +139,52 @@ def register(user_in: UserCreate, session: SessionDep):
     if existing_active_username:
         raise HTTPException(status_code=400, detail="El nombre de usuario ya esta en uso")
 
+    password_hash = get_password_hash(user_in.password)
+
     try:
         code = _upsert_pending_registration(
             session,
             email=normalized_email,
             username=normalized_username,
-            password_hash=get_password_hash(user_in.password),
+            password_hash=password_hash,
         )
+        session.commit()
+    except IntegrityError:
+        # Si hubo carrera al crear el pending por email, reintenta y la ultima
+        # escritura gana para evitar codigos cruzados.
+        session.rollback()
+        try:
+            code = _upsert_pending_registration(
+                session,
+                email=normalized_email,
+                username=normalized_username,
+                password_hash=password_hash,
+            )
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise HTTPException(status_code=500, detail="Error al iniciar el registro")
+    except Exception:
+        session.rollback()
+        raise HTTPException(status_code=500, detail="Error al iniciar el registro")
+
+    try:
         send_verification_email(
             to_email=normalized_email,
             username=normalized_username,
             code=code,
             expires_minutes=_verification_ttl_minutes(),
         )
-        session.commit()
-    except EmailDeliveryError as exc:
-        session.rollback()
-        raise HTTPException(status_code=500, detail=str(exc))
+    except EmailDeliveryError:
+        raise HTTPException(
+            status_code=503,
+            detail="No se pudo enviar el codigo. Intenta reenviar el codigo.",
+        )
     except Exception:
-        session.rollback()
-        raise HTTPException(status_code=500, detail="Error al iniciar el registro")
+        raise HTTPException(
+            status_code=503,
+            detail="No se pudo enviar el codigo. Intenta reenviar el codigo.",
+        )
 
     return RegistrationResponse(
         message="Te enviamos un codigo de verificacion a tu correo",
@@ -162,9 +196,7 @@ def register(user_in: UserCreate, session: SessionDep):
 def verify_email(payload: EmailVerificationRequest, session: SessionDep):
     normalized_email = _normalize_email(str(payload.email))
 
-    pending = session.exec(
-        select(PendingRegistration).where(PendingRegistration.email == normalized_email)
-    ).first()
+    pending = _get_pending_registration_for_update(session, email=normalized_email)
     if not pending:
         raise HTTPException(status_code=400, detail="No hay un codigo activo para este correo")
 
@@ -247,9 +279,7 @@ def resend_verification(payload: ResendVerificationRequest, session: SessionDep)
     if active_user:
         return MessageResponse(message="El correo ya esta verificado")
 
-    pending = session.exec(
-        select(PendingRegistration).where(PendingRegistration.email == normalized_email)
-    ).first()
+    pending = _get_pending_registration_for_update(session, email=normalized_email)
     if not pending:
         return MessageResponse(
             message="Si el correo existe, se envio un nuevo codigo de verificacion"
@@ -257,19 +287,28 @@ def resend_verification(payload: ResendVerificationRequest, session: SessionDep)
 
     try:
         code = _refresh_pending_code(session, pending)
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise HTTPException(status_code=500, detail="No se pudo reenviar el codigo")
+
+    try:
         send_verification_email(
             to_email=pending.email,
             username=pending.username,
             code=code,
             expires_minutes=_verification_ttl_minutes(),
         )
-        session.commit()
-    except EmailDeliveryError as exc:
-        session.rollback()
-        raise HTTPException(status_code=500, detail=str(exc))
+    except EmailDeliveryError:
+        raise HTTPException(
+            status_code=503,
+            detail="No se pudo enviar el codigo. Intenta reenviar el codigo.",
+        )
     except Exception:
-        session.rollback()
-        raise HTTPException(status_code=500, detail="No se pudo reenviar el codigo")
+        raise HTTPException(
+            status_code=503,
+            detail="No se pudo enviar el codigo. Intenta reenviar el codigo.",
+        )
 
     return MessageResponse(message="Te enviamos un nuevo codigo de verificacion")
 
