@@ -196,25 +196,21 @@ export function StatusBadge({ status }: { status: string }) {
 export function VerdictBadge({ verdict }: { verdict: string | undefined }) {
     if (!verdict) return <span className="text-gray-400">-</span>;
 
-    if (verdict === 'Accepted') {
-        return (
-            <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                <CheckCircleIcon className="mr-1 h-3 w-3" />
-                {verdict}
-            </span>
-        );
-    }
-    if (verdict === 'Wrong Answer') {
-        return (
-            <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
-                <XCircleIcon className="mr-1 h-3 w-3" />
-                {verdict}
-            </span>
-        );
-    }
+    // Map short verdict codes to styles — keys must match what the backend sends
+    const verdictConfig: Record<string, { bg: string; text: string; icon: typeof CheckCircleIcon }> = {
+        'AC':  { bg: 'bg-green-100',  text: 'text-green-800',  icon: CheckCircleIcon },
+        'WA':  { bg: 'bg-red-100',    text: 'text-red-800',    icon: XCircleIcon },
+        'TLE': { bg: 'bg-orange-100', text: 'text-orange-800', icon: ExclamationCircleIcon },
+        'RE':  { bg: 'bg-purple-100', text: 'text-purple-800', icon: ExclamationCircleIcon },
+        'CE':  { bg: 'bg-gray-100',   text: 'text-gray-800',   icon: ExclamationCircleIcon },
+    };
+
+    const style = verdictConfig[verdict] ?? { bg: 'bg-gray-100', text: 'text-gray-800', icon: ExclamationCircleIcon };
+    const Icon = style.icon;
+
     return (
-        <span className="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
-            <ExclamationCircleIcon className="mr-1 h-3 w-3" />
+        <span className={`inline-flex items-center rounded-full ${style.bg} px-2.5 py-0.5 text-xs font-medium ${style.text}`}>
+            <Icon className="mr-1 h-3 w-3" />
             {verdict}
         </span>
     );
