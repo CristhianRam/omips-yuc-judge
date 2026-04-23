@@ -23,7 +23,7 @@ def _get_smtp_settings() -> tuple[str, int, str, str, str]:
 
     if not smtp_user or not normalized_password:
         raise EmailDeliveryError(
-            "El servicio de correo no esta configurado (SMTP_USER/SMTP_PASSWORD)"
+            "El servicio de correo no está configurado (SMTP_USER/SMTP_PASSWORD)"
         )
 
     if not smtp_from:
@@ -57,9 +57,9 @@ def send_verification_email(
 ) -> None:
     body = (
         f"Hola {username},\n\n"
-        "Tu codigo de verificacion es:\n\n"
+        "Tu código de verificación es:\n\n"
         f"{code}\n\n"
-        f"Este codigo expira en {expires_minutes} minutos.\n\n"
+        f"Este código expira en {expires_minutes} minutos.\n\n"
         "Si no solicitaste esta cuenta, ignora este correo."
     )
     _send_email(
@@ -74,14 +74,14 @@ def send_password_reset_email(
 ) -> None:
     body = (
         f"Hola {username},\n\n"
-        "Recibimos una solicitud para restablecer tu contrasena.\n"
-        "Tu codigo de recuperacion es:\n\n"
+        "Recibimos una solicitud para restablecer tu contraseña.\n"
+        "Tu código de recuperación es:\n\n"
         f"{code}\n\n"
-        f"Este codigo expira en {expires_minutes} minutos.\n\n"
+        f"Este código expira en {expires_minutes} minutos.\n\n"
         "Si no solicitaste este cambio, ignora este correo."
     )
     _send_email(
         to_email=to_email,
-        subject="BeeperCode - Restablece tu contrasena",
+        subject="BeeperCode - Restablece tu contraseña",
         body=body,
     )
