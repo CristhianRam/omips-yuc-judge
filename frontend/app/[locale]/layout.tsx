@@ -23,7 +23,7 @@ export default async function LocaleLayout({
 
     return (
         <html lang={locale}>
-            <body className={`${inter.className} antialiased overflow-hidden`}>
+            <body className={`${inter.className} antialiased`}>
                 <NextIntlClientProvider messages={messages}>
                     {children}
                 </NextIntlClientProvider>
