@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/main.py
+@description Modulo Python del backend Judge.
+@symbols lifespan, root
+"""
+
 from contextlib import asynccontextmanager
 
 from app.api.auth_endpoints import router as auth_router

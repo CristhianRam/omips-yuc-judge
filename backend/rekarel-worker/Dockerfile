@@ -1,3 +1,7 @@
+# @file backend/rekarel-worker/Dockerfile
+# @description Definicion de imagen Docker del servicio correspondiente.
+# @symbols N/A
+
 FROM node:20-alpine
 
 WORKDIR /worker

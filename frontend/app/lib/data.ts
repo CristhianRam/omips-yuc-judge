@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/lib/data.ts
+ * @description Modulo de utilidades y logica de datos del frontend.
+ * @symbols fetchProblems, fetchProblemsPages, fetchProblemById, fetchMySubmissions, fetchTestCases, fetchSubmissions, fetchSubmissionsPages, fetchUsers, fetchUsersPages, fetchUserById, ...
+ */
+
 import {
   ContestPublic,
   ContestProblemPublic,

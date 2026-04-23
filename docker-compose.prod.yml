@@ -1,3 +1,7 @@
+# @file docker-compose.prod.yml
+# @description Orquestacion de servicios y dependencias en contenedores.
+# @symbols N/A
+
 # Production docker-compose for Oracle VPS deployment.
 # Usage: docker compose -f docker-compose.prod.yml up -d
 #

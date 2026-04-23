@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/users/filters.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols UserFilters, handleFilterChange
+ */
+
 'use client';
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
@@ -30,11 +36,12 @@ export default function UserFilters() {
     };
 
     return (
-        <div className="flex flex-wrap gap-3">
+        <div className="w-full sm:w-auto">
             <select
-                className="rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
+                className="block w-full min-w-[11rem] rounded-md border border-gray-200 py-[9px] pl-3 pr-9 text-sm outline-2 placeholder:text-gray-500 sm:w-auto"
                 value={currentRole}
                 onChange={(e) => handleFilterChange('role', e.target.value)}
+                aria-label={t('allRoles')}
             >
                 {ROLE_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>

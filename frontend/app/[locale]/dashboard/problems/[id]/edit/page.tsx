@@ -1,8 +1,15 @@
+/**
+ * @file frontend/app/[locale]/dashboard/problems/[id]/edit/page.tsx
+ * @description Pagina de Next.js para la ruta '/dashboard/problems/[id]/edit'.
+ * @symbols N/A
+ */
+
 import Form from '@/app/ui/problems/edit-form';
 import Breadcrumbs from '@/app/ui/problems/breadcrumbs';
 import { fetchProblemById, fetchTestCases } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
+import { getTranslations } from 'next-intl/server';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -14,6 +21,8 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 
     const session = await auth();
     const role = session?.user?.role;
+    const t = await getTranslations('problemDetail');
+    const tu = await getTranslations('users');
 
     if (!problem) {
         notFound();
@@ -22,8 +31,8 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     if (role !== 'admin' && role !== 'coach') {
         return (
             <main>
-                <h1 className="text-2xl font-bold">Unauthorized</h1>
-                <p>You do not have permission to edit problems.</p>
+                <h1 className="text-2xl font-bold">{tu('unauthorized')}</h1>
+                <p>{t('unauthorizedEdit')}</p>
             </main>
         );
     }
@@ -32,9 +41,9 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         <main>
             <Breadcrumbs
                 breadcrumbs={[
-                    { label: 'Problems', href: '/dashboard/problems' },
+                    { label: t('problems'), href: '/dashboard/problems' },
                     {
-                        label: 'Edit Problem',
+                        label: t('editProblem'),
                         href: `/dashboard/problems/${id}/edit`,
                         active: true,
                     },

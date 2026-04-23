@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/submissions/filters.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols SubmissionFilters, handleFilterChange
+ */
+
 'use client';
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
@@ -40,11 +46,12 @@ export default function SubmissionFilters() {
     };
 
     return (
-        <div className="flex flex-wrap gap-3">
+        <div className="grid w-full grid-cols-1 gap-3 sm:w-auto sm:grid-cols-2">
             <select
-                className="rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
+                className="block w-full min-w-[12rem] rounded-md border border-gray-200 py-[9px] pl-3 pr-9 text-sm outline-2 placeholder:text-gray-500"
                 value={currentVerdict}
                 onChange={(e) => handleFilterChange('verdict', e.target.value)}
+                aria-label={t('allVerdicts')}
             >
                 {VERDICT_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -54,9 +61,10 @@ export default function SubmissionFilters() {
             </select>
 
             <select
-                className="rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
+                className="block w-full min-w-[11rem] rounded-md border border-gray-200 py-[9px] pl-3 pr-9 text-sm outline-2 placeholder:text-gray-500"
                 value={currentStatus}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
+                aria-label={t('allStatuses')}
             >
                 {STATUS_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>

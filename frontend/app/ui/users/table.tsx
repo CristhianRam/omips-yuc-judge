@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/users/table.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols RoleBadge
+ */
+
 import { fetchUsers } from '@/app/lib/data';
 import { Link } from '@/i18n/navigation';
 import { ChevronRight } from 'lucide-react';
@@ -29,7 +35,7 @@ export default async function UsersTable({
 
     return (
         <div className="mt-6 flow-root">
-            <div className="inline-block min-w-full align-middle">
+            <div className="inline-block min-w-full align-middle overflow-x-auto">
                 <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
                     {/* Mobile view */}
                     <div className="md:hidden">
@@ -39,10 +45,10 @@ export default async function UsersTable({
                                 href={`/dashboard/users/${user.id}`}
                                 className="block mb-2 w-full rounded-md bg-white p-4 hover:bg-blue-50 transition-colors"
                             >
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm font-medium">{user.username}</p>
-                                        <p className="text-xs text-gray-500">{user.email}</p>
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <p className="truncate text-sm font-medium">{user.username}</p>
+                                        <p className="truncate text-xs text-gray-500">{user.email}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <RoleBadge role={user.role} />

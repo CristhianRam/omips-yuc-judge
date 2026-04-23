@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/button.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols Button
+ */
+
 import clsx from 'clsx';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

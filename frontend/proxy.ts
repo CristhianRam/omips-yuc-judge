@@ -1,3 +1,9 @@
+/**
+ * @file frontend/proxy.ts
+ * @description Modulo TypeScript del proyecto.
+ * @symbols N/A
+ */
+
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './i18n/routing';
 

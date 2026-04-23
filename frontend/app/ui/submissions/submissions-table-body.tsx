@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/submissions/submissions-table-body.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols SubmissionsTableBody
+ */
+
 'use client';
 
 import { Link } from '@/i18n/navigation';
@@ -30,7 +36,7 @@ export default function SubmissionsTableBody({
     return (
         <>
             <div className="mt-6 flow-root">
-                <div className="inline-block min-w-full align-middle">
+                <div className="inline-block min-w-full align-middle overflow-x-auto">
                     <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
                         {/* Mobile view */}
                         <div className="md:hidden">
@@ -40,7 +46,7 @@ export default function SubmissionsTableBody({
                                     onClick={() => openDetail(sub.id)}
                                     className="mb-2 w-full rounded-md bg-white p-4 hover:bg-blue-50 transition-colors cursor-pointer"
                                 >
-                                    <div className="flex items-center justify-between border-b pb-4">
+                                    <div className="flex items-start justify-between gap-3 border-b pb-4">
                                         <div>
                                             {showProblem && (
                                                 <p className="text-sm font-medium">{t('problem')} #{sub.problemId}</p>

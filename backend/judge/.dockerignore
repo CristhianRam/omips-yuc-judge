@@ -1,3 +1,7 @@
+# @file backend/judge/.dockerignore
+# @description Archivo de configuracion o soporte del proyecto.
+# @symbols N/A
+
 __pycache__
 *.pyc
 *.pyo

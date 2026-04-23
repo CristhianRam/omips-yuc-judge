@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/[locale]/signup/verify/page.tsx
+ * @description Pagina de Next.js para la ruta '/signup/verify'.
+ * @symbols N/A
+ */
+
 import AcmeLogo from '@/app/ui/acme-logo';
 import VerifyEmailForm from '@/app/ui/verify-email-form';
 

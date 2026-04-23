@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/models/scoreboard.py
+@description Modelo de datos ORM del backend Judge.
+@symbols ScoreboardEntry
+"""
+
 import uuid
 
 from sqlmodel import Field, SQLModel

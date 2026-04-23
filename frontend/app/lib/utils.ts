@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/lib/utils.ts
+ * @description Modulo de utilidades y logica de datos del frontend.
+ * @symbols formatDateToLocal, generatePagination
+ */
+
 
 
 export const formatDateToLocal = (

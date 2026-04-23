@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/api/testcase_endpoints.py
+@description Endpoints REST del backend Judge y dependencias de API.
+@symbols create_testcase, delete_testcase, list_testcases, get_testcase
+"""
+
 import uuid
 
 from app.api.deps import CurrentCoachDep, SessionDep

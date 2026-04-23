@@ -1,3 +1,9 @@
+/**
+ * @file frontend/auth.config.ts
+ * @description Modulo TypeScript del proyecto.
+ * @symbols N/A
+ */
+
 import type { NextAuthConfig } from 'next-auth';
 
 export const authConfig = {

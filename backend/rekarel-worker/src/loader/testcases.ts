@@ -1,3 +1,9 @@
+/**
+ * @file backend/rekarel-worker/src/loader/testcases.ts
+ * @description Modulo del worker para evaluacion asincrona de envios.
+ * @symbols loadTestcases
+ */
+
 import fs from "fs/promises"
 import path from "path"
 

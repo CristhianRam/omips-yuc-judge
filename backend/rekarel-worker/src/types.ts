@@ -1,3 +1,9 @@
+/**
+ * @file backend/rekarel-worker/src/types.ts
+ * @description Modulo del worker para evaluacion asincrona de envios.
+ * @symbols N/A
+ */
+
 export type SubmissionStatus = 'QUEUED' | 'JUDGING' | 'COMPLETED';
 export type SubmissionVerdict = 'AC' | 'WA' | 'TLE' | 'RE' | 'CE';
 

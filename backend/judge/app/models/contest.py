@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/models/contest.py
+@description Modelo de datos ORM del backend Judge.
+@symbols Contest
+"""
+
 from datetime import datetime
 from typing import Optional
 

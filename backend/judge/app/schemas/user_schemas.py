@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/schemas/user_schemas.py
+@description Esquemas de validacion y serializacion del backend Judge.
+@symbols UserCreate, UserPublic, Token, RegistrationResponse, EmailVerificationRequest, ResendVerificationRequest, MessageResponse, UserListResponse
+"""
+
 import uuid
 
 from app.models import UserRole

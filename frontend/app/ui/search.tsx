@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/search.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols Search
+ */
+
 'use client';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useSearchParams, useRouter, usePathname} from 'next/navigation';

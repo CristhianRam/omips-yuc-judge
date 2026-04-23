@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/submissions/table.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols N/A
+ */
+
 import { fetchSubmissions } from '@/app/lib/data';
 import { auth } from '@/auth';
 import type { SubmissionPreview } from '@/app/lib/definitions';

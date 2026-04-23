@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/[locale]/dashboard/submissions/page.tsx
+ * @description Pagina de Next.js para la ruta '/dashboard/submissions'.
+ * @symbols SubmissionsTableSkeleton
+ */
+
 import Pagination from '@/app/ui/pagination';
 import SubmissionsTable from '@/app/ui/submissions/table';
 import SubmissionFilters from '@/app/ui/submissions/filters';
@@ -39,7 +45,7 @@ export default async function Page(props: {
       <div className="flex w-full items-center justify-between">
         <h1 className={`${lusitana.className} text-2xl`}>{t('title')}</h1>
       </div>
-      <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+      <div className="mt-4 md:mt-8">
         <SubmissionFilters />
       </div>
       <Suspense key={`${currentPage}-${verdict}-${status}`} fallback={<SubmissionsTableSkeleton />}>

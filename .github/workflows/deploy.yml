@@ -1,3 +1,7 @@
+# @file .github/workflows/deploy.yml
+# @description Workflow de CI/CD para automatizaciones de GitHub Actions.
+# @symbols N/A
+
 name: Build & Deploy
 
 on:

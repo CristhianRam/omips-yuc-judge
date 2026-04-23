@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/codemirror/code-editor.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols CodeEditor
+ */
+
 'use client';
 
 import { useEffect, useRef, useCallback, useState } from 'react';

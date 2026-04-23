@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/models/user.py
+@description Modelo de datos ORM del backend Judge.
+@symbols UserRole, User
+"""
+
 import uuid
 from datetime import datetime, timezone
 from enum import Enum

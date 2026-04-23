@@ -1,3 +1,7 @@
+# @file backend/judge/Dockerfile
+# @description Definicion de imagen Docker del servicio correspondiente.
+# @symbols N/A
+
 FROM python:3.11-slim
 
 WORKDIR /app

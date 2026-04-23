@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/verify-email-form.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols VerifyEmailForm
+ */
+
 'use client';
 
 import { useActionState } from 'react';

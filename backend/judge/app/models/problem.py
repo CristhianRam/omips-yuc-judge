@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/models/problem.py
+@description Modelo de datos ORM del backend Judge.
+@symbols ProblemDifficulty, Problem
+"""
+
 from enum import Enum
 from typing import Optional
 

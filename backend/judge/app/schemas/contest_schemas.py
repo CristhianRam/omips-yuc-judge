@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/schemas/contest_schemas.py
+@description Esquemas de validacion y serializacion del backend Judge.
+@symbols ContestProblemCreate, ContestProblemPublic, Config, ContestProblemPayload, ContestCreate, ContestPublic, ContestUpdate, ContestListResponse, ensure_utc
+"""
+
 import uuid
 from datetime import datetime, timezone
 from typing import Optional

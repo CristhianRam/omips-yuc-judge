@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/pagination.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols Pagination, PaginationNumber, PaginationArrow, createPageURL
+ */
+
 'use client';
 
 import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';

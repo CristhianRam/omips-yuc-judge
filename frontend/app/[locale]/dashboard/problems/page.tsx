@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/[locale]/dashboard/problems/page.tsx
+ * @description Pagina de Next.js para la ruta '/dashboard/problems'.
+ * @symbols N/A
+ */
+
 import Pagination from '@/app/ui/pagination';
 import Search from '@/app/ui/search';
 import ProblemFilters from '@/app/ui/problems/filters';
@@ -38,12 +44,14 @@ export default async function Page(props: {
       <div className="flex w-full items-center justify-between">
         <h1 className={`${lusitana.className} text-2xl`}>{t('title')}</h1>
       </div>
-      <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-        <div className="flex-1 max-w-xl">
+      <div className="mt-4 flex flex-col gap-3 md:mt-8">
+        <div className="w-full max-w-xl">
           <Search placeholder={t('searchPlaceholder')} />
         </div>
-        <ProblemFilters />
-        {(role === 'admin' || role === 'coach') && <CreateProblem />}
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+          <ProblemFilters />
+          {(role === 'admin' || role === 'coach') && <CreateProblem />}
+        </div>
       </div>
       <Suspense key={query + currentPage + difficulty} fallback={<ProblemsTableSkeleton />}>
         <Table query={query} currentPage={currentPage} role={role} difficulty={difficulty || undefined} />

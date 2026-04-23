@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/lib/placeholder-data.ts
+ * @description Modulo de utilidades y logica de datos del frontend.
+ * @symbols N/A
+ */
+
 // This file contains placeholder data that you'll be replacing with real data in the Data Fetching chapter:
 // https://nextjs.org/learn/dashboard-app/fetching-data
 export const MockProblems = [

@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/codemirror/rekarel-lang.ts
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols N/A
+ */
+
 import { StreamLanguage, StringStream } from '@codemirror/language';
 
 // ReKarel Java-style language definition

@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/services/user_services.py
+@description Servicios de negocio del backend Judge.
+@symbols handle_user_change_rol, handle_user_list
+"""
+
 import uuid
 
 from app.models import User, UserRole

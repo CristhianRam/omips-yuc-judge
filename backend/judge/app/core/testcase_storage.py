@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/core/testcase_storage.py
+@description Componentes nucleares de seguridad, almacenamiento y runtime.
+@symbols get_problem_testcases_dir, save_testcase_files, read_testcase_file, delete_testcase_files, delete_problem_testcases, list_testcase_files
+"""
+
 import os
 import shutil
 from pathlib import Path

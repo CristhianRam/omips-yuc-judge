@@ -1,3 +1,9 @@
+/**
+ * @file frontend/auth.ts
+ * @description Modulo TypeScript del proyecto.
+ * @symbols N/A
+ */
+
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { authConfig } from './auth.config';

@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/api/submissions/[id]/route.ts
+ * @description Ruta API del frontend para operaciones del cliente.
+ * @symbols GET
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 

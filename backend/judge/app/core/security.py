@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/core/security.py
+@description Componentes nucleares de seguridad, almacenamiento y runtime.
+@symbols get_secret_key, verify_password, get_password_hash, create_access_token
+"""
+
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Any, Union

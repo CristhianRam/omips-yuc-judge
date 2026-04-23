@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/models/contest_user.py
+@description Modelo de datos ORM del backend Judge.
+@symbols ContestUser
+"""
+
 import uuid
 
 from sqlmodel import Field, SQLModel

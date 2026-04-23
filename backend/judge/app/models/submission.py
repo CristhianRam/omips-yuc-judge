@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/models/submission.py
+@description Modelo de datos ORM del backend Judge.
+@symbols SubmissionStatus, SubmissionVerdict, Submission
+"""
+
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional

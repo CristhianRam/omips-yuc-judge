@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/api/user_endpoints.py
+@description Endpoints REST del backend Judge y dependencias de API.
+@symbols get_current_user, get_user, change_user_role, get_users
+"""
+
 import uuid
 from typing import Optional
 

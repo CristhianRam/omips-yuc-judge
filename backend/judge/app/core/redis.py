@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/core/redis.py
+@description Componentes nucleares de seguridad, almacenamiento y runtime.
+@symbols N/A
+"""
+
 import os
 
 from redis import Redis

@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/problems/edit-form.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols EditForm, handleFileChange, handleUpload, handleDelete
+ */
+
 'use client';
 
 import { Link } from '@/i18n/navigation';
@@ -10,6 +16,7 @@ import { Button } from '@/app/ui/button';
 import { updateProblem, createTestCase, deleteTestCase } from '@/app/lib/actions';
 import { useActionState, useState } from 'react';
 import { Problem, TestCase } from '@/app/lib/definitions';
+import { useTranslations } from 'next-intl';
 
 export default function EditForm({ problem, testCases }: { problem: Problem, testCases: TestCase[] }) {
     const initialState = { message: null, errors: {} };
@@ -20,6 +27,8 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
     // Initial state for new test case inputs
     const [newTestCase, setNewTestCase] = useState<{ name: string, input: File | null, output: File | null }>({ name: '', input: null, output: null });
     const [isUploading, setIsUploading] = useState(false);
+    const t = useTranslations('problemForm');
+    const tp = useTranslations('problems');
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'input' | 'output') => {
         if (e.target.files && e.target.files[0]) {
@@ -31,7 +40,7 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
         if (!newTestCase.input || !newTestCase.output) return;
         setIsUploading(true);
         const formData = new FormData();
-        formData.append('name', newTestCase.name || `Test Case ${testCases.length + 1}`);
+        formData.append('name', newTestCase.name || `${t('testCase')} ${testCases.length + 1}`);
         formData.append('input_file', newTestCase.input);
         formData.append('output_file', newTestCase.output);
 
@@ -43,7 +52,7 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
     };
 
     const handleDelete = async (testCaseId: string) => {
-        if (confirm('Are you sure you want to delete this test case?')) {
+        if (confirm(t('deleteConfirm'))) {
             await deleteTestCase(problem.id, testCaseId);
             window.location.reload();
         }
@@ -56,7 +65,7 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
                     {/* Problem Title */}
                     <div className="mb-4">
                         <label htmlFor="title" className="mb-2 block text-sm font-medium">
-                            Title
+                            {t('title')}
                         </label>
                         <div className="relative">
                             <input
@@ -64,7 +73,7 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
                                 name="title"
                                 type="text"
                                 defaultValue={problem.title}
-                                placeholder="Enter problem title"
+                                placeholder={t('titlePlaceholder')}
                                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                                 aria-describedby="title-error"
                             />
@@ -83,14 +92,14 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
                     {/* Problem Description */}
                     <div className="mb-4">
                         <label htmlFor="description" className="mb-2 block text-sm font-medium">
-                            Description
+                            {t('description')}
                         </label>
                         <div className="relative">
                             <textarea
                                 id="description"
                                 name="description"
                                 defaultValue={problem.description}
-                                placeholder="Enter problem description (Markdown supported)"
+                                placeholder={t('descriptionPlaceholder')}
                                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-2 text-sm outline-2 placeholder:text-gray-500 min-h-[150px]"
                                 aria-describedby="description-error"
                             />
@@ -108,7 +117,7 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
                     {/* Time Limit */}
                     <div className="mb-4">
                         <label htmlFor="time_limit_ms" className="mb-2 block text-sm font-medium">
-                            Time Limit (ms)
+                            {t('timeLimit')}
                         </label>
                         <div className="relative">
                             <input
@@ -134,7 +143,7 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
                     {/* Memory Limit */}
                     <div className="mb-4">
                         <label htmlFor="memory_limit_mb" className="mb-2 block text-sm font-medium">
-                            Memory Limit (MB)
+                            {t('memoryLimit')}
                         </label>
                         <div className="relative">
                             <input
@@ -160,7 +169,7 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
                     {/* Difficulty */}
                     <fieldset>
                         <legend className="mb-2 block text-sm font-medium">
-                            Difficulty
+                            {t('difficulty')}
                         </legend>
                         <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
                             <div className="flex gap-4">
@@ -177,7 +186,7 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
                                         htmlFor="easy"
                                         className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-green-100 px-3 py-1.5 text-xs font-medium text-green-600"
                                     >
-                                        Easy
+                                        {tp('easy')}
                                     </label>
                                 </div>
                                 <div className="flex items-center">
@@ -193,7 +202,7 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
                                         htmlFor="medium"
                                         className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-yellow-100 px-3 py-1.5 text-xs font-medium text-yellow-600"
                                     >
-                                        Medium
+                                        {tp('medium')}
                                     </label>
                                 </div>
                                 <div className="flex items-center">
@@ -209,7 +218,7 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
                                         htmlFor="hard"
                                         className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-red-100 px-3 py-1.5 text-xs font-medium text-red-600"
                                     >
-                                        Hard
+                                        {tp('hard')}
                                     </label>
                                 </div>
                             </div>
@@ -237,38 +246,38 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
                         href="/dashboard/problems"
                         className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
                     >
-                        Cancel
+                        {t('cancel')}
                     </Link>
-                    <Button type="submit">Update Problem</Button>
+                    <Button type="submit">{t('updateProblem')}</Button>
                 </div>
             </form>
 
             <div className="rounded-md bg-gray-50 p-4 md:p-6">
-                <h3 className="mb-4 text-lg font-medium">Manage Test Cases</h3>
+                <h3 className="mb-4 text-lg font-medium">{t('manageTestCases')}</h3>
                 <div className="space-y-4 mb-6">
                     {testCases.map((tc, index) => (
                         <div key={tc.id} className="flex items-center justify-between rounded-md border border-gray-200 bg-white p-4">
                             <div>
-                                <p className="text-sm font-semibold">{tc.name || `Test Case ${index + 1}`}</p>
-                                <p className="text-xs text-gray-500">ID: {tc.id}</p>
+                                <p className="text-sm font-semibold">{tc.name || `${t('testCase')} ${index + 1}`}</p>
+                                <p className="text-xs text-gray-500">{t('id')}: {tc.id}</p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => handleDelete(tc.id)}
                                 className="text-red-600 hover:text-red-800 text-sm"
                             >
-                                Delete
+                                {t('delete')}
                             </button>
                         </div>
                     ))}
-                    {testCases.length === 0 && <p className="text-sm text-gray-500">No test cases found.</p>}
+                    {testCases.length === 0 && <p className="text-sm text-gray-500">{t('noTestCasesFound')}</p>}
                 </div>
 
                 <div className="rounded-md border border-gray-200 bg-white p-4">
-                    <h4 className="mb-2 text-sm font-medium">Add New Test Case</h4>
+                    <h4 className="mb-2 text-sm font-medium">{t('addNewTestCase')}</h4>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <label className="block text-xs font-medium text-gray-700">Name (Optional)</label>
+                            <label className="block text-xs font-medium text-gray-700">{t('nameOptional')}</label>
                             <input
                                 type="text"
                                 value={newTestCase.name}
@@ -278,7 +287,7 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
                         </div>
                         <div className="col-span-2 grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs font-medium text-gray-700">Input (.in)</label>
+                                <label className="block text-xs font-medium text-gray-700">{t('input')}</label>
                                 <input
                                     type="file"
                                     onChange={(e) => handleFileChange(e, 'input')}
@@ -286,7 +295,7 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-medium text-gray-700">Output (.out)</label>
+                                <label className="block text-xs font-medium text-gray-700">{t('output')}</label>
                                 <input
                                     type="file"
                                     onChange={(e) => handleFileChange(e, 'output')}
@@ -297,7 +306,7 @@ export default function EditForm({ problem, testCases }: { problem: Problem, tes
                     </div>
                     <div className="mt-4 flex justify-end">
                         <Button type="button" onClick={handleUpload} disabled={isUploading || !newTestCase.input || !newTestCase.output}>
-                            {isUploading ? 'Uploading...' : 'Add Test Case'}
+                            {isUploading ? t('uploading') : t('addTestCaseAction')}
                         </Button>
                     </div>
                 </div>

@@ -1,3 +1,9 @@
+/**
+ * @file frontend/next.config.ts
+ * @description Modulo TypeScript del proyecto.
+ * @symbols N/A
+ */
+
 import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 

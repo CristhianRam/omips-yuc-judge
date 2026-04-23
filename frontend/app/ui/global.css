@@ -1,3 +1,9 @@
+/*
+ * @file frontend/app/ui/global.css
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols N/A
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
