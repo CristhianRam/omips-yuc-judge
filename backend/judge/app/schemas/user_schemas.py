@@ -1,7 +1,7 @@
 """
 @file backend/judge/app/schemas/user_schemas.py
 @description Esquemas de validacion y serializacion del backend Judge.
-@symbols UserCreate, UserPublic, Token, RegistrationResponse, EmailVerificationRequest, ResendVerificationRequest, MessageResponse, UserListResponse
+@symbols UserCreate, UserPublic, Token, RegistrationResponse, EmailVerificationRequest, ResendVerificationRequest, ForgotPasswordRequest, ResetPasswordRequest, MessageResponse, UserListResponse
 """
 
 import uuid
@@ -40,6 +40,16 @@ class EmailVerificationRequest(BaseModel):
 
 class ResendVerificationRequest(BaseModel):
     email: EmailStr
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    code: str = Field(min_length=6, max_length=6, pattern=r"^\d{6}$")
+    new_password: str = Field(min_length=6)
 
 
 class MessageResponse(BaseModel):

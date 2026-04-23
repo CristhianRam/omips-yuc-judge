@@ -18,16 +18,22 @@ from app.core.security import (
     verify_password,
 )
 from app.db import SessionDep
-from app.models import PendingRegistration, User
+from app.models import PendingPasswordReset, PendingRegistration, User
 from app.schemas.user_schemas import (
+    ForgotPasswordRequest,
     EmailVerificationRequest,
     MessageResponse,
     RegistrationResponse,
+    ResetPasswordRequest,
     ResendVerificationRequest,
     Token,
     UserCreate,
 )
-from app.services.email_services import EmailDeliveryError, send_verification_email
+from app.services.email_services import (
+    EmailDeliveryError,
+    send_password_reset_email,
+    send_verification_email,
+)
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.exc import IntegrityError
@@ -36,11 +42,22 @@ from sqlmodel import select
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 VERIFICATION_CODE_DIGITS = 6
+PASSWORD_RESET_GENERIC_MESSAGE = (
+    "Si el correo existe, enviamos un codigo para restablecer la contrasena"
+)
 
 
 def _verification_ttl_minutes() -> int:
     try:
         value = int(os.getenv("EMAIL_VERIFICATION_TTL_MINUTES", "10"))
+    except ValueError:
+        value = 10
+    return max(value, 1)
+
+
+def _password_reset_ttl_minutes() -> int:
+    try:
+        value = int(os.getenv("PASSWORD_RESET_TTL_MINUTES", "10"))
     except ValueError:
         value = 10
     return max(value, 1)
@@ -117,6 +134,42 @@ def _refresh_pending_code(session: SessionDep, pending: PendingRegistration) -> 
     pending.expires_at = now_utc + timedelta(minutes=_verification_ttl_minutes())
     pending.updated_at = now_utc
     session.add(pending)
+    session.flush()
+    return code
+
+
+def _get_pending_password_reset_for_update(
+    session: SessionDep, *, email: str
+) -> PendingPasswordReset | None:
+    query = select(PendingPasswordReset).where(PendingPasswordReset.email == email)
+    query = query.with_for_update()
+    return session.exec(query).first()
+
+
+def _upsert_pending_password_reset(session: SessionDep, *, email: str) -> str:
+    now_utc = datetime.now(timezone.utc)
+    code = _generate_verification_code()
+    code_hash = _hash_verification_code(code)
+    expires_at = now_utc + timedelta(minutes=_password_reset_ttl_minutes())
+
+    pending = _get_pending_password_reset_for_update(session, email=email)
+
+    if pending:
+        pending.code_hash = code_hash
+        pending.expires_at = expires_at
+        pending.updated_at = now_utc
+        session.add(pending)
+    else:
+        session.add(
+            PendingPasswordReset(
+                email=email,
+                code_hash=code_hash,
+                expires_at=expires_at,
+                created_at=now_utc,
+                updated_at=now_utc,
+            )
+        )
+
     session.flush()
     return code
 
@@ -317,6 +370,79 @@ def resend_verification(payload: ResendVerificationRequest, session: SessionDep)
         )
 
     return MessageResponse(message="Te enviamos un nuevo codigo de verificacion")
+
+
+@router.post("/forgot-password", response_model=MessageResponse)
+def forgot_password(payload: ForgotPasswordRequest, session: SessionDep):
+    normalized_email = _normalize_email(str(payload.email))
+    user = session.exec(
+        select(User).where(User.email == normalized_email, User.is_active == True)
+    ).first()
+
+    if not user:
+        return MessageResponse(message=PASSWORD_RESET_GENERIC_MESSAGE)
+
+    try:
+        code = _upsert_pending_password_reset(session, email=normalized_email)
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise HTTPException(status_code=500, detail="No se pudo iniciar la recuperacion")
+
+    try:
+        send_password_reset_email(
+            to_email=normalized_email,
+            username=user.username,
+            code=code,
+            expires_minutes=_password_reset_ttl_minutes(),
+        )
+    except EmailDeliveryError:
+        raise HTTPException(
+            status_code=503,
+            detail="No se pudo enviar el codigo de recuperacion",
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=503,
+            detail="No se pudo enviar el codigo de recuperacion",
+        )
+
+    return MessageResponse(message=PASSWORD_RESET_GENERIC_MESSAGE)
+
+
+@router.post("/reset-password", response_model=MessageResponse)
+def reset_password(payload: ResetPasswordRequest, session: SessionDep):
+    normalized_email = _normalize_email(str(payload.email))
+    pending = _get_pending_password_reset_for_update(session, email=normalized_email)
+
+    if not pending:
+        raise HTTPException(status_code=400, detail="No hay un codigo activo para este correo")
+
+    if _is_code_expired(pending.expires_at):
+        session.delete(pending)
+        session.commit()
+        raise HTTPException(status_code=400, detail="El codigo expiro. Solicita uno nuevo")
+
+    if _hash_verification_code(payload.code) != pending.code_hash:
+        raise HTTPException(status_code=400, detail="El codigo es incorrecto")
+
+    user = session.exec(select(User).where(User.email == normalized_email)).first()
+    if not user:
+        session.delete(pending)
+        session.commit()
+        raise HTTPException(status_code=400, detail="No se encontro un usuario para este correo")
+
+    user.hashed_password = get_password_hash(payload.new_password)
+
+    try:
+        session.add(user)
+        session.delete(pending)
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise HTTPException(status_code=500, detail="No se pudo actualizar la contrasena")
+
+    return MessageResponse(message="Contrasena actualizada correctamente. Ya puedes iniciar sesion")
 
 
 @router.post("/token", response_model=Token)

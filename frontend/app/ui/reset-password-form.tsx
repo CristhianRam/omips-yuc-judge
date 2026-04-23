@@ -1,43 +1,42 @@
 /**
- * @file frontend/app/ui/verify-email-form.tsx
+ * @file frontend/app/ui/reset-password-form.tsx
  * @description Componente de interfaz de usuario del frontend.
- * @symbols VerifyEmailForm
+ * @symbols ResetPasswordForm
  */
 
 'use client';
 
 import { useActionState } from 'react';
-import {
-  AtSymbolIcon,
-  ExclamationCircleIcon,
-  KeyIcon,
-} from '@heroicons/react/24/outline';
+import { AtSymbolIcon, ExclamationCircleIcon, KeyIcon } from '@heroicons/react/24/outline';
 import { ArrowPathIcon, CheckBadgeIcon } from '@heroicons/react/24/solid';
 import { Button } from '@/app/ui/button';
 import { lusitana } from '@/app/ui/fonts';
-import { resendVerificationCode, verifyEmailCode } from '@/app/lib/actions';
-import { useTranslations } from 'next-intl';
+import { resendPasswordResetCode, resetPassword } from '@/app/lib/actions';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
-type VerifyEmailFormProps = {
+type ResetPasswordFormProps = {
   initialEmail?: string;
 };
 
-export default function VerifyEmailForm({ initialEmail = '' }: VerifyEmailFormProps) {
+export default function ResetPasswordForm({ initialEmail = '' }: ResetPasswordFormProps) {
   const searchParams = useSearchParams();
   const emailFromQuery = searchParams.get('email')?.trim() || '';
+  const sent = searchParams.get('sent') === '1';
   const effectiveEmail = (initialEmail || emailFromQuery).trim();
   const hasEmail = effectiveEmail.length > 0;
-  const [verifyMessage, verifyAction, isVerifying] = useActionState(
-    verifyEmailCode,
+
+  const [resetMessage, resetAction, isResetting] = useActionState(
+    resetPassword,
     undefined,
   );
   const [resendMessage, resendAction, isResending] = useActionState(
-    resendVerificationCode,
+    resendPasswordResetCode,
     undefined,
   );
-  const t = useTranslations('emailVerification');
+
+  const t = useTranslations('passwordReset');
 
   return (
     <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-5 pt-8">
@@ -46,22 +45,25 @@ export default function VerifyEmailForm({ initialEmail = '' }: VerifyEmailFormPr
       </h1>
       <p className="mb-4 text-sm text-gray-600">{t('subtitle')}</p>
 
-      <form action={verifyAction} className="space-y-4">
+      {sent && (
+        <div className="mb-3 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+          {t('sentSuccess')}
+        </div>
+      )}
+
+      <form action={resetAction} className="space-y-4">
         <input type="hidden" name="email" value={effectiveEmail} />
 
         <div>
-          <label
-            className="mb-3 mt-1 block text-xs font-medium text-gray-900"
-            htmlFor="verify-email"
-          >
+          <label className="mb-2 block text-xs font-medium text-gray-900" htmlFor="reset-email">
             {t('email')}
           </label>
           <div className="relative">
             <input
               className="peer block w-full rounded-md border border-gray-200 bg-gray-100 py-[9px] pl-10 text-sm text-gray-700 outline-2 placeholder:text-gray-500"
-              id="verify-email"
-              name="email_preview"
+              id="reset-email"
               type="email"
+              name="email_preview"
               value={effectiveEmail}
               readOnly
               aria-readonly="true"
@@ -71,16 +73,13 @@ export default function VerifyEmailForm({ initialEmail = '' }: VerifyEmailFormPr
         </div>
 
         <div>
-          <label
-            className="mb-3 mt-1 block text-xs font-medium text-gray-900"
-            htmlFor="verify-code"
-          >
+          <label className="mb-2 block text-xs font-medium text-gray-900" htmlFor="reset-code">
             {t('code')}
           </label>
           <div className="relative">
             <input
               className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-              id="verify-code"
+              id="reset-code"
               name="code"
               type="text"
               placeholder={t('codePlaceholder')}
@@ -94,23 +93,59 @@ export default function VerifyEmailForm({ initialEmail = '' }: VerifyEmailFormPr
           </div>
         </div>
 
+        <div>
+          <label className="mb-2 block text-xs font-medium text-gray-900" htmlFor="new-password">
+            {t('newPassword')}
+          </label>
+          <div className="relative">
+            <input
+              className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+              id="new-password"
+              name="newPassword"
+              type="password"
+              placeholder={t('newPasswordPlaceholder')}
+              minLength={6}
+              autoComplete="new-password"
+              required
+              disabled={!hasEmail}
+            />
+            <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+          </div>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-xs font-medium text-gray-900" htmlFor="confirm-password-reset">
+            {t('confirmPassword')}
+          </label>
+          <div className="relative">
+            <input
+              className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+              id="confirm-password-reset"
+              name="confirmPassword"
+              type="password"
+              placeholder={t('confirmPasswordPlaceholder')}
+              minLength={6}
+              autoComplete="new-password"
+              required
+              disabled={!hasEmail}
+            />
+            <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+          </div>
+        </div>
+
         <Button
-          className="w-full"
-          aria-disabled={isVerifying || !hasEmail}
-          disabled={isVerifying || !hasEmail}
+          className="h-11 w-full justify-center rounded-xl text-base font-semibold"
+          aria-disabled={isResetting || !hasEmail}
+          disabled={isResetting || !hasEmail}
         >
-          {t('verifyButton')}
+          {isResetting ? t('submitPending') : t('submit')}
         </Button>
 
-        <div
-          className="flex min-h-6 items-end space-x-1"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          {verifyMessage && (
+        <div className="flex min-h-6 items-end space-x-1" aria-live="polite" aria-atomic="true">
+          {resetMessage && (
             <>
               <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-              <p className="text-sm text-red-500">{verifyMessage}</p>
+              <p className="text-sm text-red-500">{resetMessage}</p>
             </>
           )}
           {!hasEmail && (
@@ -142,11 +177,10 @@ export default function VerifyEmailForm({ initialEmail = '' }: VerifyEmailFormPr
           </p>
         )}
       </div>
-      <div className="mt-2 text-sm text-gray-600">
-        <Link href="/signup" className="text-blue-700 hover:text-blue-800 hover:underline">
-          {t('backToSignup')}
-        </Link>
-      </div>
+
+      <Link href="/login" className="mt-2 inline-block text-sm text-blue-700 hover:text-blue-800 hover:underline">
+        {t('backToLogin')}
+      </Link>
     </div>
   );
 }

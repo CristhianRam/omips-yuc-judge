@@ -47,21 +47,28 @@ async function getApiError(response: Response, fallback: string) {
   }
 }
 
-const SignupSchema = z.object({
-  username: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
+const SignupSchema = z
+  .object({
+    username: z.string().trim().min(1, 'Name is required'),
+    email: z.string().trim().email('Invalid email address'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string().min(6, 'Please confirm your password'),
+  })
+  .refine((values) => values.password === values.confirmPassword, {
+    message: 'Passwords do not match.',
+    path: ['confirmPassword'],
+  });
 
 export async function signup(prevState: string | undefined, formData: FormData) {
   const validatedFields = SignupSchema.safeParse({
     username: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),
+    confirmPassword: formData.get('confirmPassword'),
   });
 
   if (!validatedFields.success) {
-    return 'Missing Fields. Failed to Register.';
+    return validatedFields.error.issues[0]?.message || 'Missing Fields. Failed to Register.';
   }
 
   const { username, email, password } = validatedFields.data;
@@ -158,6 +165,127 @@ export async function resendVerificationCode(
   } catch (error) {
     return `Failed to resend code. Network error. ${error}`;
   }
+}
+
+const ForgotPasswordSchema = z.object({
+  email: z.string().trim().email('Invalid email address'),
+});
+
+export async function forgotPassword(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  const validatedFields = ForgotPasswordSchema.safeParse({
+    email: formData.get('email'),
+  });
+
+  if (!validatedFields.success) {
+    return validatedFields.error.issues[0]?.message || 'Invalid email.';
+  }
+
+  const { email } = validatedFields.data;
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/auth/forgot-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      return await getApiError(response, 'Failed to send reset code.');
+    }
+  } catch (error) {
+    return `Failed to send reset code. Network error. ${error}`;
+  }
+
+  redirect(`/forgot-password/reset?email=${encodeURIComponent(email)}&sent=1`);
+}
+
+export async function resendPasswordResetCode(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  const validatedFields = ForgotPasswordSchema.safeParse({
+    email: formData.get('email'),
+  });
+
+  if (!validatedFields.success) {
+    return validatedFields.error.issues[0]?.message || 'Invalid email.';
+  }
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/auth/forgot-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(validatedFields.data),
+    });
+
+    if (!response.ok) {
+      return await getApiError(response, 'Failed to resend reset code.');
+    }
+
+    const data = await response.json();
+    return data?.message || 'Reset code sent.';
+  } catch (error) {
+    return `Failed to resend reset code. Network error. ${error}`;
+  }
+}
+
+const ResetPasswordSchema = z
+  .object({
+    email: z.string().trim().email('Invalid email address'),
+    code: z.string().regex(/^[0-9]{6}$/, 'Verification code must have 6 digits'),
+    newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string().min(6, 'Please confirm your password'),
+  })
+  .refine((values) => values.newPassword === values.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match.',
+  });
+
+export async function resetPassword(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  const validatedFields = ResetPasswordSchema.safeParse({
+    email: formData.get('email'),
+    code: formData.get('code'),
+    newPassword: formData.get('newPassword'),
+    confirmPassword: formData.get('confirmPassword'),
+  });
+
+  if (!validatedFields.success) {
+    return validatedFields.error.issues[0]?.message || 'Invalid password reset data.';
+  }
+
+  const { email, code, newPassword } = validatedFields.data;
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        code,
+        new_password: newPassword,
+      }),
+    });
+
+    if (!response.ok) {
+      return await getApiError(response, 'Failed to reset password.');
+    }
+  } catch (error) {
+    return `Failed to reset password. Network error. ${error}`;
+  }
+
+  redirect('/login?reset=1');
 }
 
 const ProblemSchema = z.object({

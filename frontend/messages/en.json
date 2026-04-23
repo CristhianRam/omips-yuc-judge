@@ -8,7 +8,8 @@
     "signOut": "Sign Out",
     "noResults": "No results found.",
     "cancel": "Cancel",
-    "close": "Close"
+    "close": "Close",
+    "back": "Back"
   },
   "landing": {
     "welcome": "Welcome to BeeperCode.",
@@ -20,13 +21,45 @@
   },
   "login": {
     "title": "Please log in to continue.",
-    "username": "Username",
-    "usernamePlaceholder": "Enter your username",
+    "username": "Username or email",
+    "usernamePlaceholder": "Enter your username or email",
     "password": "Password",
     "passwordPlaceholder": "Enter password",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
-    "submit": "Log in"
+    "submit": "Log in",
+    "submitPending": "Signing in...",
+    "verifiedSuccess": "Email verified successfully. You can sign in now.",
+    "resetSuccess": "Password updated successfully. Please log in.",
+    "needAccount": "Don't have an account?",
+    "goToSignup": "Create one",
+    "forgotPasswordButton": "Forgot password?",
+    "createAccountButton": "Create new account"
+  },
+  "forgotPassword": {
+    "title": "Recover your account",
+    "subtitle": "Enter your email and we will send you a code to reset your password.",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email address",
+    "submit": "Send reset code",
+    "submitPending": "Sending..."
+  },
+  "passwordReset": {
+    "title": "Reset your password",
+    "subtitle": "Enter the 6-digit code from your email and choose a new password.",
+    "sentSuccess": "We sent a reset code to your email.",
+    "email": "Email",
+    "code": "Reset code",
+    "codePlaceholder": "6-digit code",
+    "newPassword": "New password",
+    "newPasswordPlaceholder": "Enter new password",
+    "confirmPassword": "Confirm new password",
+    "confirmPasswordPlaceholder": "Re-enter new password",
+    "submit": "Update password",
+    "submitPending": "Updating...",
+    "resendButton": "Resend code",
+    "missingEmail": "Missing email. Go back and request a reset code first.",
+    "backToLogin": "Back to login"
   },
   "signup": {
     "title": "Please sign up to continue.",
@@ -36,9 +69,16 @@
     "emailPlaceholder": "Enter your email address",
     "password": "Password",
     "passwordPlaceholder": "Enter password",
+    "confirmPassword": "Confirm password",
+    "confirmPasswordPlaceholder": "Re-enter password",
+    "passwordMismatch": "Passwords do not match.",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
-    "submit": "Sign Up"
+    "submit": "Sign Up",
+    "submitPending": "Creating account...",
+    "haveAccount": "Already have an account?",
+    "goToLogin": "Log in",
+    "haveAccountButton": "I already have an account"
   },
   "emailVerification": {
     "title": "Verify your email",
@@ -48,7 +88,9 @@
     "code": "Verification code",
     "codePlaceholder": "6-digit code",
     "verifyButton": "Verify account",
-    "resendButton": "Resend code"
+    "resendButton": "Resend code",
+    "missingEmail": "Missing email. Go back to Sign up and try again.",
+    "backToSignup": "Back to sign up"
   },
   "nav": {
     "dashboard": "Dashboard",
