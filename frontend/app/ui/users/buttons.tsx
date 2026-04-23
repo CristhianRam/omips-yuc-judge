@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/users/buttons.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols UpdateUser
+ */
+
 import { PencilIcon } from '@heroicons/react/24/outline';
 import { Link } from '@/i18n/navigation';
 

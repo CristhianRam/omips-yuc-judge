@@ -1,8 +1,14 @@
+/**
+ * @file frontend/app/ui/contests/table.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols getContestStatus, StatusBadge, formatDate
+ */
+
 import { fetchContests } from '@/app/lib/data';
 import { Link } from '@/i18n/navigation';
 import { ChevronRight, Trophy } from 'lucide-react';
 import clsx from 'clsx';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 
 function getContestStatus(contest: {
     start_date: string;
@@ -21,22 +27,19 @@ function getContestStatus(contest: {
 function StatusBadge({ status, label }: { status: string; label: string }) {
     return (
         <span
-            className={clsx(
-                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold',
-                {
-                    'bg-green-100 text-green-800': status === 'active',
-                    'bg-blue-100 text-blue-800': status === 'upcoming',
-                    'bg-gray-100 text-gray-600': status === 'finished',
-                },
-            )}
+            className={clsx('inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold', {
+                'bg-green-100 text-green-800': status === 'active',
+                'bg-blue-100 text-blue-800': status === 'upcoming',
+                'bg-gray-100 text-gray-600': status === 'finished',
+            })}
         >
             {label}
         </span>
     );
 }
 
-function formatDate(dateStr: string) {
-    return new Date(dateStr).toLocaleDateString('en-US', {
+function formatDate(dateStr: string, locale: string) {
+    return new Date(dateStr).toLocaleDateString(locale, {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -47,7 +50,6 @@ function formatDate(dateStr: string) {
 
 export default async function ContestsTable({
     currentPage,
-    role,
 }: {
     currentPage: number;
     role: string;
@@ -55,6 +57,7 @@ export default async function ContestsTable({
     const contests = await fetchContests(currentPage);
     const t = await getTranslations('contests');
     const tc = await getTranslations('common');
+    const locale = await getLocale();
 
     const statusLabels: Record<string, string> = {
         active: t('active'),
@@ -66,20 +69,16 @@ export default async function ContestsTable({
         <div className="mt-6 flow-root">
             <div className="inline-block min-w-full align-middle">
                 <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-                    {/* Mobile view */}
                     <div className="md:hidden">
                         {contests?.map((contest) => {
                             const status = getContestStatus(contest);
                             return (
-                                <div
-                                    key={contest.id}
-                                    className="mb-2 w-full rounded-md bg-white p-4"
-                                >
+                                <div key={contest.id} className="mb-2 w-full rounded-md bg-white p-4">
                                     <div className="flex items-center justify-between border-b pb-4">
-                                        <div>
-                                            <p className="text-sm font-medium">{contest.title}</p>
-                                            <p className="text-xs text-gray-500 mt-1">
-                                                {formatDate(contest.start_date)}
+                                        <div className="min-w-0">
+                                            <p className="truncate text-sm font-medium">{contest.title}</p>
+                                            <p className="mt-1 text-xs text-gray-500">
+                                                {formatDate(contest.start_date, locale)}
                                             </p>
                                         </div>
                                         <StatusBadge status={status} label={statusLabels[status]} />
@@ -87,14 +86,14 @@ export default async function ContestsTable({
                                     <div className="flex w-full items-center justify-between pt-4">
                                         <div className="flex items-center gap-2">
                                             {contest.open && (
-                                                <span className="text-xs text-green-600 font-medium">
+                                                <span className="text-xs font-medium text-green-600">
                                                     {t('openForRegistration')}
                                                 </span>
                                             )}
                                         </div>
                                         <Link
                                             href={`/dashboard/contests/${contest.id}`}
-                                            className="flex items-center gap-1 text-blue-600 font-medium hover:underline text-sm"
+                                            className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline"
                                         >
                                             {tc('view')} <ChevronRight size={16} />
                                         </Link>
@@ -104,7 +103,6 @@ export default async function ContestsTable({
                         })}
                     </div>
 
-                    {/* Desktop view */}
                     <table className="hidden min-w-full text-gray-900 md:table">
                         <thead className="rounded-lg text-left text-sm font-normal">
                             <tr>
@@ -138,20 +136,18 @@ export default async function ContestsTable({
                                     >
                                         <td className="whitespace-nowrap py-3 pl-6 pr-3">
                                             <div className="flex items-center gap-3">
-                                                <Trophy className="w-5 h-5 text-amber-500" />
-                                                <p className="font-bold">{contest.title}</p>
+                                                <Trophy className="h-5 w-5 text-amber-500" />
+                                                <p className="max-w-[18rem] truncate font-bold">{contest.title}</p>
                                             </div>
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-3">
                                             <StatusBadge status={status} label={statusLabels[status]} />
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-3 text-sm">
-                                            {formatDate(contest.start_date)}
+                                            {formatDate(contest.start_date, locale)}
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-3 text-sm">
-                                            {contest.end_date
-                                                ? formatDate(contest.end_date)
-                                                : '—'}
+                                            {contest.end_date ? formatDate(contest.end_date, locale) : '-'}
                                         </td>
                                         <td className="whitespace-nowrap px-3 py-3">
                                             <span
@@ -169,7 +165,7 @@ export default async function ContestsTable({
                                             <div className="flex justify-end gap-3">
                                                 <Link
                                                     href={`/dashboard/contests/${contest.id}`}
-                                                    className="flex items-center gap-1 text-blue-600 font-medium hover:underline mr-4"
+                                                    className="mr-4 flex items-center gap-1 font-medium text-blue-600 hover:underline"
                                                 >
                                                     {tc('view')} <ChevronRight size={16} />
                                                 </Link>

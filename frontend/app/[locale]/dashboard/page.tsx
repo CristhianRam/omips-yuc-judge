@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/[locale]/dashboard/page.tsx
+ * @description Pagina de Next.js para la ruta '/dashboard'.
+ * @symbols N/A
+ */
+
 import { lusitana } from '@/app/ui/fonts';
 import { auth } from '@/auth';
 import { fetchDashboardStats } from '@/app/lib/data';

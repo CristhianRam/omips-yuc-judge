@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/[locale]/login/page.tsx
+ * @description Pagina de Next.js para la ruta '/login'.
+ * @symbols LoginPage
+ */
+
 import AcmeLogo from '@/app/ui/acme-logo';
 import LoginForm from '@/app/ui/login-form';
 import { Suspense } from 'react';

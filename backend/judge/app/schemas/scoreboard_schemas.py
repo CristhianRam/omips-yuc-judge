@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/schemas/scoreboard_schemas.py
+@description Esquemas de validacion y serializacion del backend Judge.
+@symbols ScoreProblem, ScoreboardUser, Scoreboard
+"""
+
 from pydantic import BaseModel
 
 

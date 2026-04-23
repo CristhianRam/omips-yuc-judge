@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/models/testcase.py
+@description Modelo de datos ORM del backend Judge.
+@symbols TestCase
+"""
+
 import uuid
 
 from sqlmodel import Field, SQLModel

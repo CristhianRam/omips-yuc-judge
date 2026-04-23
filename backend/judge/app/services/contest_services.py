@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/services/contest_services.py
+@description Servicios de negocio del backend Judge.
+@symbols check_coach_permission, get_contest_or_404, handle_contest_create, handle_contest_get, handle_contest_list, handle_contest_update, handle_contest_delete, handle_add_problem, handle_remove_problem, handle_contest_problem_list, ...
+"""
+
 from datetime import datetime, timezone
 
 from app.models import Contest

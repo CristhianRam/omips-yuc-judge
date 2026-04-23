@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/models/contest_problem.py
+@description Modelo de datos ORM del backend Judge.
+@symbols ContestProblem
+"""
+
 from typing import TYPE_CHECKING
 
 from sqlmodel import Field, Relationship, SQLModel

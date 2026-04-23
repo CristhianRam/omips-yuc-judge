@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/api/deps.py
+@description Endpoints REST del backend Judge y dependencias de API.
+@symbols get_current_user, get_current_admin, get_current_coach
+"""
+
 import uuid
 from typing import Annotated
 

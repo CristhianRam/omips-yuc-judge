@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/omips-icon.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols OmipsIcon
+ */
+
 import * as React from "react";
 
 /**

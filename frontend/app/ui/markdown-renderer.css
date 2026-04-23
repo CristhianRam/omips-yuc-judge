@@ -1,3 +1,9 @@
+/*
+ * @file frontend/app/ui/markdown-renderer.css
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols N/A
+ */
+
 .markdown-body {
   color: #1f2937;
   line-height: 1.75;

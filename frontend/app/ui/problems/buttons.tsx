@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/problems/buttons.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols CreateProblem, UpdateProblem, DeleteProblem
+ */
+
 import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Link } from '@/i18n/navigation';
 import { deleteProblem } from '@/app/lib/actions';

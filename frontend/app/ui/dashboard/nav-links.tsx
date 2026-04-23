@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/dashboard/nav-links.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols NavLinks
+ */
+
 'use client';
 import { usePathname } from 'next/navigation';
 import {
@@ -14,6 +20,7 @@ import { Link } from '@/i18n/navigation';
 export default function NavLinks({ role }: { role: string }) {
   const pathname = usePathname();
   const t = useTranslations('nav');
+  const normalizedPathname = pathname.replace(/^\/(en|es)(?=\/)/, '');
 
   const links = [
     { name: t('dashboard'), href: '/dashboard' as const, icon: LayoutDashboard },
@@ -29,19 +36,24 @@ export default function NavLinks({ role }: { role: string }) {
         .filter(link => !link.trainerOnly || (role === 'admin' || role === 'coach'))
         .map((link) => {
           const LinkIcon = link.icon;
+          const isActive =
+            link.href === '/dashboard'
+              ? normalizedPathname === '/dashboard'
+              : normalizedPathname.startsWith(link.href);
+
           return (
             <Link
               key={link.href}
               href={link.href}
               className={clsx(
-                'flex h-[48px] grow items-center justify-center gap-2 rounded-lg bg-gray-50 p-3 text-sm font-medium text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors md:flex-none md:justify-start md:p-2 md:px-3',
+                'flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-gray-50 p-3 text-sm font-medium text-gray-600 transition-colors hover:bg-blue-50 hover:text-blue-600 md:justify-start md:p-2 md:px-3',
                 {
-                  'bg-blue-50 text-blue-600': pathname.includes(link.href),
+                  'bg-blue-50 text-blue-600': isActive,
                 },
               )}
             >
               <LinkIcon className="w-6 flex-shrink-0" />
-              <p className="hidden md:block">{link.name}</p>
+              <p className="hidden truncate md:block">{link.name}</p>
             </Link>
           );
         })}

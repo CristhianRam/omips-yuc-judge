@@ -1,3 +1,7 @@
+# @file .gitignore
+# @description Archivo de configuracion o soporte del proyecto.
+# @symbols N/A
+
 # ===== Python =====
 venv/
 __pycache__/

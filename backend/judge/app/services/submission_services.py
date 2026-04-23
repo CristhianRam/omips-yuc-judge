@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/services/submission_services.py
+@description Servicios de negocio del backend Judge.
+@symbols handle_submission_create, handle_submission_get, handle_my_submissions, handle_submissions_list
+"""
+
 import json
 from datetime import datetime, timezone
 from uuid import UUID

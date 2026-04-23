@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/language-switcher.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols LanguageSwitcher, handleChange
+ */
+
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
@@ -15,12 +21,12 @@ export default function LanguageSwitcher() {
     };
 
     return (
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-2">
             {routing.locales.map((loc) => (
                 <button
                     key={loc}
                     onClick={() => handleChange(loc)}
-                    className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${locale === loc
+                    className={`min-w-[74px] whitespace-nowrap rounded px-2 py-1 text-xs font-semibold transition-colors ${locale === loc
                             ? 'bg-white text-blue-600'
                             : 'bg-blue-400/30 text-white hover:bg-blue-400/50'
                         }`}

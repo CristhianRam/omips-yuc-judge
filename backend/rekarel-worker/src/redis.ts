@@ -1,3 +1,9 @@
+/**
+ * @file backend/rekarel-worker/src/redis.ts
+ * @description Modulo del worker para evaluacion asincrona de envios.
+ * @symbols connectRedis
+ */
+
 import { createClient } from "redis"
 
 const redisPassword = process.env.REDIS_PASSWORD

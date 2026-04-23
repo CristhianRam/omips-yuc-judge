@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/[locale]/signup/page.tsx
+ * @description Pagina de Next.js para la ruta '/signup'.
+ * @symbols SignupPage
+ */
+
 import AcmeLogo from "@/app/ui/acme-logo";
 import SignupForm from "@/app/ui/signup-form";
 

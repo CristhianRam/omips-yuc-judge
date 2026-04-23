@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/contests/buttons.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols CreateContest, UpdateContest, DeleteContest
+ */
+
 import { PlusIcon, PencilIcon, TrashIcon } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { deleteContest } from '@/app/lib/actions';

@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/api/dev_endpoints.py
+@description Endpoints REST del backend Judge y dependencias de API.
+@symbols change_user_role
+"""
+
 import uuid
 
 from app.db import SessionDep

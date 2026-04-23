@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/acme-logo.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols OmipsLogo
+ */
+
 import { lusitana } from '@/app/ui/fonts';
 import OmipsIcon from '@/app/ui/omips-icon';
 

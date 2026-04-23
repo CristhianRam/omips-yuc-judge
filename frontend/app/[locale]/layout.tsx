@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/[locale]/layout.tsx
+ * @description Modulo TypeScript del proyecto.
+ * @symbols N/A
+ */
+
 import '@/app/ui/global.css';
 import { inter } from '@/app/ui/fonts';
 import { NextIntlClientProvider } from 'next-intl';

@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/services/problem_services.py
+@description Servicios de negocio del backend Judge.
+@symbols check_coach_permission, get_problem_or_404, handle_problem_create, handle_problem_list, handle_problem_update, handle_problem_delete
+"""
+
 from app.core.testcase_storage import delete_problem_testcases
 from app.models import Problem
 from app.models.problem import ProblemDifficulty

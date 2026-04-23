@@ -1,20 +1,30 @@
+/**
+ * @file frontend/app/ui/contests/scoreboard-tab.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols ScoreboardTab
+ */
+
+'use client';
+
 import { Scoreboard } from '@/app/lib/definitions';
 import clsx from 'clsx';
+import { useTranslations } from 'next-intl';
 
 export default function ScoreboardTab({
     scoreboard,
 }: {
     scoreboard: Scoreboard | null;
 }) {
+    const t = useTranslations('contests.detail');
+
     if (!scoreboard || scoreboard.users.length === 0) {
         return (
             <div className="rounded-lg bg-gray-50 p-6 text-center text-gray-500">
-                No scoreboard data available yet.
+                {t('noScoreboard')}
             </div>
         );
     }
 
-    // Collect all unique problem orders for columns
     const allOrders = Array.from(
         new Set(scoreboard.users.flatMap((u) => u.problems.map((p) => p.order))),
     ).sort();
@@ -24,19 +34,16 @@ export default function ScoreboardTab({
             <table className="min-w-full text-gray-900">
                 <thead className="rounded-lg text-left text-sm font-normal">
                     <tr>
-                        <th className="px-3 py-3 font-medium text-center w-12">#</th>
-                        <th className="px-3 py-3 font-medium">User</th>
+                        <th className="w-12 px-3 py-3 text-center font-medium">#</th>
+                        <th className="px-3 py-3 font-medium">{t('user')}</th>
                         {allOrders.map((order) => (
-                            <th
-                                key={order}
-                                className="px-3 py-3 font-medium text-center"
-                            >
-                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-700 font-bold text-sm">
+                            <th key={order} className="px-3 py-3 text-center font-medium">
+                                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
                                     {order}
                                 </span>
                             </th>
                         ))}
-                        <th className="px-3 py-3 font-bold text-center">Total</th>
+                        <th className="px-3 py-3 text-center font-bold">{t('total')}</th>
                     </tr>
                 </thead>
                 <tbody className="bg-white">
@@ -50,9 +57,7 @@ export default function ScoreboardTab({
                                 idx === 2 && 'bg-orange-50',
                             )}
                         >
-                            <td className="px-3 py-3 text-center font-bold text-gray-500">
-                                {idx + 1}
-                            </td>
+                            <td className="px-3 py-3 text-center font-bold text-gray-500">{idx + 1}</td>
                             <td className="px-3 py-3">
                                 <span className="font-medium">{user.username}</span>
                             </td>
@@ -81,13 +86,13 @@ export default function ScoreboardTab({
                                                 )}
                                             </div>
                                         ) : (
-                                            <span className="text-gray-300">—</span>
+                                            <span className="text-gray-300">-</span>
                                         )}
                                     </td>
                                 );
                             })}
                             <td className="px-3 py-3 text-center">
-                                <span className="font-bold text-lg">{user.total_score}</span>
+                                <span className="text-lg font-bold">{user.total_score}</span>
                             </td>
                         </tr>
                     ))}

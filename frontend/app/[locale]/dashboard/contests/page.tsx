@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/[locale]/dashboard/contests/page.tsx
+ * @description Pagina de Next.js para la ruta '/dashboard/contests'.
+ * @symbols N/A
+ */
+
 import Pagination from '@/app/ui/pagination';
 import Table from '@/app/ui/contests/table';
 import { CreateContest } from '@/app/ui/contests/buttons';
@@ -32,8 +38,7 @@ export default async function Page(props: {
             <div className="flex w-full items-center justify-between">
                 <h1 className={`${lusitana.className} text-2xl`}>{t('title')}</h1>
             </div>
-            <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-                <div className="flex-1" />
+            <div className="mt-4 flex justify-end md:mt-8">
                 {(role === 'admin' || role === 'coach') && <CreateContest />}
             </div>
             <Suspense key={currentPage} fallback={<ContestsTableSkeleton />}>

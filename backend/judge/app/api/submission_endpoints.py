@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/api/submission_endpoints.py
+@description Endpoints REST del backend Judge y dependencias de API.
+@symbols create_submission, get_submission, list_my_submissions, list_submissions
+"""
+
 import uuid
 from typing import Annotated
 

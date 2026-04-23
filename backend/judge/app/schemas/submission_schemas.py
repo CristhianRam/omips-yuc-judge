@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/schemas/submission_schemas.py
+@description Esquemas de validacion y serializacion del backend Judge.
+@symbols SubmissionRequest, SubmissionCreateResponse, SubmissionResponse, SubmissionListRequest, SubmissionPreview, SubmissionListResponse
+"""
+
 import uuid
 
 from fastapi import Query

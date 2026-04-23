@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/dashboard/recent-activity.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols RecentActivity, timeAgo, VerdictBadge
+ */
+
 import { Clock } from 'lucide-react';
 import { RecentSubmission } from '@/app/lib/definitions';
 import { lusitana } from '@/app/ui/fonts';

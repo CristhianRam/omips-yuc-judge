@@ -1,3 +1,7 @@
+# @file docker-compose.yml
+# @description Orquestacion de servicios y dependencias en contenedores.
+# @symbols N/A
+
 # Full-stack docker-compose for local testing.
 # Run from the project root: docker compose up --build
 #

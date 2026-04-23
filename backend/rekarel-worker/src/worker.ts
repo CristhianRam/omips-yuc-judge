@@ -1,3 +1,9 @@
+/**
+ * @file backend/rekarel-worker/src/worker.ts
+ * @description Modulo del worker para evaluacion asincrona de envios.
+ * @symbols startWorker, decodeRuntimeError
+ */
+
 import { redis } from "./redis"
 import {RuntimeErrorCodes, compile, World } from "@rekarel/core"
 import { loadTestcases } from "./loader/testcases"

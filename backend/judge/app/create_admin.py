@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/create_admin.py
+@description Modulo Python del backend Judge.
+@symbols create_admin
+"""
+
 import os
 
 from app.core.security import get_password_hash  # Tu función de hashing

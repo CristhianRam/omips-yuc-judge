@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/markdown-renderer.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols MarkdownRenderer
+ */
+
 'use client';
 
 import ReactMarkdown from 'react-markdown';

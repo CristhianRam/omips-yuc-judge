@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/services/email_services.py
+@description Servicios de negocio del backend Judge.
+@symbols EmailDeliveryError, send_verification_email
+"""
+
 import os
 import smtplib
 from email.message import EmailMessage

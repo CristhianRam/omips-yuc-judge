@@ -1,3 +1,7 @@
+# @file frontend/Dockerfile
+# @description Definicion de imagen Docker del servicio correspondiente.
+# @symbols N/A
+
 # ---- Stage 1: Install dependencies ----
 FROM node:20-alpine AS deps
 RUN corepack enable && corepack prepare pnpm@latest --activate

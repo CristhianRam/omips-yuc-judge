@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/db.py
+@description Modulo Python del backend Judge.
+@symbols get_db_url, get_session
+"""
+
 import os
 from typing import Annotated
 

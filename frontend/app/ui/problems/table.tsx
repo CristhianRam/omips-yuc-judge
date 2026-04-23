@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/problems/table.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols DifficultyBadge
+ */
+
 import { fetchProblems } from "@/app/lib/data";
 import { Link } from '@/i18n/navigation';
 import { ChevronRight, Code2 } from "lucide-react";
@@ -21,14 +27,14 @@ export default async function ProblemsTable({
 
   return (
     <div className="mt-6 flow-root">
-      <div className="inline-block min-w-full align-middle">
+      <div className="inline-block min-w-full align-middle overflow-x-auto">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
           <div className="md:hidden">
             {problems?.map((problem) => (
               <div key={problem.id} className="mb-2 w-full rounded-md bg-white p-4">
-                <div className="flex items-center justify-between border-b pb-4">
+                <div className="flex items-start justify-between gap-3 border-b pb-4">
                   <div>
-                    <p className="text-sm font-medium">{problem.title}</p>
+                    <p className="text-sm font-medium break-words">{problem.title}</p>
                     <p className="text-xs text-gray-500">{t('limits')}: {problem.time_limit_ms}ms / {problem.memory_limit_mb}MB</p>
                   </div>
                   <DifficultyBadge difficulty={problem.difficulty} />

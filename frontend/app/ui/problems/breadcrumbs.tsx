@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/problems/breadcrumbs.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols Breadcrumbs
+ */
+
 import { clsx } from 'clsx';
 import { Link } from '@/i18n/navigation';
 import { lusitana } from '@/app/ui/fonts';
@@ -15,12 +21,13 @@ export default function Breadcrumbs({
 }) {
     return (
         <nav aria-label="Breadcrumb" className="mb-6 block">
-            <ol className={clsx(lusitana.className, 'flex text-xl md:text-2xl')}>
+            <ol className={clsx(lusitana.className, 'flex flex-wrap items-center gap-y-1 text-lg md:text-2xl')}>
                 {breadcrumbs.map((breadcrumb, index) => (
                     <li
                         key={breadcrumb.href}
                         aria-current={breadcrumb.active}
                         className={clsx(
+                            'max-w-full truncate',
                             breadcrumb.active ? 'text-gray-900' : 'text-gray-500',
                         )}
                     >

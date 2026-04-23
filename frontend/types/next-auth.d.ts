@@ -1,3 +1,9 @@
+/**
+ * @file frontend/types/next-auth.d.ts
+ * @description Modulo TypeScript del proyecto.
+ * @symbols N/A
+ */
+
 import NextAuth, { DefaultSession } from "next-auth"
 import { JWT } from "next-auth/jwt"
 

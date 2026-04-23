@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/api/problem_endpoints.py
+@description Endpoints REST del backend Judge y dependencias de API.
+@symbols create_problem, list_problems, get_problem, update_problem, delete_problem
+"""
+
 from typing import Optional
 
 from app.api.deps import CurrentUserDep

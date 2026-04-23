@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/dashboard/cards.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols DashboardCards, Card
+ */
+
 import { BookOpen, Trophy, Users, Send } from 'lucide-react';
 import { lusitana } from '@/app/ui/fonts';
 import { getTranslations } from 'next-intl/server';

@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/[locale]/page.tsx
+ * @description Modulo TypeScript del proyecto.
+ * @symbols Page
+ */
+
 import AcmeLogo from '@/app/ui/acme-logo';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import { lusitana } from '@/app/ui/fonts';

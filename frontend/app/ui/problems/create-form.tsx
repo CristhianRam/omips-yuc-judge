@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/problems/create-form.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols Form, addTestCase, removeTestCase
+ */
+
 'use client';
 
 import { Link } from '@/i18n/navigation';
@@ -13,11 +19,14 @@ import {
 import { Button } from '@/app/ui/button';
 import { createProblem } from '@/app/lib/actions';
 import { useActionState, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function Form() {
     const initialState = { message: null, errors: {} };
     // @ts-ignore
     const [state, dispatch] = useActionState(createProblem, initialState);
+    const t = useTranslations('problemForm');
+    const tp = useTranslations('problems');
 
     const [testCases, setTestCases] = useState([{ id: 0 }]);
 
@@ -35,14 +44,14 @@ export default function Form() {
                 {/* Problem Title */}
                 <div className="mb-4">
                     <label htmlFor="title" className="mb-2 block text-sm font-medium">
-                        Title
+                        {t('title')}
                     </label>
                     <div className="relative">
                         <input
                             id="title"
                             name="title"
                             type="text"
-                            placeholder="Enter problem title"
+                            placeholder={t('titlePlaceholder')}
                             className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                             aria-describedby="title-error"
                         />
@@ -61,13 +70,13 @@ export default function Form() {
                 {/* Problem Description */}
                 <div className="mb-4">
                     <label htmlFor="description" className="mb-2 block text-sm font-medium">
-                        Description
+                        {t('description')}
                     </label>
                     <div className="relative">
                         <textarea
                             id="description"
                             name="description"
-                            placeholder="Enter problem description (Markdown supported)"
+                            placeholder={t('descriptionPlaceholder')}
                             className="peer block w-full rounded-md border border-gray-200 py-2 pl-2 text-sm outline-2 placeholder:text-gray-500 min-h-[150px]"
                             aria-describedby="description-error"
                         />
@@ -85,7 +94,7 @@ export default function Form() {
                 {/* Time Limit */}
                 <div className="mb-4">
                     <label htmlFor="time_limit_ms" className="mb-2 block text-sm font-medium">
-                        Time Limit (ms)
+                        {t('timeLimit')}
                     </label>
                     <div className="relative">
                         <input
@@ -111,7 +120,7 @@ export default function Form() {
                 {/* Memory Limit */}
                 <div className="mb-4">
                     <label htmlFor="memory_limit_mb" className="mb-2 block text-sm font-medium">
-                        Memory Limit (MB)
+                        {t('memoryLimit')}
                     </label>
                     <div className="relative">
                         <input
@@ -137,7 +146,7 @@ export default function Form() {
                 {/* Difficulty */}
                 <fieldset>
                     <legend className="mb-2 block text-sm font-medium">
-                        Difficulty
+                        {t('difficulty')}
                     </legend>
                     <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
                         <div className="flex gap-4">
@@ -153,7 +162,7 @@ export default function Form() {
                                     htmlFor="easy"
                                     className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-green-100 px-3 py-1.5 text-xs font-medium text-green-600"
                                 >
-                                    Easy
+                                    {tp('easy')}
                                 </label>
                             </div>
                             <div className="flex items-center">
@@ -169,7 +178,7 @@ export default function Form() {
                                     htmlFor="medium"
                                     className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-yellow-100 px-3 py-1.5 text-xs font-medium text-yellow-600"
                                 >
-                                    Medium
+                                    {tp('medium')}
                                 </label>
                             </div>
                             <div className="flex items-center">
@@ -184,7 +193,7 @@ export default function Form() {
                                     htmlFor="hard"
                                     className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-red-100 px-3 py-1.5 text-xs font-medium text-red-600"
                                 >
-                                    Hard
+                                    {tp('hard')}
                                 </label>
                             </div>
                         </div>
@@ -203,19 +212,19 @@ export default function Form() {
                 <div className="mt-6 mb-4">
                     <div className='flex justify-between items-center mb-2'>
                         <label className="block text-sm font-medium">
-                            Test Cases (Optional)
+                            {t('testCasesOptional')}
                         </label>
                         <button
                             type="button"
                             onClick={addTestCase}
                             className="rounded-md bg-blue-50 px-3 py-1 text-sm font-medium text-blue-600 hover:bg-blue-100"
                         >
-                            + Add Test Case
+                            + {t('addTestCase')}
                         </button>
                     </div>
 
                     <div className="space-y-4">
-                        <p className="text-sm text-gray-500">Upload initial test case pairs (Input .in and Output .out)</p>
+                        <p className="text-sm text-gray-500">{t('uploadPairsHint')}</p>
                         {testCases.map((tc: { id: number }, index: number) => (
                             <div key={tc.id} className="rounded-md border border-gray-200 bg-white p-4 relative">
                                 <button
@@ -223,15 +232,15 @@ export default function Form() {
                                     onClick={() => removeTestCase(tc.id)}
                                     className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
                                 >
-                                    <span className="sr-only">Remove</span>
+                                    <span className="sr-only">{t('remove')}</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
-                                <p className="text-xs font-semibold text-gray-700 mb-2">Test Case {index + 1}</p>
-                                <div className="grid grid-cols-2 gap-4">
+                                <p className="text-xs font-semibold text-gray-700 mb-2">{t('testCase')} {index + 1}</p>
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700">Input (.in)</label>
+                                        <label className="block text-xs font-medium text-gray-700">{t('input')}</label>
                                         <input
                                             type="file"
                                             name={`input_file_${index}`}
@@ -239,7 +248,7 @@ export default function Form() {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-medium text-gray-700">Output (.out)</label>
+                                        <label className="block text-xs font-medium text-gray-700">{t('output')}</label>
                                         <input
                                             type="file"
                                             name={`output_file_${index}`}
@@ -250,7 +259,7 @@ export default function Form() {
                             </div>
                         ))}
                         {testCases.length === 0 && (
-                            <p className="text-sm text-gray-400 italic">No test cases added.</p>
+                            <p className="text-sm text-gray-400 italic">{t('noTestCasesAdded')}</p>
                         )}
                     </div>
                 </div>
@@ -269,9 +278,9 @@ export default function Form() {
                     href="/dashboard/problems"
                     className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
                 >
-                    Cancel
+                    {t('cancel')}
                 </Link>
-                <Button type="submit">Create Problem</Button>
+                <Button type="submit">{t('createProblem')}</Button>
             </div>
         </form>
     );

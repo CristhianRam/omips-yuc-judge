@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/[locale]/dashboard/users/page.tsx
+ * @description Pagina de Next.js para la ruta '/dashboard/users'.
+ * @symbols UsersTableSkeleton
+ */
+
 import Pagination from '@/app/ui/pagination';
 import UsersTable from '@/app/ui/users/table';
 import UserFilters from '@/app/ui/users/filters';
@@ -43,7 +49,7 @@ export default async function Page(props: {
             <div className="flex w-full items-center justify-between">
                 <h1 className={`${lusitana.className} text-2xl`}>{t('title')}</h1>
             </div>
-            <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
+            <div className="mt-4 md:mt-8">
                 <UserFilters />
             </div>
             <Suspense key={`${currentPage}-${roleFilter}`} fallback={<UsersTableSkeleton />}>

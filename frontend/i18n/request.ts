@@ -1,3 +1,9 @@
+/**
+ * @file frontend/i18n/request.ts
+ * @description Configuracion de internacionalizacion del frontend.
+ * @symbols N/A
+ */
+
 import { getRequestConfig } from 'next-intl/server';
 import { routing } from './routing';
 

@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/schemas/problem_schemas.py
+@description Esquemas de validacion y serializacion del backend Judge.
+@symbols ProblemCreate, ProblemPublic, Config, ProblemUpdate, ProblemListResponse, validate_markdown
+"""
+
 from typing import Optional
 
 from app.models.problem import ProblemDifficulty

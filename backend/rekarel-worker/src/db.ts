@@ -1,3 +1,9 @@
+/**
+ * @file backend/rekarel-worker/src/db.ts
+ * @description Modulo del worker para evaluacion asincrona de envios.
+ * @symbols updateSubmissionStatus, updateScoreboardEntry
+ */
+
 import { Pool } from 'pg';
 import { ScoreboardEntryUpdate, SubmissionUpdate } from './types';
 

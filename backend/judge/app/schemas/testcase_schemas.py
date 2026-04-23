@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/schemas/testcase_schemas.py
+@description Esquemas de validacion y serializacion del backend Judge.
+@symbols TestCaseCreate, TestCasePublic, Config, TestCaseWithContent
+"""
+
 import uuid
 
 from pydantic import BaseModel, Field

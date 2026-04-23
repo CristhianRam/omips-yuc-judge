@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/models/__init__.py
+@description Modelo de datos ORM del backend Judge.
+@symbols N/A
+"""
+
 from .contest import Contest
 from .contest_problem import ContestProblem
 from .contest_user import ContestUser

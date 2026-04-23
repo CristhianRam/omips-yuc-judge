@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/api/auth_endpoints.py
+@description Endpoints REST del backend Judge y dependencias de API.
+@symbols _verification_ttl_minutes, _normalize_email, _normalize_username, _generate_verification_code, _hash_verification_code, _is_code_expired, _get_pending_registration_for_update, _upsert_pending_registration, _refresh_pending_code, register, ...
+"""
+
 import os
 import secrets
 from datetime import datetime, timedelta, timezone

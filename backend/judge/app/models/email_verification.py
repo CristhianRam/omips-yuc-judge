@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/models/email_verification.py
+@description Modelo de datos ORM del backend Judge.
+@symbols PendingRegistration
+"""
+
 import uuid
 from datetime import datetime, timezone
 

@@ -1,3 +1,9 @@
+/**
+ * @file frontend/tailwind.config.ts
+ * @description Modulo TypeScript del proyecto.
+ * @symbols N/A
+ */
+
 import type { Config } from 'tailwindcss';
 
 const config: Config = {

@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/services/testcase_services.py
+@description Servicios de negocio del backend Judge.
+@symbols handle_testcase_create, handle_testcase_delete, handle_testcase_list, handle_testcase_get
+"""
+
 import uuid
 
 from app.core.testcase_storage import (

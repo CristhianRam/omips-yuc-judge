@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/signup-form.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols SignupForm
+ */
+
 'use client';
 
 import { lusitana } from '@/app/ui/fonts';

@@ -1,3 +1,9 @@
+"""
+@file backend/judge/app/api/contest_endpoints.py
+@description Endpoints REST del backend Judge y dependencias de API.
+@symbols create_contest, list_contests, get_contest, update_contest, delete_contest, add_problem_to_contest, remove_problem_from_contest, get_contest_problems, join_contest, leave_contest, ...
+"""
+
 from app.api.deps import CurrentUserDep
 from app.db import SessionDep
 from app.schemas.contest_schemas import (

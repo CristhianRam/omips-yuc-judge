@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/ui/skeletons.tsx
+ * @description Componente de interfaz de usuario del frontend.
+ * @symbols DashboardSkeleton, CardSkeleton, CardsSkeleton, RevenueChartSkeleton, InvoiceSkeleton, LatestInvoicesSkeleton, TableRowSkeleton, InvoicesMobileSkeleton, InvoicesTableSkeleton, ProblemsMobileSkeleton, ...
+ */
+
 // Loading animation
 const shimmer =
   'before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent';

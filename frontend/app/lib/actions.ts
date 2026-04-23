@@ -1,3 +1,9 @@
+/**
+ * @file frontend/app/lib/actions.ts
+ * @description Modulo de utilidades y logica de datos del frontend.
+ * @symbols authenticate, signup, verifyEmailCode, resendVerificationCode, createProblem, updateProblem, deleteProblem, submitSolution, submitContestSolution, deleteTestCase, ...
+ */
+
 'use server';
 
 import { signIn, auth } from '@/auth';
