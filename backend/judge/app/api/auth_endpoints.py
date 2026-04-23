@@ -43,7 +43,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 VERIFICATION_CODE_DIGITS = 6
 PASSWORD_RESET_GENERIC_MESSAGE = (
-    "Si el correo existe, enviamos un codigo para restablecer la contrasena"
+    "Si el correo existe, enviamos un código para restablecer la contraseña"
 )
 
 
@@ -177,8 +177,8 @@ def _upsert_pending_password_reset(session: SessionDep, *, email: str) -> str:
 @router.post("/register", response_model=RegistrationResponse)
 def register(user_in: UserCreate, session: SessionDep):
     """
-    Inicia registro pendiente y envia codigo de verificacion por correo.
-    El usuario se crea en la tabla final solo despues de verificar el codigo.
+    Inicia registro pendiente y envía código de verificación por correo.
+    El usuario se crea en la tabla final solo después de verificar el código.
     """
     normalized_email = _normalize_email(str(user_in.email))
     normalized_username = _normalize_username(user_in.username)
@@ -190,13 +190,13 @@ def register(user_in: UserCreate, session: SessionDep):
         select(User).where(User.email == normalized_email, User.is_active == True)
     ).first()
     if existing_active_email:
-        raise HTTPException(status_code=400, detail="El email ya esta registrado")
+        raise HTTPException(status_code=400, detail="El correo ya está registrado")
 
     existing_active_username = session.exec(
         select(User).where(User.username == normalized_username, User.is_active == True)
     ).first()
     if existing_active_username:
-        raise HTTPException(status_code=400, detail="El nombre de usuario ya esta en uso")
+        raise HTTPException(status_code=400, detail="El nombre de usuario ya está en uso")
 
     password_hash = get_password_hash(user_in.password)
 
@@ -209,8 +209,8 @@ def register(user_in: UserCreate, session: SessionDep):
         )
         session.commit()
     except IntegrityError:
-        # Si hubo carrera al crear el pending por email, reintenta y la ultima
-        # escritura gana para evitar codigos cruzados.
+        # Si hubo carrera al crear el pending por email, reintenta y la última
+        # escritura gana para evitar códigos cruzados.
         session.rollback()
         try:
             code = _upsert_pending_registration(
@@ -237,16 +237,16 @@ def register(user_in: UserCreate, session: SessionDep):
     except EmailDeliveryError:
         raise HTTPException(
             status_code=503,
-            detail="No se pudo enviar el codigo. Intenta reenviar el codigo.",
+            detail="No se pudo enviar el código. Intenta reenviar el código.",
         )
     except Exception:
         raise HTTPException(
             status_code=503,
-            detail="No se pudo enviar el codigo. Intenta reenviar el codigo.",
+            detail="No se pudo enviar el código. Intenta reenviar el código.",
         )
 
     return RegistrationResponse(
-        message="Te enviamos un codigo de verificacion a tu correo",
+        message="Te enviamos un código de verificación a tu correo",
         email=normalized_email,
     )
 
@@ -257,15 +257,15 @@ def verify_email(payload: EmailVerificationRequest, session: SessionDep):
 
     pending = _get_pending_registration_for_update(session, email=normalized_email)
     if not pending:
-        raise HTTPException(status_code=400, detail="No hay un codigo activo para este correo")
+        raise HTTPException(status_code=400, detail="No hay un código activo para este correo")
 
     if _is_code_expired(pending.expires_at):
         session.delete(pending)
         session.commit()
-        raise HTTPException(status_code=400, detail="El codigo expiro. Solicita uno nuevo")
+        raise HTTPException(status_code=400, detail="El código expiró. Solicita uno nuevo")
 
     if _hash_verification_code(payload.code) != pending.code_hash:
-        raise HTTPException(status_code=400, detail="El codigo es incorrecto")
+        raise HTTPException(status_code=400, detail="El código es incorrecto")
 
     existing_user_by_email = session.exec(
         select(User).where(User.email == normalized_email)
@@ -281,7 +281,7 @@ def verify_email(payload: EmailVerificationRequest, session: SessionDep):
         if username_owner.is_active:
             raise HTTPException(
                 status_code=400,
-                detail="El nombre de usuario ya esta en uso. Registra de nuevo con otro.",
+                detail="El nombre de usuario ya está en uso. Registra de nuevo con otro.",
             )
         session.delete(username_owner)
         session.flush()
@@ -311,7 +311,7 @@ def verify_email(payload: EmailVerificationRequest, session: SessionDep):
         if conflict_email:
             raise HTTPException(
                 status_code=400,
-                detail="El correo ya fue verificado. Inicia sesion.",
+                detail="El correo ya fue verificado. Inicia sesión.",
             )
 
         conflict_username = session.exec(
@@ -320,12 +320,12 @@ def verify_email(payload: EmailVerificationRequest, session: SessionDep):
         if conflict_username:
             raise HTTPException(
                 status_code=400,
-                detail="El nombre de usuario ya esta en uso. Registra de nuevo con otro.",
+                detail="El nombre de usuario ya está en uso. Registra de nuevo con otro.",
             )
 
         raise HTTPException(status_code=500, detail="No se pudo verificar el correo")
 
-    return MessageResponse(message="Correo verificado correctamente. Ya puedes iniciar sesion")
+    return MessageResponse(message="Correo verificado correctamente. Ya puedes iniciar sesión")
 
 
 @router.post("/resend-verification", response_model=MessageResponse)
@@ -336,12 +336,12 @@ def resend_verification(payload: ResendVerificationRequest, session: SessionDep)
         select(User).where(User.email == normalized_email, User.is_active == True)
     ).first()
     if active_user:
-        return MessageResponse(message="El correo ya esta verificado")
+        return MessageResponse(message="El correo ya está verificado")
 
     pending = _get_pending_registration_for_update(session, email=normalized_email)
     if not pending:
         return MessageResponse(
-            message="Si el correo existe, se envio un nuevo codigo de verificacion"
+            message="Si el correo existe, se envió un nuevo código de verificación"
         )
 
     try:
@@ -349,7 +349,7 @@ def resend_verification(payload: ResendVerificationRequest, session: SessionDep)
         session.commit()
     except Exception:
         session.rollback()
-        raise HTTPException(status_code=500, detail="No se pudo reenviar el codigo")
+        raise HTTPException(status_code=500, detail="No se pudo reenviar el código")
 
     try:
         send_verification_email(
@@ -361,15 +361,15 @@ def resend_verification(payload: ResendVerificationRequest, session: SessionDep)
     except EmailDeliveryError:
         raise HTTPException(
             status_code=503,
-            detail="No se pudo enviar el codigo. Intenta reenviar el codigo.",
+            detail="No se pudo enviar el código. Intenta reenviar el código.",
         )
     except Exception:
         raise HTTPException(
             status_code=503,
-            detail="No se pudo enviar el codigo. Intenta reenviar el codigo.",
+            detail="No se pudo enviar el código. Intenta reenviar el código.",
         )
 
-    return MessageResponse(message="Te enviamos un nuevo codigo de verificacion")
+    return MessageResponse(message="Te enviamos un nuevo código de verificación")
 
 
 @router.post("/forgot-password", response_model=MessageResponse)
@@ -387,7 +387,7 @@ def forgot_password(payload: ForgotPasswordRequest, session: SessionDep):
         session.commit()
     except Exception:
         session.rollback()
-        raise HTTPException(status_code=500, detail="No se pudo iniciar la recuperacion")
+        raise HTTPException(status_code=500, detail="No se pudo iniciar la recuperación")
 
     try:
         send_password_reset_email(
@@ -399,12 +399,12 @@ def forgot_password(payload: ForgotPasswordRequest, session: SessionDep):
     except EmailDeliveryError:
         raise HTTPException(
             status_code=503,
-            detail="No se pudo enviar el codigo de recuperacion",
+            detail="No se pudo enviar el código de recuperación",
         )
     except Exception:
         raise HTTPException(
             status_code=503,
-            detail="No se pudo enviar el codigo de recuperacion",
+            detail="No se pudo enviar el código de recuperación",
         )
 
     return MessageResponse(message=PASSWORD_RESET_GENERIC_MESSAGE)
@@ -416,21 +416,21 @@ def reset_password(payload: ResetPasswordRequest, session: SessionDep):
     pending = _get_pending_password_reset_for_update(session, email=normalized_email)
 
     if not pending:
-        raise HTTPException(status_code=400, detail="No hay un codigo activo para este correo")
+        raise HTTPException(status_code=400, detail="No hay un código activo para este correo")
 
     if _is_code_expired(pending.expires_at):
         session.delete(pending)
         session.commit()
-        raise HTTPException(status_code=400, detail="El codigo expiro. Solicita uno nuevo")
+        raise HTTPException(status_code=400, detail="El código expiró. Solicita uno nuevo")
 
     if _hash_verification_code(payload.code) != pending.code_hash:
-        raise HTTPException(status_code=400, detail="El codigo es incorrecto")
+        raise HTTPException(status_code=400, detail="El código es incorrecto")
 
     user = session.exec(select(User).where(User.email == normalized_email)).first()
     if not user:
         session.delete(pending)
         session.commit()
-        raise HTTPException(status_code=400, detail="No se encontro un usuario para este correo")
+        raise HTTPException(status_code=400, detail="No se encontró un usuario para este correo")
 
     user.hashed_password = get_password_hash(payload.new_password)
 
@@ -440,9 +440,9 @@ def reset_password(payload: ResetPasswordRequest, session: SessionDep):
         session.commit()
     except Exception:
         session.rollback()
-        raise HTTPException(status_code=500, detail="No se pudo actualizar la contrasena")
+        raise HTTPException(status_code=500, detail="No se pudo actualizar la contraseña")
 
-    return MessageResponse(message="Contrasena actualizada correctamente. Ya puedes iniciar sesion")
+    return MessageResponse(message="Contraseña actualizada correctamente. Ya puedes iniciar sesión")
 
 
 @router.post("/token", response_model=Token)
@@ -461,14 +461,14 @@ def login(
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario o contrasena incorrectos",
+            detail="Usuario o contraseña incorrectos",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Debes verificar tu correo antes de iniciar sesion",
+            detail="Debes verificar tu correo antes de iniciar sesión",
         )
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
