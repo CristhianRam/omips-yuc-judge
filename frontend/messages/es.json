@@ -8,7 +8,8 @@
     "signOut": "Cerrar sesión",
     "noResults": "No se encontraron resultados.",
     "cancel": "Cancelar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "back": "Regresar"
   },
   "landing": {
     "welcome": "Bienvenido a BeeperCode.",
@@ -20,13 +21,20 @@
   },
   "login": {
     "title": "Inicia sesión para continuar.",
-    "username": "Usuario",
-    "usernamePlaceholder": "Ingresa tu nombre de usuario",
+    "username": "Usuario o correo",
+    "usernamePlaceholder": "Ingresa tu usuario o correo",
     "password": "Contraseña",
     "passwordPlaceholder": "Ingresa tu contraseña",
     "showPassword": "Mostrar contraseña",
     "hidePassword": "Ocultar contraseña",
-    "submit": "Iniciar sesión"
+    "submit": "Iniciar sesión",
+    "submitPending": "Iniciando sesion...",
+    "verifiedSuccess": "Correo verificado correctamente. Ya puedes iniciar sesion.",
+    "needAccount": "No tienes cuenta?",
+    "goToSignup": "Crear cuenta",
+    "resetSuccess": "Contrasena actualizada correctamente. Inicia sesion.",
+    "forgotPasswordButton": "Olvide mi contrasena",
+    "createAccountButton": "Crear nueva cuenta"
   },
   "signup": {
     "title": "Regístrate para continuar.",
@@ -38,7 +46,14 @@
     "passwordPlaceholder": "Ingresa tu contraseña",
     "showPassword": "Mostrar contraseña",
     "hidePassword": "Ocultar contraseña",
-    "submit": "Registrarse"
+    "submit": "Registrarse",
+    "confirmPassword": "Confirmar contrasena",
+    "confirmPasswordPlaceholder": "Escribe de nuevo tu contrasena",
+    "passwordMismatch": "Las contrasenas no coinciden.",
+    "submitPending": "Creando cuenta...",
+    "haveAccount": "Ya tienes cuenta?",
+    "goToLogin": "Iniciar sesion",
+    "haveAccountButton": "Ya tengo una cuenta"
   },
   "emailVerification": {
     "title": "Verifica tu correo",
@@ -48,7 +63,9 @@
     "code": "Codigo de verificacion",
     "codePlaceholder": "Codigo de 6 digitos",
     "verifyButton": "Verificar cuenta",
-    "resendButton": "Reenviar codigo"
+    "resendButton": "Reenviar codigo",
+    "missingEmail": "Falta el correo. Regresa a registro e intenta de nuevo.",
+    "backToSignup": "Volver a registro"
   },
   "nav": {
     "dashboard": "Inicio",
@@ -266,5 +283,30 @@
     "deleteConfirm": "Seguro que quieres eliminar este caso de prueba?",
     "uploading": "Subiendo...",
     "addTestCaseAction": "Agregar caso de prueba"
+  },
+  "forgotPassword": {
+    "title": "Recuperar cuenta",
+    "subtitle": "Escribe tu correo y te enviaremos un codigo para restablecer tu contrasena.",
+    "email": "Correo electronico",
+    "emailPlaceholder": "Ingresa tu correo electronico",
+    "submit": "Enviar codigo",
+    "submitPending": "Enviando..."
+  },
+  "passwordReset": {
+    "title": "Restablecer contrasena",
+    "subtitle": "Ingresa el codigo de 6 digitos y define tu nueva contrasena.",
+    "sentSuccess": "Te enviamos un codigo de recuperacion a tu correo.",
+    "email": "Correo electronico",
+    "code": "Codigo",
+    "codePlaceholder": "Codigo de 6 digitos",
+    "newPassword": "Nueva contrasena",
+    "newPasswordPlaceholder": "Ingresa nueva contrasena",
+    "confirmPassword": "Confirmar nueva contrasena",
+    "confirmPasswordPlaceholder": "Escribe de nuevo la contrasena",
+    "submit": "Actualizar contrasena",
+    "submitPending": "Actualizando...",
+    "resendButton": "Reenviar codigo",
+    "missingEmail": "Falta el correo. Vuelve y solicita un codigo primero.",
+    "backToLogin": "Volver a iniciar sesion"
   }
 }
