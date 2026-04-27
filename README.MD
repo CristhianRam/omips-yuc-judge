@@ -10,7 +10,7 @@ Este sistema permite:
 - Calificar en tiempo real.
 
 ---
-live on: 
+live on: https://omips.matematicas.uady.mx/
 
 ## 🧠 Arquitectura General
 
@@ -74,7 +74,7 @@ cd NOMBRE-DEL-REPO
 
 ### Configurar variables de entorno
 
-Crear archivo `.env` basado en `.env.template`:
+Crear archivo `.env` en /frontend y /backend usando los ejemplos. 
 
 ---
 
@@ -145,6 +145,7 @@ docker compose down
 ### Infraestructura
 - Docker
 - Docker Compose
+- github Actions
 
 ---
 
@@ -176,7 +177,6 @@ Facilitando:
 - Práctica continua
 
 ---
-# CD AND CI
 
 ## 👨‍💻 Autores
 
@@ -188,5 +188,8 @@ Miembro del Competitive Programming Club UADY
 Estudiante & Desarrollador Fullstack  
 Miembro del Competitive Programming Club UADY  
 
-## collaborators
-** Yahir
+## Collaborators
+**Manual Yahir**
+Estudiante & Desaroolador Fullstack
+Miembro del Competitive Programming Club UADY
+
