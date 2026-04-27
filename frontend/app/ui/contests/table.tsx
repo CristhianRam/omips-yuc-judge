@@ -6,7 +6,7 @@
 
 import { fetchContests } from '@/app/lib/data';
 import { Link } from '@/i18n/navigation';
-import { ChevronRight, Trophy } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import clsx from 'clsx';
 import { getLocale, getTranslations } from 'next-intl/server';
 
@@ -73,7 +73,12 @@ export default async function ContestsTable({
                         {contests?.map((contest) => {
                             const status = getContestStatus(contest);
                             return (
-                                <div key={contest.id} className="mb-2 w-full rounded-md bg-white p-4">
+                                <Link
+                                    key={contest.id}
+                                    href={`/dashboard/contests/${contest.id}`}
+                                    aria-label={`${tc('view')}: ${contest.title}`}
+                                    className="mb-2 block w-full rounded-md bg-white p-4 transition-colors hover:bg-gray-50"
+                                >
                                     <div className="flex items-center justify-between border-b pb-4">
                                         <div className="min-w-0">
                                             <p className="truncate text-sm font-medium">{contest.title}</p>
@@ -91,14 +96,8 @@ export default async function ContestsTable({
                                                 </span>
                                             )}
                                         </div>
-                                        <Link
-                                            href={`/dashboard/contests/${contest.id}`}
-                                            className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline"
-                                        >
-                                            {tc('view')} <ChevronRight size={16} />
-                                        </Link>
                                     </div>
-                                </div>
+                                </Link>
                             );
                         })}
                     </div>
@@ -121,55 +120,71 @@ export default async function ContestsTable({
                                 <th scope="col" className="px-3 py-5 font-medium">
                                     {t('registration')}
                                 </th>
-                                <th scope="col" className="relative py-3 pl-3 pr-4 sm:pr-6">
-                                    <span className="sr-only">{tc('actions')}</span>
-                                </th>
                             </tr>
                         </thead>
                         <tbody className="bg-white">
                             {contests?.map((contest) => {
                                 const status = getContestStatus(contest);
+                                const contestHref = `/dashboard/contests/${contest.id}`;
                                 return (
                                     <tr
                                         key={contest.id}
-                                        className="w-full border-b py-3 text-sm last-of-type:border-none hover:bg-gray-50"
+                                        className="w-full border-b text-sm last-of-type:border-none hover:bg-gray-50"
                                     >
-                                        <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                                            <div className="flex items-center gap-3">
+                                        <td className="whitespace-nowrap pl-6 pr-3">
+                                            <Link
+                                                href={contestHref}
+                                                aria-label={`${tc('view')}: ${contest.title}`}
+                                                className="flex w-full items-center gap-3 py-3"
+                                            >
                                                 <Trophy className="h-5 w-5 text-amber-500" />
                                                 <p className="max-w-[18rem] truncate font-bold">{contest.title}</p>
-                                            </div>
+                                            </Link>
                                         </td>
-                                        <td className="whitespace-nowrap px-3 py-3">
-                                            <StatusBadge status={status} label={statusLabels[status]} />
-                                        </td>
-                                        <td className="whitespace-nowrap px-3 py-3 text-sm">
-                                            {formatDate(contest.start_date, locale)}
-                                        </td>
-                                        <td className="whitespace-nowrap px-3 py-3 text-sm">
-                                            {contest.end_date ? formatDate(contest.end_date, locale) : '-'}
-                                        </td>
-                                        <td className="whitespace-nowrap px-3 py-3">
-                                            <span
-                                                className={clsx(
-                                                    'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
-                                                    contest.open
-                                                        ? 'bg-green-50 text-green-700'
-                                                        : 'bg-red-50 text-red-700',
-                                                )}
+                                        <td className="whitespace-nowrap px-3">
+                                            <Link
+                                                href={contestHref}
+                                                aria-label={`${tc('view')}: ${contest.title}`}
+                                                className="block w-full py-3"
                                             >
-                                                {contest.open ? t('open') : t('closed')}
-                                            </span>
+                                                <StatusBadge status={status} label={statusLabels[status]} />
+                                            </Link>
                                         </td>
-                                        <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                                            <div className="flex justify-end gap-3">
-                                                <Link
-                                                    href={`/dashboard/contests/${contest.id}`}
-                                                    className="mr-4 flex items-center gap-1 font-medium text-blue-600 hover:underline"
+                                        <td className="whitespace-nowrap px-3 text-sm">
+                                            <Link
+                                                href={contestHref}
+                                                aria-label={`${tc('view')}: ${contest.title}`}
+                                                className="block w-full py-3"
+                                            >
+                                                {formatDate(contest.start_date, locale)}
+                                            </Link>
+                                        </td>
+                                        <td className="whitespace-nowrap px-3 text-sm">
+                                            <Link
+                                                href={contestHref}
+                                                aria-label={`${tc('view')}: ${contest.title}`}
+                                                className="block w-full py-3"
+                                            >
+                                                {contest.end_date ? formatDate(contest.end_date, locale) : '-'}
+                                            </Link>
+                                        </td>
+                                        <td className="whitespace-nowrap px-3">
+                                            <Link
+                                                href={contestHref}
+                                                aria-label={`${tc('view')}: ${contest.title}`}
+                                                className="block w-full py-3"
+                                            >
+                                                <span
+                                                    className={clsx(
+                                                        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
+                                                        contest.open
+                                                            ? 'bg-green-50 text-green-700'
+                                                            : 'bg-red-50 text-red-700',
+                                                    )}
                                                 >
-                                                    {tc('view')} <ChevronRight size={16} />
-                                                </Link>
-                                            </div>
+                                                    {contest.open ? t('open') : t('closed')}
+                                                </span>
+                                            </Link>
                                         </td>
                                     </tr>
                                 );

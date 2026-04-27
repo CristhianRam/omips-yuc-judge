@@ -6,7 +6,7 @@
 
 import { fetchProblems } from "@/app/lib/data";
 import { Link } from '@/i18n/navigation';
-import { ChevronRight, Code2 } from "lucide-react";
+import { Code2 } from "lucide-react";
 import clsx from 'clsx'
 import { UpdateProblem, DeleteProblem } from "./buttons";
 import { getTranslations } from 'next-intl/server';
@@ -24,6 +24,7 @@ export default async function ProblemsTable({
 }) {
   const problems = await fetchProblems(query, currentPage, difficulty);
   const t = await getTranslations('problems');
+  const isCoachOrAdmin = role === 'admin' || role === 'coach';
 
   return (
     <div className="mt-6 flow-root">
@@ -31,7 +32,17 @@ export default async function ProblemsTable({
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
           <div className="md:hidden">
             {problems?.map((problem) => (
-              <div key={problem.id} className="mb-2 w-full rounded-md bg-white p-4">
+              <div
+                key={problem.id}
+                className="relative mb-2 w-full rounded-md bg-white p-4 transition-colors hover:bg-gray-50"
+              >
+                <Link
+                  href={`/dashboard/problems/${problem.id}`}
+                  aria-label={`${t('solve')}: ${problem.title}`}
+                  className="absolute inset-0 z-10 rounded-md"
+                >
+                  <span className="sr-only">{t('solve')}</span>
+                </Link>
                 <div className="flex items-start justify-between gap-3 border-b pb-4">
                   <div>
                     <p className="text-sm font-medium break-words">{problem.title}</p>
@@ -39,22 +50,14 @@ export default async function ProblemsTable({
                   </div>
                   <DifficultyBadge difficulty={problem.difficulty} />
                 </div>
-                <div className="flex w-full items-center justify-between pt-4">
-                  <div>
-                    <Link
-                      href={`/dashboard/problems/${problem.id}`}
-                      className="flex items-center gap-1 text-blue-600 font-medium hover:underline text-sm"
-                    >
-                      {t('solve')} <ChevronRight size={16} />
-                    </Link>
-                  </div>
-                  {(role === 'admin' || role === 'coach') && (
+                {isCoachOrAdmin && (
+                  <div className="relative z-20 flex w-full justify-end pt-4">
                     <div className="flex justify-end gap-2">
                       <UpdateProblem id={problem.id} />
                       <DeleteProblem id={problem.id} />
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -64,42 +67,52 @@ export default async function ProblemsTable({
                 <th scope="col" className="px-4 py-5 font-medium sm:pl-6">{t('problem')}</th>
                 <th scope="col" className="px-3 py-5 font-medium">{t('difficulty')}</th>
                 <th scope="col" className="px-3 py-5 font-medium">{t('timeMemory')}</th>
-                <th scope="col" className="relative py-3 pl-3 pr-4 sm:pr-6">
-                  <span className="sr-only">Actions</span>
-                </th>
+                {isCoachOrAdmin && (
+                  <th scope="col" className="relative py-3 pl-3 pr-4 sm:pr-6">
+                    <span className="sr-only">Actions</span>
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="bg-white">
               {problems?.map((problem) => (
-                <tr key={problem.id} className="w-full border-b py-3 text-sm last-of-type:border-none hover:bg-gray-50">
-                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    <div className="flex items-center gap-3">
+                <tr key={problem.id} className="w-full border-b text-sm last-of-type:border-none hover:bg-gray-50">
+                  <td className="whitespace-nowrap pl-6 pr-3">
+                    <Link
+                      href={`/dashboard/problems/${problem.id}`}
+                      aria-label={`${t('solve')}: ${problem.title}`}
+                      className="flex w-full items-center gap-3 py-3"
+                    >
                       <Code2 className="w-5 h-5 text-gray-400" />
                       <p className="font-bold">{problem.title}</p>
-                    </div>
+                    </Link>
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    <DifficultyBadge difficulty={problem.difficulty} />
+                  <td className="whitespace-nowrap px-3">
+                    <Link
+                      href={`/dashboard/problems/${problem.id}`}
+                      aria-label={`${t('solve')}: ${problem.title}`}
+                      className="block w-full py-3"
+                    >
+                      <DifficultyBadge difficulty={problem.difficulty} />
+                    </Link>
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    {problem.time_limit_ms}ms / {problem.memory_limit_mb}MB
+                  <td className="whitespace-nowrap px-3">
+                    <Link
+                      href={`/dashboard/problems/${problem.id}`}
+                      aria-label={`${t('solve')}: ${problem.title}`}
+                      className="block w-full py-3"
+                    >
+                      {problem.time_limit_ms}ms / {problem.memory_limit_mb}MB
+                    </Link>
                   </td>
-                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    <div className="flex justify-end gap-3">
-                      <Link
-                        href={`/dashboard/problems/${problem.id}`}
-                        className="flex items-center gap-1 text-blue-600 font-medium hover:underline mr-4"
-                      >
-                        {t('solve')} <ChevronRight size={16} />
-                      </Link>
-                      {(role === 'admin' || role === 'coach') && (
-                        <>
-                          <UpdateProblem id={problem.id} />
-                          <DeleteProblem id={problem.id} />
-                        </>
-                      )}
-                    </div>
-                  </td>
+                  {isCoachOrAdmin && (
+                    <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                      <div className="flex justify-end gap-3">
+                        <UpdateProblem id={problem.id} />
+                        <DeleteProblem id={problem.id} />
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
